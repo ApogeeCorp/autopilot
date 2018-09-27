@@ -1,19 +1,6 @@
-// 
-//  MODEL ROCKET LLC CONFIDENTIAL
-//  _________________
-//   Copyright (c) 2018 - 2019 MODEL ROCKET LLC
-//   All Rights Reserved.
-// 
-//   NOTICE:  All information contained herein is, and remains
-//   the property of MODEL ROCKET LLC and its suppliers,
-//   if any.  The intellectual and technical concepts contained
-//   herein are proprietary to MODEL ROCKET LLC
-//   and its suppliers and may be covered by U.S. and Foreign Patents,
-//   patents in process, and are protected by trade secret or copyright law.
-//   Dissemination of this information or reproduction of this material
-//   is strictly forbidden unless prior written permission is obtained
-//   from MODEL ROCKET LLC.
-// 
+// Copyright 2018 Portworx Inc. All rights reserved.
+// Use of this source code is governed by the Apache 2.0
+// license that can be found in the LICENSE file.
 
 package autopilot
 
