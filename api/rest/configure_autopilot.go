@@ -23,6 +23,7 @@ import (
 	sparks "gitlab.com/ModelRocket/sparks/types"
 
 	"github.com/libopenstorage/autopilot/api/rest/operations"
+	"github.com/libopenstorage/autopilot/internal/autopilot"
 )
 
 type contextKey string
