@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	prometheus "gitlab.com/ModelRocket/portworx/autopilot/telemetry/providers/prometheus"
+	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 )
 
 func main() {

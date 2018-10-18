@@ -7,4 +7,6 @@ package telemetry
 
 // Provider is the telemetry provider interface
 type Provider interface {
+	Name() string
+	Init(params map[string]string) error
 }

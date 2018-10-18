@@ -4,3 +4,6 @@
 
 // Package config provides the configuration structures used in the autopilot
 package config
+
+type Config struct {
+}
