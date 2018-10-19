@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/kr/pretty"
 )
 
 const (
@@ -55,7 +57,9 @@ type (
 	Result struct {
 		Metric Metric `json:"metric"`
 		// Value is [timestamp, value] such as "value": [1231231233.232, "0"], its mixed type
-		Value []interface{} `json:"value"`
+		Value []interface{} `json:"value,omitempty"`
+		// Values is for range queries its an array of Value above
+		Values [][]interface{} `json:"values,omitempty"`
 	}
 
 	// ClusterResults is the complete set of metrics for the cluster
@@ -117,15 +121,29 @@ func NewCSVMetrics() *CSVMetrics {
 	}
 }
 
+/* JNT - Im not sure how to do this, what I want to do is handle the goofy structure here that has Value or Values,
+ * if its Value I want to make it Values: [Value]
+func (cr *ClusterResults) UnmarsalJSON(b []byte) error {
+	var f interface{}
+	if err := json.Unmarshal(b, &f); err != nil {
+		return err
+	}
+	m := f.(map[string]interface{})
+
+	cr.Status =
+
+}
+*/
+
 // NewAlertRow Create a new AlertRow
-func NewAlertRow(csvRow CSVRow, result *Result) *AlertRow {
+func NewAlertRow(csvRow CSVRow, result *Result, value string) *AlertRow {
 	return &AlertRow{
 		csvRow:        csvRow,
 		AlertName:     *result.Metric.AlertName,
 		AlertState:    *result.Metric.AlertState,
 		AlertSeverity: *result.Metric.AlertSeverity,
 		AlertIssue:    *result.Metric.AlertIssue,
-		AlertValue:    result.Value[1].(string),
+		AlertValue:    value,
 	}
 }
 
@@ -222,70 +240,80 @@ func TransformToRows(results *ClusterResults) (timeseries map[CSVRow]*CSVMetrics
 	timeseries = make(map[CSVRow]*CSVMetrics)
 
 	for _, result := range results.Data.Results {
-		csvRow := CSVRow{
-			Timestamp: uint32(result.Value[0].(float64)),
-			Cluster:   result.Metric.Cluster,
-			Instance:  result.Metric.Instance,
-			Node:      result.Metric.Node,
+		var values [][]interface{}
+		values = result.Values
+		if result.Values == nil {
+			values = append(values, result.Value)
 		}
-		csvMetrics, ok := timeseries[csvRow]
-		if !ok {
-			csvMetrics = new(CSVMetrics)
-			timeseries[csvRow] = csvMetrics
-		}
-		if result.Metric.Name == Alerts {
-			alert := NewAlertRow(csvRow, &result)
-			alerts = append(alerts, alert)
-		} else if result.Metric.Volume != nil {
-			if csvMetrics.Volume == nil {
-				csvMetrics.Volume = make(map[string]map[string]string)
+		for _, value := range values {
+			csvRow := CSVRow{
+				Timestamp: uint32(value[0].(float64)),
+				Cluster:   result.Metric.Cluster,
+				Instance:  result.Metric.Instance,
+				Node:      result.Metric.Node,
 			}
-			if csvMetrics.Volume[*result.Metric.Volume] == nil {
-				csvMetrics.Volume[*result.Metric.Volume] = make(map[string]string)
+			// fmt.Println(csvRow)
+			csvMetrics, ok := timeseries[csvRow]
+			if !ok {
+				csvMetrics = new(CSVMetrics)
+				timeseries[csvRow] = csvMetrics
 			}
-			csvMetrics.Volume[*result.Metric.Volume][result.Metric.Name] = result.Value[1].(string)
-		} else if result.Metric.Disk != nil {
-			if csvMetrics.Disk == nil {
-				csvMetrics.Disk = make(map[string]map[string]string)
+			if result.Metric.Name == Alerts {
+				fmt.Printf(" RESULTS %# v\n", pretty.Formatter(result))
+
+				alert := NewAlertRow(csvRow, &result, value[1].(string))
+				alerts = append(alerts, alert)
+			} else if result.Metric.Volume != nil {
+				if csvMetrics.Volume == nil {
+					csvMetrics.Volume = make(map[string]map[string]string)
+				}
+				if csvMetrics.Volume[*result.Metric.Volume] == nil {
+					csvMetrics.Volume[*result.Metric.Volume] = make(map[string]string)
+				}
+				csvMetrics.Volume[*result.Metric.Volume][result.Metric.Name] = value[1].(string)
+			} else if result.Metric.Disk != nil {
+				if csvMetrics.Disk == nil {
+					csvMetrics.Disk = make(map[string]map[string]string)
+				}
+				if csvMetrics.Disk[*result.Metric.Disk] == nil {
+					csvMetrics.Disk[*result.Metric.Disk] = make(map[string]string)
+				}
+				csvMetrics.Disk[*result.Metric.Disk][result.Metric.Name] = value[1].(string)
+			} else if result.Metric.Pool != nil {
+				if csvMetrics.Pool == nil {
+					csvMetrics.Pool = make(map[string]map[string]string)
+				}
+				if csvMetrics.Pool[*result.Metric.Pool] == nil {
+					csvMetrics.Pool[*result.Metric.Pool] = make(map[string]string)
+				}
+				csvMetrics.Pool[*result.Metric.Pool][result.Metric.Name] = value[1].(string)
+			} else if result.Metric.Proc != nil {
+				if csvMetrics.Proc == nil {
+					csvMetrics.Proc = make(map[string]map[string]string)
+				}
+				if csvMetrics.Proc[*result.Metric.Proc] == nil {
+					csvMetrics.Proc[*result.Metric.Proc] = make(map[string]string)
+				}
+				csvMetrics.Proc[*result.Metric.Proc][result.Metric.Name] = value[1].(string)
+			} else if strings.HasPrefix(result.Metric.Name, "px_cluster_") == true {
+				if csvMetrics.Cluster == nil {
+					csvMetrics.Cluster = make(map[string]map[string]string)
+				}
+				if csvMetrics.Cluster[result.Metric.Cluster] == nil {
+					csvMetrics.Cluster[result.Metric.Cluster] = make(map[string]string)
+				}
+				csvMetrics.Cluster[result.Metric.Cluster][result.Metric.Name] = value[1].(string)
+				// the px_node_status_<node_id>_status is ambigious, this will be fixed later so lets just ignore it
+				//		} else if strings.HasPrefix(result.Metric.Name, "px_node_") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
+			} else if strings.HasPrefix(result.Metric.Name, "px_node_stats") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
+				if csvMetrics.Node == nil {
+					csvMetrics.Node = make(map[string]map[string]string)
+				}
+				if csvMetrics.Node[result.Metric.Node] == nil {
+					csvMetrics.Node[result.Metric.Node] = make(map[string]string)
+				}
+				csvMetrics.Node[result.Metric.Node][result.Metric.Name] = value[1].(string)
 			}
-			if csvMetrics.Disk[*result.Metric.Disk] == nil {
-				csvMetrics.Disk[*result.Metric.Disk] = make(map[string]string)
-			}
-			csvMetrics.Disk[*result.Metric.Disk][result.Metric.Name] = result.Value[1].(string)
-		} else if result.Metric.Pool != nil {
-			if csvMetrics.Pool == nil {
-				csvMetrics.Pool = make(map[string]map[string]string)
-			}
-			if csvMetrics.Pool[*result.Metric.Pool] == nil {
-				csvMetrics.Pool[*result.Metric.Pool] = make(map[string]string)
-			}
-			csvMetrics.Pool[*result.Metric.Pool][result.Metric.Name] = result.Value[1].(string)
-		} else if result.Metric.Proc != nil {
-			if csvMetrics.Proc == nil {
-				csvMetrics.Proc = make(map[string]map[string]string)
-			}
-			if csvMetrics.Proc[*result.Metric.Proc] == nil {
-				csvMetrics.Proc[*result.Metric.Proc] = make(map[string]string)
-			}
-			csvMetrics.Proc[*result.Metric.Proc][result.Metric.Name] = result.Value[1].(string)
-		} else if strings.HasPrefix(result.Metric.Name, "px_cluster_") == true {
-			if csvMetrics.Cluster == nil {
-				csvMetrics.Cluster = make(map[string]map[string]string)
-			}
-			if csvMetrics.Cluster[result.Metric.Cluster] == nil {
-				csvMetrics.Cluster[result.Metric.Cluster] = make(map[string]string)
-			}
-			csvMetrics.Cluster[result.Metric.Cluster][result.Metric.Name] = result.Value[1].(string)
-			// the px_node_status_<node_id>_status is ambigious, this will be fixed later so lets just ignore it
-			//		} else if strings.HasPrefix(result.Metric.Name, "px_node_") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
-		} else if strings.HasPrefix(result.Metric.Name, "px_node_stats") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
-			if csvMetrics.Node == nil {
-				csvMetrics.Node = make(map[string]map[string]string)
-			}
-			if csvMetrics.Node[result.Metric.Node] == nil {
-				csvMetrics.Node[result.Metric.Node] = make(map[string]string)
-			}
-			csvMetrics.Node[result.Metric.Node][result.Metric.Name] = result.Value[1].(string)
 		}
 	}
 	return timeseries, alerts

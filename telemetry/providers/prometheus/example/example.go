@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// reading data from JSON File
-	data, err := ioutil.ReadFile("./prometheus.json")
+	data, err := ioutil.ReadFile("./prometheus_day_6h.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -20,8 +20,10 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	//fmt.Printf(" RESULTS %# v\n", pretty.Formatter(results))
 
 	timeseries, alerts := prometheus.TransformToRows(&results)
+	//fmt.Printf("TimeSeries Length %# v", pretty.Formatter(timeseries))
 
 	prometheus.WriteCSV(timeseries, prometheus.Volume)
 	prometheus.WriteCSV(timeseries, prometheus.Disk)
