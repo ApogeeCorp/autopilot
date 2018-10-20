@@ -65,7 +65,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:   "args,a",
-					Usage:  "The provider args in the format 'arg1=val1;arg2=val2'",
+					Usage:  "The provider args in the format 'arg1=val1&arg2=val2'",
 					EnvVar: "PROVIDER_ARGS",
 				},
 				cli.StringFlag{
