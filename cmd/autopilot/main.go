@@ -5,18 +5,20 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/urfave/cli"
+
+	sparks "gitlab.com/ModelRocket/sparks/util"
 )
 
 var (
-	log    = logrus.New()
-	config = viper.New()
+	log = logrus.New()
 )
 
 func main() {
@@ -45,16 +47,37 @@ func main() {
 	app.Version = "0.0.1"
 	app.Usage = "Generate recommendations from Prometheus metrics"
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "config,f",
-			Usage:  "The path to the configuration file",
-			EnvVar: "CONFIG_FILE",
+	app.Commands = []cli.Command{
+		{
+			Name:  "collect",
+			Usage: "Collect telemetry data from the provider",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "provider,p",
+					Usage:  "The telemetery provider to use to collect data",
+					EnvVar: "PROVIDER",
+					Value:  "prometheus",
+				},
+				// http://70.0.69.141:9090/api/v1/query_range?query={cluster=%22greatdane-1914e166dc7%22}&start=2018-10-17T00:00:00.0Z&end=2018-10-18T00:00:00.0Z&step=15m
+				cli.StringFlag{
+					Name:   "url,u",
+					Usage:  "The base URL for the telemetry provider",
+					EnvVar: "PROVIDER_URL",
+				},
+				cli.StringFlag{
+					Name:   "args,a",
+					Usage:  "The provider args in the format 'arg1=val1;arg2=val2'",
+					EnvVar: "PROVIDER_ARGS",
+				},
+				cli.StringFlag{
+					Name:   "out,o",
+					Usage:  "The output directory",
+					EnvVar: "PROVIDER_OUT",
+				},
+			},
+			Action: collect,
 		},
 	}
-
-	app.Before = loadConfig
-	app.Action = run
 
 	err := app.Run(os.Args)
 	if err != nil {
@@ -62,17 +85,35 @@ func main() {
 	}
 }
 
-func loadConfig(c *cli.Context) error {
-	if c.Command.FullName() == "help" {
-		return nil
+func collect(c *cli.Context) error {
+	urlParam := c.String("url")
+	if urlParam == "" {
+		return errors.New("missing url parameter")
 	}
-	if c.String("config") == "" {
-		return fmt.Errorf("missing config parameter")
+	outParam := c.String("out")
+	if outParam == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		outParam = wd + "/out"
 	}
-	return nil
-}
+	if err := os.MkdirAll(outParam, 0700); err != nil {
+		return err
+	}
 
-func run(c *cli.Context) error {
+	// Parse the args into a map
+	args := sparks.KVMap(c.String("args"))
 
-	return nil
+	switch c.String("provider") {
+	case "prometheus":
+		prom := prometheus.Prometheus{
+			URL: urlParam,
+			Log: log,
+		}
+
+		return prom.Collect(args, outParam)
+	default:
+		return errors.New("invalid provider")
+	}
 }

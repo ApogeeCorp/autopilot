@@ -22,15 +22,18 @@ func main() {
 	}
 	//fmt.Printf(" RESULTS %# v\n", pretty.Formatter(results))
 
-	timeseries, alerts := prometheus.TransformToRows(&results)
+	//p := &prometheus.Prometheus{}
+
+	//timeseries, alerts := p.TransformToRows(&results)
 	//fmt.Printf("TimeSeries Length %# v", pretty.Formatter(timeseries))
+	/*
+		p.WriteCSV(timeseries, prometheus.Volume)
+		p.WriteCSV(timeseries, prometheus.Disk)
+		p.WriteCSV(timeseries, prometheus.Pool)
+		p.WriteCSV(timeseries, prometheus.Proc)
+		p.WriteCSV(timeseries, prometheus.Cluster)
+		p.WriteCSV(timeseries, prometheus.Node)
 
-	prometheus.WriteCSV(timeseries, prometheus.Volume)
-	prometheus.WriteCSV(timeseries, prometheus.Disk)
-	prometheus.WriteCSV(timeseries, prometheus.Pool)
-	prometheus.WriteCSV(timeseries, prometheus.Proc)
-	prometheus.WriteCSV(timeseries, prometheus.Cluster)
-	prometheus.WriteCSV(timeseries, prometheus.Node)
-
-	prometheus.WriteAlertCSV(alerts)
+		p.WriteAlertCSV(alerts)
+	*/
 }

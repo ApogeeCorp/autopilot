@@ -2,13 +2,17 @@ package prometheus
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/kr/pretty"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -107,6 +111,12 @@ type (
 		AlertIssue    string
 		AlertValue    string
 	}
+
+	// Prometheus defines the prometheus provider
+	Prometheus struct {
+		URL string
+		Log *logrus.Logger
+	}
 )
 
 // NewCSVMetrics constructor to initialize internal maps
@@ -156,8 +166,80 @@ func Keys(m map[string]string) (keys []string) {
 	return keys
 }
 
+// Collect implements the provider interface
+func (p *Prometheus) Collect(params map[string]string, stagingPath string) error {
+	endDate := time.Now()
+	startDate := endDate.Add(time.Hour * -24)
+	step := "15m"
+	query := ""
+
+	if endParam, ok := params["end"]; ok {
+		tmp, err := time.Parse(time.RFC3339, endParam)
+		if err != nil {
+			return err
+		}
+		endDate = tmp
+	}
+	if startParam, ok := params["start"]; ok {
+		tmp, err := time.Parse(time.RFC3339, startParam)
+		if err != nil {
+			return err
+		}
+		startDate = tmp
+	}
+	if stepParam, ok := params["step"]; ok {
+		step = stepParam
+	}
+	if queryParam, ok := params["query"]; ok {
+		query = queryParam
+	}
+
+	client := &http.Client{}
+
+	req, _ := http.NewRequest("GET", p.URL+"/query_range", nil)
+
+	q := req.URL.Query()
+
+	q.Add("query", query)
+	q.Add("start", startDate.Format(time.RFC3339))
+	q.Add("end", endDate.Format(time.RFC3339))
+	q.Add("step", step)
+
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	results := ClusterResults{}
+	err = json.Unmarshal(data, &results)
+	if err != nil {
+		return err
+	}
+
+	timeseries, alerts := p.TransformToRows(&results)
+	//fmt.Printf("TimeSeries Length %# v", pretty.Formatter(timeseries))
+
+	base := fmt.Sprintf("%s/prometheus", stagingPath)
+
+	p.WriteCSV(timeseries, base, Volume)
+	p.WriteCSV(timeseries, base, Disk)
+	p.WriteCSV(timeseries, base, Pool)
+	p.WriteCSV(timeseries, base, Proc)
+	p.WriteCSV(timeseries, base, Cluster)
+	p.WriteCSV(timeseries, base, Node)
+	p.WriteAlertCSV(base, alerts)
+
+	return nil
+}
+
 // CreateCSVRows creates the rows for a particular MAP in the CSVMetrics
-func CreateCSVRows(br CSVRow, m map[string]map[string]string, label string) (rows [][]string, rowHeaders []string) {
+func (p *Prometheus) CreateCSVRows(br CSVRow, m map[string]map[string]string, label string) (rows [][]string, rowHeaders []string) {
 	for rowKey, rowValue := range m {
 		var row = []string{strconv.FormatUint(uint64(br.Timestamp), 10), br.Cluster, br.Instance, br.Node}
 		var rowHeader = []string{Timestamp, Cluster, Instance, Node}
@@ -177,10 +259,10 @@ func CreateCSVRows(br CSVRow, m map[string]map[string]string, label string) (row
 }
 
 // WriteCSV for a particular metric category, create the CSV file
-func WriteCSV(timeSeries map[CSVRow]*CSVMetrics, name string) {
-	f, err := os.Create("./" + name + ".csv")
+func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name string) {
+	f, err := os.Create(base + "-" + name + ".csv")
 	if err != nil {
-		fmt.Println("Error Creating File", name, err)
+		p.Log.Fatalln("Error Creating File", name, err)
 	}
 
 	defer f.Close()
@@ -204,7 +286,7 @@ func WriteCSV(timeSeries map[CSVRow]*CSVMetrics, name string) {
 			m = bm.Cluster
 		}
 
-		csvRows, csvHeader := CreateCSVRows(br, m, name)
+		csvRows, csvHeader := p.CreateCSVRows(br, m, name)
 		if wroteHeader == false {
 			w.Write(csvHeader)
 			wroteHeader = true
@@ -217,10 +299,10 @@ func WriteCSV(timeSeries map[CSVRow]*CSVMetrics, name string) {
 }
 
 // WriteAlertCSV for the alerts csv
-func WriteAlertCSV(alerts []*AlertRow) {
-	f, err := os.Create("./Alerts.csv")
+func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) {
+	f, err := os.Create(base + "-alerts.csv")
 	if err != nil {
-		fmt.Println("Error Creating Alerts File", err)
+		p.Log.Fatalln("Error Creating Alerts File", err)
 	}
 
 	defer f.Close()
@@ -235,7 +317,7 @@ func WriteAlertCSV(alerts []*AlertRow) {
 }
 
 // TransformToRows takes the Prometheus API Calls ClusterResults and flattens it to the structure that can exported as CSV
-func TransformToRows(results *ClusterResults) (timeseries map[CSVRow]*CSVMetrics, alerts []*AlertRow) {
+func (p *Prometheus) TransformToRows(results *ClusterResults) (timeseries map[CSVRow]*CSVMetrics, alerts []*AlertRow) {
 	// Go through the results for the cluster and generate the appropriate CSV files
 	timeseries = make(map[CSVRow]*CSVMetrics)
 
@@ -259,7 +341,7 @@ func TransformToRows(results *ClusterResults) (timeseries map[CSVRow]*CSVMetrics
 				timeseries[csvRow] = csvMetrics
 			}
 			if result.Metric.Name == Alerts {
-				fmt.Printf(" RESULTS %# v\n", pretty.Formatter(result))
+				//	fmt.Printf(" RESULTS %# v\n", pretty.Formatter(result))
 
 				alert := NewAlertRow(csvRow, &result, value[1].(string))
 				alerts = append(alerts, alert)
