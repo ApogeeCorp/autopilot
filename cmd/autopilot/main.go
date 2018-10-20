@@ -58,7 +58,6 @@ func main() {
 					EnvVar: "PROVIDER",
 					Value:  "prometheus",
 				},
-				// http://70.0.69.141:9090/api/v1/query_range?query={cluster=%22greatdane-1914e166dc7%22}&start=2018-10-17T00:00:00.0Z&end=2018-10-18T00:00:00.0Z&step=15m
 				cli.StringFlag{
 					Name:   "url,u",
 					Usage:  "The base URL for the telemetry provider",
@@ -103,7 +102,7 @@ func collect(c *cli.Context) error {
 	}
 
 	// Parse the args into a map
-	args := sparks.KVMap(c.String("args"))
+	args := sparks.KVMap(c.String("args"), "&")
 
 	switch c.String("provider") {
 	case "prometheus":
