@@ -87,10 +87,9 @@ type (
 
 	// CSVMetrics contain ALL the BaseAttributes for a row in the CSV Each map is keyed by the Name of the field (VolumeID, Disk, Pool, Proc)
 	// This probably could contain a map of maps of maps, but its becoming unreadable with that level of nesting.
+	// Cluster and Proc metrics each are node specific, so they will be located in the Node map
 	CSVMetrics struct {
-		// Cluster are the cluster based metrics keyed on cluster field
-		Cluster map[string]map[string]string
-		// Node are the node based metrics keyed on cluster field
+		// Node are the node based metrics keyed on node field
 		Node map[string]map[string]string
 		// Volume are the volume based metrics keyed on Volume field
 		Volume map[string]map[string]string
@@ -98,8 +97,6 @@ type (
 		Disk map[string]map[string]string
 		// Pool are the pool based metrics keyed on Pool field
 		Pool map[string]map[string]string
-		// Proc are the proc based metrics keyed on Proc field
-		Proc map[string]map[string]string
 	}
 
 	// AlertRow is a special type of metric that we use for the Output of the ML.  This is one of the predictors
@@ -122,12 +119,10 @@ type (
 // NewCSVMetrics constructor to initialize internal maps
 func NewCSVMetrics() *CSVMetrics {
 	return &CSVMetrics{
-		Cluster: make(map[string]map[string]string),
-		Node:    make(map[string]map[string]string),
-		Volume:  make(map[string]map[string]string),
-		Disk:    make(map[string]map[string]string),
-		Pool:    make(map[string]map[string]string),
-		Proc:    make(map[string]map[string]string),
+		Node:   make(map[string]map[string]string),
+		Volume: make(map[string]map[string]string),
+		Disk:   make(map[string]map[string]string),
+		Pool:   make(map[string]map[string]string),
 	}
 }
 
@@ -230,9 +225,7 @@ func (p *Prometheus) Collect(params map[string]string, stagingPath string) error
 	p.WriteCSV(timeseries, base, Volume)
 	p.WriteCSV(timeseries, base, Disk)
 	p.WriteCSV(timeseries, base, Pool)
-	p.WriteCSV(timeseries, base, Proc)
 	p.WriteCSV(timeseries, base, Cluster)
-	p.WriteCSV(timeseries, base, Node)
 	p.WriteAlertCSV(base, alerts)
 
 	return nil
@@ -274,16 +267,12 @@ func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name stri
 		var m map[string]map[string]string
 		if name == Volume {
 			m = bm.Volume
-		} else if name == Node {
-			m = bm.Node
 		} else if name == Disk {
 			m = bm.Disk
 		} else if name == Pool {
 			m = bm.Pool
-		} else if name == Proc {
-			m = bm.Proc
-		} else if name == Cluster {
-			m = bm.Cluster
+		} else if name == Node {
+			m = bm.Node
 		}
 
 		csvRows, csvHeader := p.CreateCSVRows(br, m, name)
@@ -370,24 +359,15 @@ func (p *Prometheus) TransformToRows(results *ClusterResults) (timeseries map[CS
 				}
 				csvMetrics.Pool[*result.Metric.Pool][result.Metric.Name] = value[1].(string)
 			} else if result.Metric.Proc != nil {
-				if csvMetrics.Proc == nil {
-					csvMetrics.Proc = make(map[string]map[string]string)
+				if csvMetrics.Node == nil {
+					csvMetrics.Node = make(map[string]map[string]string)
 				}
-				if csvMetrics.Proc[*result.Metric.Proc] == nil {
-					csvMetrics.Proc[*result.Metric.Proc] = make(map[string]string)
+				if csvMetrics.Node[result.Metric.Node] == nil {
+					csvMetrics.Node[result.Metric.Node] = make(map[string]string)
 				}
-				csvMetrics.Proc[*result.Metric.Proc][result.Metric.Name] = value[1].(string)
-			} else if strings.HasPrefix(result.Metric.Name, "px_cluster_") == true {
-				if csvMetrics.Cluster == nil {
-					csvMetrics.Cluster = make(map[string]map[string]string)
-				}
-				if csvMetrics.Cluster[result.Metric.Cluster] == nil {
-					csvMetrics.Cluster[result.Metric.Cluster] = make(map[string]string)
-				}
-				csvMetrics.Cluster[result.Metric.Cluster][result.Metric.Name] = value[1].(string)
-				// the px_node_status_<node_id>_status is ambigious, this will be fixed later so lets just ignore it
-				//		} else if strings.HasPrefix(result.Metric.Name, "px_node_") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
-			} else if strings.HasPrefix(result.Metric.Name, "px_node_stats") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true {
+				csvMetrics.Node[result.Metric.Node][*result.Metric.Proc+"_"+result.Metric.Name] = value[1].(string)
+			} else if strings.HasPrefix(result.Metric.Name, "px_node_stats") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true ||
+				strings.HasPrefix(result.Metric.Name, "px_cluster_") == true {
 				if csvMetrics.Node == nil {
 					csvMetrics.Node = make(map[string]map[string]string)
 				}
