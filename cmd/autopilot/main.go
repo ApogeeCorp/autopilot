@@ -84,6 +84,7 @@ func main() {
 	}
 }
 
+<<<<<<< Updated upstream
 func collect(c *cli.Context) error {
 	urlParam := c.String("url")
 	if urlParam == "" {
@@ -99,6 +100,12 @@ func collect(c *cli.Context) error {
 	}
 	if err := os.MkdirAll(outParam, 0700); err != nil {
 		return err
+=======
+func loadConfig(c *cli.Context) error {
+	if c.String("config") != "" {
+		config.SetConfigType("yaml")
+		config.Re
+>>>>>>> Stashed changes
 	}
 
 	// Parse the args into a map
