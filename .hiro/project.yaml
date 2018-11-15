@@ -1,0 +1,12 @@
+name: autopilot
+apis:
+  autopilot:
+    spec: api/swagger.yaml
+license:
+  owner: Portworx
+  type: Apache
+  header: |
+    Copyright 2018 Portworx Inc. All rights reserved.
+    Use of this source code is governed by the Apache 2.0
+    license that can be found in the LICENSE file at the 
+    root of this project.
