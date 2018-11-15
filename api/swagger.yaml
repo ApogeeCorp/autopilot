@@ -63,6 +63,37 @@ paths:
               message: "Internal server error"
           schema:
             $ref: "#/definitions/Error"
+  /collectors/{collector_id}:
+    get:
+      summary: "Get a list of telemetry collectors"
+      description: "Returns the request collected object"
+      operationId: "collectorGet"
+      parameters:
+      - name: "collector_id"
+        in: "path"
+        description: "The id of the collector"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Collector"
+        404:
+          description: "Not Found"
+          examples:
+            application/json:
+              message: "Probes Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Server Error"
+          examples:
+            application/json:
+              message: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
 securityDefinitions:
   basicAuth:
     type: "basic"
@@ -84,8 +115,8 @@ definitions:
         additionalProperties:
           type: "object"
           properties: {}
-    description: "A collector pulls data from a telemetry provider, parses, and reformats\
-      \ the data to be consumed by the autopilot engine.\n"
+    description: "A collector pulls data from a telemetry provider, parses, \nand\
+      \ reformats the data to be consumed by the autopilot engine.\n"
     example:
       provider: "prometheus"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
