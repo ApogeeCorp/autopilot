@@ -1,0 +1,137 @@
+---
+swagger: "2.0"
+info:
+  description: "libopenstorage autopilot API"
+  version: "1.0.0"
+  title: "autopilot"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+security:
+- basicAuth: []
+paths:
+  /collectors:
+    get:
+      summary: "Get a list of telemetry collectors"
+      description: "Returns an array of telemetry collectors defined in the system"
+      operationId: "collectorList"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Collector"
+        500:
+          description: "Server Error"
+          examples:
+            application/json:
+              message: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      summary: "Create a new telemetry collector"
+      description: "Create a new telemetry collector from the provided definition"
+      operationId: "collectorCreate"
+      parameters:
+      - in: "body"
+        name: "collector"
+        description: "The collector to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Collector"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/Collector"
+        400:
+          description: "Bad Request"
+          examples:
+            application/json:
+              message: "Missing collector name"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Server Error"
+          examples:
+            application/json:
+              message: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+securityDefinitions:
+  basicAuth:
+    type: "basic"
+definitions:
+  Collector:
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+        description: "The collector id"
+      provider:
+        type: "string"
+        description: "The telemetry provider for the collector"
+        enum:
+        - "prometheus"
+      params:
+        type: "object"
+        description: "json data object"
+        additionalProperties:
+          type: "object"
+          properties: {}
+    description: "A collector pulls data from a telemetry provider, parses, and reformats\
+      \ the data to be consumed by the autopilot engine.\n"
+    example:
+      provider: "prometheus"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      params:
+        key: "{}"
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+        description: "The error code"
+        x-nullable: true
+      message:
+        type: "string"
+        description: "The error message"
+      detail:
+        type: "object"
+        description: "The error details"
+        additionalProperties:
+          type: "string"
+        x-omitempty: true
+        x-nullable: true
+    description: "Common Error Model"
+responses:
+  NotFound:
+    description: "ResourceNotFound"
+    examples:
+      application/json:
+        message: "object not found"
+    schema:
+      $ref: "#/definitions/Error"
+  Unauthorized:
+    description: "Unauthorized"
+    examples:
+      application/json:
+        message: "access denied"
+    schema:
+      $ref: "#/definitions/Error"
+  BadRequest:
+    description: "BadRequest"
+    examples:
+      application/json:
+        message: "invalid parameter"
+    schema:
+      $ref: "#/definitions/Error"
+  ServerError:
+    description: "ServerError"
+    examples:
+      application/json:
+        message: "internal server error"
+    schema:
+      $ref: "#/definitions/Error"
