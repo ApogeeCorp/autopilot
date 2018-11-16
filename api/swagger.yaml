@@ -734,7 +734,7 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The sample id"
-      values:
+      proposals:
         type: "object"
         description: "The recommendation values mapping"
         additionalProperties:
@@ -744,9 +744,9 @@ definitions:
       \ sample set\n"
     example:
       sample_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      values:
-        key: "{}"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      proposals:
+        key: "{}"
   Error:
     type: "object"
     properties:
