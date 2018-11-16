@@ -544,6 +544,166 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
+  /rules:
+    get:
+      tags:
+      - "rule"
+      summary: "Get a list of telemetry rules"
+      description: "Returns an array of telemetry rules defined in the system"
+      operationId: "ruleList"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Rule"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "rule"
+      summary: "Create a new telemetry rule"
+      description: "Create a new telemetry rule from the provided definition"
+      operationId: "ruleCreate"
+      parameters:
+      - in: "body"
+        name: "rule"
+        description: "The rule to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Rule"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/Rule"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /rules/{rule_id}:
+    get:
+      tags:
+      - "rule"
+      summary: "Get a list of telemetry rules"
+      description: "Returns the request collected object"
+      operationId: "ruleGet"
+      parameters:
+      - name: "rule_id"
+        in: "path"
+        description: "The id of the rule"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Rule"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "rule"
+      summary: "Update a rule object"
+      description: "Update the properties of the specified rule"
+      operationId: "ruleUpdate"
+      parameters:
+      - name: "rule_id"
+        in: "path"
+        description: "The id of the rule"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "rule"
+        description: "The rule to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Rule"
+      responses:
+        204:
+          description: "No Content"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "rule"
+      summary: "Get a list of telemetry rules"
+      description: "Returns the request collected object"
+      operationId: "ruleDelete"
+      parameters:
+      - name: "rule_id"
+        in: "path"
+        description: "The id of the rule"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
   /tasks:
     get:
       tags:
@@ -743,6 +903,9 @@ definitions:
         type: "string"
         description: "The rule source data"
     description: "A rule is a yaml rule set to executed by the recommendation engine\n"
+    example:
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      source: "source"
   Recommendation:
     properties:
       id:
