@@ -899,6 +899,9 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The rule id"
+      description:
+        type: "string"
+        description: "the rule description"
       expr:
         type: "string"
         example: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
@@ -929,6 +932,7 @@ definitions:
       proposal: "Add additional storage node to {{$labels.cluster}}"
       issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
       for: 3600
+      description: "description"
       expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
   RuleSet:
@@ -949,6 +953,7 @@ definitions:
         issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is\
           \ high."
         for: 3600
+        description: "description"
         expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
         id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       - severity: "warning"
@@ -956,6 +961,7 @@ definitions:
         issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is\
           \ high."
         for: 3600
+        description: "description"
         expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
         id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
