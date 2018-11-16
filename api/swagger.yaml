@@ -190,7 +190,7 @@ definitions:
         - "prometheus"
       params:
         type: "object"
-        description: "json data object"
+        description: "The parameters to pass to the provider"
         additionalProperties:
           type: "object"
           properties: {}
@@ -201,6 +201,29 @@ definitions:
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       params:
         key: "{}"
+  Sample:
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+        description: "The sample id"
+      provider:
+        type: "string"
+        description: "The telemetry provider for the collector"
+        enum:
+        - "prometheus"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "The timestamp for the sample"
+      meta:
+        type: "object"
+        description: "Provider specific meta data"
+        additionalProperties:
+          type: "object"
+          properties: {}
+    description: "A sample is a set of collected data from a particular provider that\
+      \ \nis stored in the system. The sample data itself is stored in the filesystem.\n"
   Error:
     type: "object"
     properties:
