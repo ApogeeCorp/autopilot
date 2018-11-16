@@ -225,6 +225,14 @@ definitions:
       interval:
         type: "string"
         description: "The task run interval"
+      status:
+        type: "string"
+        description: "The task status"
+        enum:
+        - "pending"
+        - "running"
+        - "succeeded"
+        - "failed"
     description: "A task is a scheduled operation in the engine\n"
   Sample:
     properties:
