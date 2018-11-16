@@ -25,22 +25,29 @@ import (
 	sparks "gitlab.com/ModelRocket/sparks/types"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
 )
 
 type contextKey string
 
 const AuthKey contextKey = "Auth"
 
-// OperationsAPI
-type OperationsAPI interface {
+// CollectorAPI
+type CollectorAPI interface {
 	// CollectorCreate is Create a new telemetry collector from the provided definition
-	CollectorCreate(ctx *autopilot.Context, params operations.CollectorCreateParams) middleware.Responder
+	CollectorCreate(ctx *autopilot.Context, params collector.CollectorCreateParams) middleware.Responder
+	// CollectorDelete is Returns the request collected object
+	CollectorDelete(ctx *autopilot.Context, params collector.CollectorDeleteParams) middleware.Responder
+	// CollectorGet is Returns the request collected object
+	CollectorGet(ctx *autopilot.Context, params collector.CollectorGetParams) middleware.Responder
 	// CollectorList is Returns an array of telemetry collectors defined in the system
-	CollectorList(ctx *autopilot.Context, params operations.CollectorListParams) middleware.Responder
+	CollectorList(ctx *autopilot.Context, params collector.CollectorListParams) middleware.Responder
+	// CollectorUpdate is Update the properties of the specified collector
+	CollectorUpdate(ctx *autopilot.Context, params collector.CollectorUpdateParams) middleware.Responder
 }
 
 type AutopilotAPI interface {
-	OperationsAPI
+	CollectorAPI
 	// Initialize is called during handler creation to perform and changes during startup
 	Initialize() error
 
@@ -80,19 +87,40 @@ func Handler(c Config) (http.Handler, error) {
 		return c.AuthBasicAuth(ctx, user, pass)
 	}
 
-	api.CollectorCreateHandler = operations.CollectorCreateHandlerFunc(func(params operations.CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorCreateHandler = collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorCreate(ctx, params)
 	})
-	api.CollectorListHandler = operations.CollectorListHandlerFunc(func(params operations.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorDeleteHandler = collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.CollectorDelete(ctx, params)
+	})
+	api.CollectorCollectorGetHandler = collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.CollectorGet(ctx, params)
+	})
+	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorList(ctx, params)
+	})
+	api.CollectorCollectorUpdateHandler = collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.CollectorUpdate(ctx, params)
 	})
 	api.ServerShutdown = func() {}
 

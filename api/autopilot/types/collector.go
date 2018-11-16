@@ -20,7 +20,8 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry provider, parses, and reformats the data to be consumed by the autopilot engine.
+// Collector A collector pulls data from a telemetry provider, parses,
+// and reformats the data to be consumed by the autopilot engine.
 //
 // swagger:model Collector
 type Collector struct {

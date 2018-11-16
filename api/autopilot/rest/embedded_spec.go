@@ -23,6 +23,9 @@ var (
 
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
+  "schemes": [
+    "http"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "libopenstorage autopilot API",
@@ -33,10 +36,14 @@ func init() {
     },
     "version": "1.0.0"
   },
+  "host": "localhost:9000",
   "paths": {
     "/collectors": {
       "get": {
         "description": "Returns an array of telemetry collectors defined in the system",
+        "tags": [
+          "collector"
+        ],
         "summary": "Get a list of telemetry collectors",
         "operationId": "collectorList",
         "responses": {
@@ -50,13 +57,13 @@ func init() {
             }
           },
           "500": {
-            "description": "Server Error",
+            "description": "ServerError",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Internal server error"
+                "message": "internal server error"
               }
             }
           }
@@ -64,6 +71,9 @@ func init() {
       },
       "post": {
         "description": "Create a new telemetry collector from the provided definition",
+        "tags": [
+          "collector"
+        ],
         "summary": "Create a new telemetry collector",
         "operationId": "collectorCreate",
         "parameters": [
@@ -85,24 +95,184 @@ func init() {
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "BadRequest",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Missing collector name"
+                "message": "invalid parameter"
               }
             }
           },
           "500": {
-            "description": "Server Error",
+            "description": "ServerError",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Internal server error"
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collectors/{collector_id}": {
+      "get": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Get a list of telemetry collectors",
+        "operationId": "collectorGet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Collector"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update the properties of the specified collector",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Update a collector object",
+        "operationId": "collectorUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The collector to create",
+            "name": "collector",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Collector"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Get a list of telemetry collectors",
+        "operationId": "collectorDelete",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
               }
             }
           }
@@ -112,7 +282,7 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry provider, parses, and reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a telemetry provider, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
         "id": {
           "description": "The collector id",
@@ -180,7 +350,7 @@ func init() {
       }
     },
     "NotFound": {
-      "description": "ResourceNotFound",
+      "description": "NotFound",
       "schema": {
         "$ref": "#/definitions/Error"
       },
@@ -225,6 +395,9 @@ func init() {
   ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
+  "schemes": [
+    "http"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "libopenstorage autopilot API",
@@ -235,10 +408,14 @@ func init() {
     },
     "version": "1.0.0"
   },
+  "host": "localhost:9000",
   "paths": {
     "/collectors": {
       "get": {
         "description": "Returns an array of telemetry collectors defined in the system",
+        "tags": [
+          "collector"
+        ],
         "summary": "Get a list of telemetry collectors",
         "operationId": "collectorList",
         "responses": {
@@ -252,13 +429,13 @@ func init() {
             }
           },
           "500": {
-            "description": "Server Error",
+            "description": "ServerError",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Internal server error"
+                "message": "internal server error"
               }
             }
           }
@@ -266,6 +443,9 @@ func init() {
       },
       "post": {
         "description": "Create a new telemetry collector from the provided definition",
+        "tags": [
+          "collector"
+        ],
         "summary": "Create a new telemetry collector",
         "operationId": "collectorCreate",
         "parameters": [
@@ -287,24 +467,184 @@ func init() {
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "BadRequest",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Missing collector name"
+                "message": "invalid parameter"
               }
             }
           },
           "500": {
-            "description": "Server Error",
+            "description": "ServerError",
             "schema": {
               "$ref": "#/definitions/Error"
             },
             "examples": {
               "application/json": {
-                "message": "Internal server error"
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collectors/{collector_id}": {
+      "get": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Get a list of telemetry collectors",
+        "operationId": "collectorGet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Collector"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update the properties of the specified collector",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Update a collector object",
+        "operationId": "collectorUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The collector to create",
+            "name": "collector",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Collector"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Get a list of telemetry collectors",
+        "operationId": "collectorDelete",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the collector",
+            "name": "collector_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
               }
             }
           }
@@ -314,7 +654,7 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry provider, parses, and reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a telemetry provider, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
         "id": {
           "description": "The collector id",
@@ -382,7 +722,7 @@ func init() {
       }
     },
     "NotFound": {
-      "description": "ResourceNotFound",
+      "description": "NotFound",
       "schema": {
         "$ref": "#/definitions/Error"
       },

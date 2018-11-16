@@ -25,6 +25,8 @@ import (
 	"github.com/go-openapi/swag"
 	"gitlab.com/ModelRocket/sparks/cloud/provider"
 	context "golang.org/x/net/context"
+
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
 )
 
 // NewAutopilotAPI creates a new Autopilot instance
@@ -44,11 +46,20 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		BearerAuthenticator: security.BearerAuthCtx,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		CollectorCreateHandler: CollectorCreateHandlerFunc(func(params CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCreate has not yet been implemented")
+		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorCreate has not yet been implemented")
 		}),
-		CollectorListHandler: CollectorListHandlerFunc(func(params CollectorListParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorList has not yet been implemented")
+		CollectorCollectorDeleteHandler: collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorDelete has not yet been implemented")
+		}),
+		CollectorCollectorGetHandler: collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorGet has not yet been implemented")
+		}),
+		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorList has not yet been implemented")
+		}),
+		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorUpdate has not yet been implemented")
 		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
@@ -96,10 +107,16 @@ type AutopilotAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// CollectorCreateHandler sets the operation handler for the collector create operation
-	CollectorCreateHandler CollectorCreateHandler
-	// CollectorListHandler sets the operation handler for the collector list operation
-	CollectorListHandler CollectorListHandler
+	// CollectorCollectorCreateHandler sets the operation handler for the collector create operation
+	CollectorCollectorCreateHandler collector.CollectorCreateHandler
+	// CollectorCollectorDeleteHandler sets the operation handler for the collector delete operation
+	CollectorCollectorDeleteHandler collector.CollectorDeleteHandler
+	// CollectorCollectorGetHandler sets the operation handler for the collector get operation
+	CollectorCollectorGetHandler collector.CollectorGetHandler
+	// CollectorCollectorListHandler sets the operation handler for the collector list operation
+	CollectorCollectorListHandler collector.CollectorListHandler
+	// CollectorCollectorUpdateHandler sets the operation handler for the collector update operation
+	CollectorCollectorUpdateHandler collector.CollectorUpdateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -167,12 +184,24 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "BasicAuthAuth")
 	}
 
-	if o.CollectorCreateHandler == nil {
-		unregistered = append(unregistered, "CollectorCreateHandler")
+	if o.CollectorCollectorCreateHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorCreateHandler")
 	}
 
-	if o.CollectorListHandler == nil {
-		unregistered = append(unregistered, "CollectorListHandler")
+	if o.CollectorCollectorDeleteHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorDeleteHandler")
+	}
+
+	if o.CollectorCollectorGetHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorGetHandler")
+	}
+
+	if o.CollectorCollectorListHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorListHandler")
+	}
+
+	if o.CollectorCollectorUpdateHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorUpdateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -288,12 +317,27 @@ func (o *AutopilotAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/collectors"] = NewCollectorCreate(o.context, o.CollectorCreateHandler)
+	o.handlers["POST"]["/collectors"] = collector.NewCollectorCreate(o.context, o.CollectorCollectorCreateHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/collectors/{collector_id}"] = collector.NewCollectorDelete(o.context, o.CollectorCollectorDeleteHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/collectors"] = NewCollectorList(o.context, o.CollectorListHandler)
+	o.handlers["GET"]["/collectors/{collector_id}"] = collector.NewCollectorGet(o.context, o.CollectorCollectorGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/collectors"] = collector.NewCollectorList(o.context, o.CollectorCollectorListHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/collectors/{collector_id}"] = collector.NewCollectorUpdate(o.context, o.CollectorCollectorUpdateHandler)
 
 }
 
