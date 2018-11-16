@@ -173,6 +173,326 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
+  /providers:
+    get:
+      tags:
+      - "provider"
+      summary: "Get a list of telemetry providers"
+      description: "Returns an array of telemetry providers defined in the system"
+      operationId: "providerList"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Provider"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "provider"
+      summary: "Create a new telemetry provider"
+      description: "Create a new telemetry provider from the provided definition"
+      operationId: "providerCreate"
+      parameters:
+      - in: "body"
+        name: "provider"
+        description: "The provider to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Provider"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/Provider"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /providers/{provider_id}:
+    get:
+      tags:
+      - "provider"
+      summary: "Get a list of telemetry providers"
+      description: "Returns the request collected object"
+      operationId: "providerGet"
+      parameters:
+      - name: "provider_id"
+        in: "path"
+        description: "The id of the provider"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Provider"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "provider"
+      summary: "Update a provider object"
+      description: "Update the properties of the specified provider"
+      operationId: "providerUpdate"
+      parameters:
+      - name: "provider_id"
+        in: "path"
+        description: "The id of the provider"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "provider"
+        description: "The provider to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Provider"
+      responses:
+        204:
+          description: "No Content"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "provider"
+      summary: "Get a list of telemetry providers"
+      description: "Returns the request collected object"
+      operationId: "providerDelete"
+      parameters:
+      - name: "provider_id"
+        in: "path"
+        description: "The id of the provider"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /samples:
+    get:
+      tags:
+      - "sample"
+      summary: "Get a list of telemetry samples"
+      description: "Returns an array of telemetry samples defined in the system"
+      operationId: "sampleList"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Sample"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "sample"
+      summary: "Create a new telemetry sample"
+      description: "Create a new telemetry sample from the provided definition"
+      operationId: "sampleCreate"
+      parameters:
+      - in: "body"
+        name: "sample"
+        description: "The sample to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Sample"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/Sample"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /samples/{sample_id}:
+    get:
+      tags:
+      - "sample"
+      summary: "Get a list of telemetry samples"
+      description: "Returns the request collected object"
+      operationId: "sampleGet"
+      parameters:
+      - name: "sample_id"
+        in: "path"
+        description: "The id of the sample"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Sample"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "sample"
+      summary: "Update a sample object"
+      description: "Update the properties of the specified sample"
+      operationId: "sampleUpdate"
+      parameters:
+      - name: "sample_id"
+        in: "path"
+        description: "The id of the sample"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "sample"
+        description: "The sample to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Sample"
+      responses:
+        204:
+          description: "No Content"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "sample"
+      summary: "Get a list of telemetry samples"
+      description: "Returns the request collected object"
+      operationId: "sampleDelete"
+      parameters:
+      - name: "sample_id"
+        in: "path"
+        description: "The id of the sample"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
 securityDefinitions:
   basicAuth:
     type: "basic"
@@ -252,12 +572,18 @@ definitions:
         $ref: "#/definitions/ProviderType"
       config:
         type: "object"
-        description: "The parameters to pass to the provider"
+        description: "The provider configuration"
         additionalProperties:
           type: "object"
           properties: {}
     description: "A provider is a telemetry source that provides stats and anlytics\
       \ data in the autopilot csv format\n"
+    example:
+      name: "name"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      type: {}
+      config:
+        key: "{}"
   Sample:
     properties:
       id:
@@ -279,6 +605,12 @@ definitions:
     description: "A sample is a set of collected data from a particular provider that\
       \ has be reformatted\nand prepared for consumption. The sample data itself is\
       \ stored in the filesystem.\n"
+    example:
+      provider: {}
+      meta:
+        key: "{}"
+      created_at: "2000-01-23T04:56:07.000+00:00"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
   Error:
     type: "object"
     properties:
