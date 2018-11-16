@@ -507,6 +507,15 @@ paths:
         required: true
         type: "string"
         format: "uuid"
+      - name: "rules"
+        in: "query"
+        description: "The rules to apply to get the recommendations"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+          format: "uuid"
+        collectionFormat: "csv"
       responses:
         200:
           description: "OK"
