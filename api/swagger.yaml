@@ -187,7 +187,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/source"
+              $ref: "#/definitions/Source"
         500:
           description: "ServerError"
           examples:
@@ -207,12 +207,12 @@ paths:
         description: "The source to create"
         required: true
         schema:
-          $ref: "#/definitions/source"
+          $ref: "#/definitions/Source"
       responses:
         201:
           description: "Created"
           schema:
-            $ref: "#/definitions/source"
+            $ref: "#/definitions/Source"
         400:
           description: "BadRequest"
           examples:
@@ -245,7 +245,7 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/source"
+            $ref: "#/definitions/Source"
         400:
           description: "BadRequest"
           examples:
@@ -285,7 +285,7 @@ paths:
         description: "The source to create"
         required: true
         schema:
-          $ref: "#/definitions/source"
+          $ref: "#/definitions/Source"
       responses:
         204:
           description: "No Content"
@@ -836,12 +836,12 @@ definitions:
       params:
         key: "{}"
       status: "pending"
-  sourceType:
+  SourceType:
     type: "string"
     description: "sourceType:\n  * prometheus - a prometheus server\n"
     enum:
     - "prometheus"
-  source:
+  Source:
     properties:
       id:
         type: "string"
@@ -851,7 +851,7 @@ definitions:
         type: "string"
         description: "The source name"
       type:
-        $ref: "#/definitions/sourceType"
+        $ref: "#/definitions/SourceType"
       config:
         type: "object"
         description: "The source configuration"
@@ -873,7 +873,7 @@ definitions:
         format: "uuid"
         description: "The sample id"
       source:
-        $ref: "#/definitions/sourceType"
+        $ref: "#/definitions/SourceType"
       created_at:
         type: "string"
         format: "date-time"
