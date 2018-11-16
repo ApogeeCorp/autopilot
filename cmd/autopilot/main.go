@@ -6,9 +6,12 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/libopenstorage/autopilot/api/autopilot"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -44,6 +47,26 @@ func main() {
 	app.Usage = "Autopilot Storage Optimization Engine"
 
 	app.Action = func(c *cli.Context) error {
+		api := &autopilot.API{
+			Log: log,
+		}
+
+		handler, err := rest.Handler(rest.Config{
+			AutopilotAPI: api,
+			Logger:       log,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+		s := &http.Server{
+			Addr:           ":9000",
+			Handler:        handler,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		}
+		log.Fatal(s.ListenAndServe())
+
 		return nil
 	}
 

@@ -18,7 +18,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Sample A sample is a set of collected data from a particular provider that has be reformatted
+// Sample A sample is a set of collected data from a particular source that has be reformatted
 // and prepared for consumption. The sample data itself is stored in the filesystem.
 //
 // swagger:model Sample
@@ -32,11 +32,11 @@ type Sample struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Provider specific meta data
+	// source specific meta data
 	Meta map[string]interface{} `json:"meta,omitempty"`
 
-	// provider
-	Provider ProviderType `json:"provider,omitempty"`
+	// source
+	Source SourceType `json:"source,omitempty"`
 }
 
 // Validate validates this sample
@@ -51,7 +51,7 @@ func (m *Sample) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateProvider(formats); err != nil {
+	if err := m.validateSource(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,15 +87,15 @@ func (m *Sample) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Sample) validateProvider(formats strfmt.Registry) error {
+func (m *Sample) validateSource(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Provider) { // not required
+	if swag.IsZero(m.Source) { // not required
 		return nil
 	}
 
-	if err := m.Provider.Validate(formats); err != nil {
+	if err := m.Source.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("provider")
+			return ve.ValidateName("source")
 		}
 		return err
 	}

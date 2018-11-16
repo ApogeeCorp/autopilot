@@ -279,247 +279,6 @@ func init() {
         }
       }
     },
-    "/providers": {
-      "get": {
-        "description": "Returns an array of telemetry providers defined in the system",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Provider"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry provider from the provided definition",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Create a new telemetry provider",
-        "operationId": "providerCreate",
-        "parameters": [
-          {
-            "description": "The provider to create",
-            "name": "provider",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/providers/{provider_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified provider",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Update a provider object",
-        "operationId": "providerUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The provider to create",
-            "name": "provider",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
     "/rules": {
       "get": {
         "description": "Returns an array of telemetry rules defined in the system",
@@ -1077,6 +836,247 @@ func init() {
         }
       }
     },
+    "/sources": {
+      "get": {
+        "description": "Returns an array of telemetry sources defined in the system",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/source"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new telemetry source from the provided definition",
+        "tags": [
+          "source"
+        ],
+        "summary": "Create a new telemetry source",
+        "operationId": "sourceCreate",
+        "parameters": [
+          {
+            "description": "The source to create",
+            "name": "source",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/{source_id}": {
+      "get": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceGet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update the properties of the specified source",
+        "tags": [
+          "source"
+        ],
+        "summary": "Update a source object",
+        "operationId": "sourceUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The source to create",
+            "name": "source",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceDelete",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
@@ -1173,7 +1173,7 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry provider, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
         "id": {
           "description": "The collector id",
@@ -1185,14 +1185,14 @@ func init() {
           "type": "string"
         },
         "params": {
-          "description": "The parameters to pass to the provider",
+          "description": "The parameters to pass to the source",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "provider_id": {
-          "description": "The provider id the provider this collector will use",
+        "source_id": {
+          "description": "The source id the source this collector will use",
           "type": "string",
           "format": "uuid"
         }
@@ -1203,7 +1203,7 @@ func init() {
         "params": {
           "key": "{}"
         },
-        "provider_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       }
     },
     "Error": {
@@ -1229,45 +1229,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "Provider": {
-      "description": "A provider is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "description": "The provider configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "id": {
-          "description": "The provider id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The provider name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/ProviderType"
-        }
-      },
-      "example": {
-        "config": {
-          "key": "{}"
-        },
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "ProviderType": {
-      "description": "ProviderType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
@@ -1317,7 +1278,7 @@ func init() {
       }
     },
     "Sample": {
-      "description": "A sample is a set of collected data from a particular provider that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
+      "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
       "properties": {
         "created_at": {
           "description": "The timestamp for the sample",
@@ -1330,14 +1291,14 @@ func init() {
           "format": "uuid"
         },
         "meta": {
-          "description": "Provider specific meta data",
+          "description": "source specific meta data",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "provider": {
-          "$ref": "#/definitions/ProviderType"
+        "source": {
+          "$ref": "#/definitions/sourceType"
         }
       },
       "example": {
@@ -1346,7 +1307,7 @@ func init() {
         "meta": {
           "key": "{}"
         },
-        "provider": {}
+        "source": {}
       }
     },
     "Task": {
@@ -1358,7 +1319,7 @@ func init() {
           "format": "uuid"
         },
         "params": {
-          "description": "The parameters to pass to the provider",
+          "description": "The parameters to pass to the source",
           "type": "object",
           "additionalProperties": {
             "type": "object"
@@ -1398,6 +1359,45 @@ func init() {
         "status": "pending",
         "type": "collector"
       }
+    },
+    "source": {
+      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
+      "properties": {
+        "config": {
+          "description": "The source configuration",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "description": "The source id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "The source name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/sourceType"
+        }
+      },
+      "example": {
+        "config": {
+          "key": "{}"
+        },
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "name": "name",
+        "type": {}
+      }
+    },
+    "sourceType": {
+      "description": "sourceType:\n  * prometheus - a prometheus server\n",
+      "type": "string",
+      "enum": [
+        "prometheus"
+      ]
     }
   },
   "responses": {
@@ -1714,247 +1714,6 @@ func init() {
         }
       }
     },
-    "/providers": {
-      "get": {
-        "description": "Returns an array of telemetry providers defined in the system",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Provider"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry provider from the provided definition",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Create a new telemetry provider",
-        "operationId": "providerCreate",
-        "parameters": [
-          {
-            "description": "The provider to create",
-            "name": "provider",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/providers/{provider_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified provider",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Update a provider object",
-        "operationId": "providerUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The provider to create",
-            "name": "provider",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Provider"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "provider"
-        ],
-        "summary": "Get a list of telemetry providers",
-        "operationId": "providerDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the provider",
-            "name": "provider_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
     "/rules": {
       "get": {
         "description": "Returns an array of telemetry rules defined in the system",
@@ -2512,6 +2271,247 @@ func init() {
         }
       }
     },
+    "/sources": {
+      "get": {
+        "description": "Returns an array of telemetry sources defined in the system",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/source"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new telemetry source from the provided definition",
+        "tags": [
+          "source"
+        ],
+        "summary": "Create a new telemetry source",
+        "operationId": "sourceCreate",
+        "parameters": [
+          {
+            "description": "The source to create",
+            "name": "source",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/{source_id}": {
+      "get": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceGet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update the properties of the specified source",
+        "tags": [
+          "source"
+        ],
+        "summary": "Update a source object",
+        "operationId": "sourceUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The source to create",
+            "name": "source",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/source"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Returns the request collected object",
+        "tags": [
+          "source"
+        ],
+        "summary": "Get a list of telemetry sources",
+        "operationId": "sourceDelete",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
@@ -2608,7 +2608,7 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry provider, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
         "id": {
           "description": "The collector id",
@@ -2620,14 +2620,14 @@ func init() {
           "type": "string"
         },
         "params": {
-          "description": "The parameters to pass to the provider",
+          "description": "The parameters to pass to the source",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "provider_id": {
-          "description": "The provider id the provider this collector will use",
+        "source_id": {
+          "description": "The source id the source this collector will use",
           "type": "string",
           "format": "uuid"
         }
@@ -2638,7 +2638,7 @@ func init() {
         "params": {
           "key": "{}"
         },
-        "provider_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       }
     },
     "Error": {
@@ -2664,45 +2664,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "Provider": {
-      "description": "A provider is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "description": "The provider configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "id": {
-          "description": "The provider id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The provider name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/ProviderType"
-        }
-      },
-      "example": {
-        "config": {
-          "key": "{}"
-        },
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "ProviderType": {
-      "description": "ProviderType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
@@ -2752,7 +2713,7 @@ func init() {
       }
     },
     "Sample": {
-      "description": "A sample is a set of collected data from a particular provider that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
+      "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
       "properties": {
         "created_at": {
           "description": "The timestamp for the sample",
@@ -2765,14 +2726,14 @@ func init() {
           "format": "uuid"
         },
         "meta": {
-          "description": "Provider specific meta data",
+          "description": "source specific meta data",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "provider": {
-          "$ref": "#/definitions/ProviderType"
+        "source": {
+          "$ref": "#/definitions/sourceType"
         }
       },
       "example": {
@@ -2781,7 +2742,7 @@ func init() {
         "meta": {
           "key": "{}"
         },
-        "provider": {}
+        "source": {}
       }
     },
     "Task": {
@@ -2793,7 +2754,7 @@ func init() {
           "format": "uuid"
         },
         "params": {
-          "description": "The parameters to pass to the provider",
+          "description": "The parameters to pass to the source",
           "type": "object",
           "additionalProperties": {
             "type": "object"
@@ -2833,6 +2794,45 @@ func init() {
         "status": "pending",
         "type": "collector"
       }
+    },
+    "source": {
+      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
+      "properties": {
+        "config": {
+          "description": "The source configuration",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "description": "The source id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "The source name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/sourceType"
+        }
+      },
+      "example": {
+        "config": {
+          "key": "{}"
+        },
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "name": "name",
+        "type": {}
+      }
+    },
+    "sourceType": {
+      "description": "sourceType:\n  * prometheus - a prometheus server\n",
+      "type": "string",
+      "enum": [
+        "prometheus"
+      ]
     }
   },
   "responses": {

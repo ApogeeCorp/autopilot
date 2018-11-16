@@ -18,7 +18,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry provider, parses,
+// Collector A collector pulls data from a telemetry source, parses,
 // and reformats the data to be consumed by the autopilot engine.
 //
 // swagger:model Collector
@@ -31,12 +31,12 @@ type Collector struct {
 	// The interval the collector will run at
 	Interval string `json:"interval,omitempty"`
 
-	// The parameters to pass to the provider
+	// The parameters to pass to the source
 	Params map[string]interface{} `json:"params,omitempty"`
 
-	// The provider id the provider this collector will use
+	// The source id the source this collector will use
 	// Format: uuid
-	ProviderID strfmt.UUID `json:"provider_id,omitempty"`
+	SourceID strfmt.UUID `json:"source_id,omitempty"`
 }
 
 // Validate validates this collector
@@ -47,7 +47,7 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateProviderID(formats); err != nil {
+	if err := m.validateSourceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -70,13 +70,13 @@ func (m *Collector) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateProviderID(formats strfmt.Registry) error {
+func (m *Collector) validateSourceID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ProviderID) { // not required
+	if swag.IsZero(m.SourceID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("provider_id", "body", "uuid", m.ProviderID.String(), formats); err != nil {
+	if err := validate.FormatOf("source_id", "body", "uuid", m.SourceID.String(), formats); err != nil {
 		return err
 	}
 

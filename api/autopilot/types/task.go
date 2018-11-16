@@ -29,7 +29,7 @@ type Task struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The parameters to pass to the provider
+	// The parameters to pass to the source
 	Params map[string]interface{} `json:"params,omitempty"`
 
 	// The timestamp the next execution of the task

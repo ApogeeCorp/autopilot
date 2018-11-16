@@ -27,9 +27,9 @@ import (
 	context "golang.org/x/net/context"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/provider"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/source"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
@@ -65,21 +65,6 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorUpdate has not yet been implemented")
 		}),
-		ProviderProviderCreateHandler: provider.ProviderCreateHandlerFunc(func(params provider.ProviderCreateParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation ProviderProviderCreate has not yet been implemented")
-		}),
-		ProviderProviderDeleteHandler: provider.ProviderDeleteHandlerFunc(func(params provider.ProviderDeleteParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation ProviderProviderDelete has not yet been implemented")
-		}),
-		ProviderProviderGetHandler: provider.ProviderGetHandlerFunc(func(params provider.ProviderGetParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation ProviderProviderGet has not yet been implemented")
-		}),
-		ProviderProviderListHandler: provider.ProviderListHandlerFunc(func(params provider.ProviderListParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation ProviderProviderList has not yet been implemented")
-		}),
-		ProviderProviderUpdateHandler: provider.ProviderUpdateHandlerFunc(func(params provider.ProviderUpdateParams, principal provider.AuthToken) middleware.Responder {
-			return middleware.NotImplemented("operation ProviderProviderUpdate has not yet been implemented")
-		}),
 		SampleRecommendationsGetHandler: sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
 			return middleware.NotImplemented("operation SampleRecommendationsGet has not yet been implemented")
 		}),
@@ -112,6 +97,21 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		}),
 		SampleSampleUpdateHandler: sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal provider.AuthToken) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleUpdate has not yet been implemented")
+		}),
+		SourceSourceCreateHandler: source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourceCreate has not yet been implemented")
+		}),
+		SourceSourceDeleteHandler: source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourceDelete has not yet been implemented")
+		}),
+		SourceSourceGetHandler: source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourceGet has not yet been implemented")
+		}),
+		SourceSourceListHandler: source.SourceListHandlerFunc(func(params source.SourceListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourceList has not yet been implemented")
+		}),
+		SourceSourceUpdateHandler: source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourceUpdate has not yet been implemented")
 		}),
 		TaskTaskGetHandler: task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal provider.AuthToken) middleware.Responder {
 			return middleware.NotImplemented("operation TaskTaskGet has not yet been implemented")
@@ -175,16 +175,6 @@ type AutopilotAPI struct {
 	CollectorCollectorListHandler collector.CollectorListHandler
 	// CollectorCollectorUpdateHandler sets the operation handler for the collector update operation
 	CollectorCollectorUpdateHandler collector.CollectorUpdateHandler
-	// ProviderProviderCreateHandler sets the operation handler for the provider create operation
-	ProviderProviderCreateHandler provider.ProviderCreateHandler
-	// ProviderProviderDeleteHandler sets the operation handler for the provider delete operation
-	ProviderProviderDeleteHandler provider.ProviderDeleteHandler
-	// ProviderProviderGetHandler sets the operation handler for the provider get operation
-	ProviderProviderGetHandler provider.ProviderGetHandler
-	// ProviderProviderListHandler sets the operation handler for the provider list operation
-	ProviderProviderListHandler provider.ProviderListHandler
-	// ProviderProviderUpdateHandler sets the operation handler for the provider update operation
-	ProviderProviderUpdateHandler provider.ProviderUpdateHandler
 	// SampleRecommendationsGetHandler sets the operation handler for the recommendations get operation
 	SampleRecommendationsGetHandler sample.RecommendationsGetHandler
 	// RuleRuleCreateHandler sets the operation handler for the rule create operation
@@ -207,6 +197,16 @@ type AutopilotAPI struct {
 	SampleSampleListHandler sample.SampleListHandler
 	// SampleSampleUpdateHandler sets the operation handler for the sample update operation
 	SampleSampleUpdateHandler sample.SampleUpdateHandler
+	// SourceSourceCreateHandler sets the operation handler for the source create operation
+	SourceSourceCreateHandler source.SourceCreateHandler
+	// SourceSourceDeleteHandler sets the operation handler for the source delete operation
+	SourceSourceDeleteHandler source.SourceDeleteHandler
+	// SourceSourceGetHandler sets the operation handler for the source get operation
+	SourceSourceGetHandler source.SourceGetHandler
+	// SourceSourceListHandler sets the operation handler for the source list operation
+	SourceSourceListHandler source.SourceListHandler
+	// SourceSourceUpdateHandler sets the operation handler for the source update operation
+	SourceSourceUpdateHandler source.SourceUpdateHandler
 	// TaskTaskGetHandler sets the operation handler for the task get operation
 	TaskTaskGetHandler task.TaskGetHandler
 	// TaskTaskListHandler sets the operation handler for the task list operation
@@ -298,26 +298,6 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "collector.CollectorUpdateHandler")
 	}
 
-	if o.ProviderProviderCreateHandler == nil {
-		unregistered = append(unregistered, "provider.ProviderCreateHandler")
-	}
-
-	if o.ProviderProviderDeleteHandler == nil {
-		unregistered = append(unregistered, "provider.ProviderDeleteHandler")
-	}
-
-	if o.ProviderProviderGetHandler == nil {
-		unregistered = append(unregistered, "provider.ProviderGetHandler")
-	}
-
-	if o.ProviderProviderListHandler == nil {
-		unregistered = append(unregistered, "provider.ProviderListHandler")
-	}
-
-	if o.ProviderProviderUpdateHandler == nil {
-		unregistered = append(unregistered, "provider.ProviderUpdateHandler")
-	}
-
 	if o.SampleRecommendationsGetHandler == nil {
 		unregistered = append(unregistered, "sample.RecommendationsGetHandler")
 	}
@@ -360,6 +340,26 @@ func (o *AutopilotAPI) Validate() error {
 
 	if o.SampleSampleUpdateHandler == nil {
 		unregistered = append(unregistered, "sample.SampleUpdateHandler")
+	}
+
+	if o.SourceSourceCreateHandler == nil {
+		unregistered = append(unregistered, "source.SourceCreateHandler")
+	}
+
+	if o.SourceSourceDeleteHandler == nil {
+		unregistered = append(unregistered, "source.SourceDeleteHandler")
+	}
+
+	if o.SourceSourceGetHandler == nil {
+		unregistered = append(unregistered, "source.SourceGetHandler")
+	}
+
+	if o.SourceSourceListHandler == nil {
+		unregistered = append(unregistered, "source.SourceListHandler")
+	}
+
+	if o.SourceSourceUpdateHandler == nil {
+		unregistered = append(unregistered, "source.SourceUpdateHandler")
 	}
 
 	if o.TaskTaskGetHandler == nil {
@@ -505,31 +505,6 @@ func (o *AutopilotAPI) initHandlerCache() {
 	}
 	o.handlers["PUT"]["/collectors/{collector_id}"] = collector.NewCollectorUpdate(o.context, o.CollectorCollectorUpdateHandler)
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/providers"] = provider.NewProviderCreate(o.context, o.ProviderProviderCreateHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/providers/{provider_id}"] = provider.NewProviderDelete(o.context, o.ProviderProviderDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/providers/{provider_id}"] = provider.NewProviderGet(o.context, o.ProviderProviderGetHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/providers"] = provider.NewProviderList(o.context, o.ProviderProviderListHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/providers/{provider_id}"] = provider.NewProviderUpdate(o.context, o.ProviderProviderUpdateHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -584,6 +559,31 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/samples/{sample_id}"] = sample.NewSampleUpdate(o.context, o.SampleSampleUpdateHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/sources"] = source.NewSourceCreate(o.context, o.SourceSourceCreateHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/sources/{source_id}"] = source.NewSourceDelete(o.context, o.SourceSourceDeleteHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/sources/{source_id}"] = source.NewSourceGet(o.context, o.SourceSourceGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/sources"] = source.NewSourceList(o.context, o.SourceSourceListHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/sources/{source_id}"] = source.NewSourceUpdate(o.context, o.SourceSourceUpdateHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

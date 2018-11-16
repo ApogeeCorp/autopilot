@@ -24,11 +24,12 @@ import (
 	interpose "github.com/carbocation/interpose/middleware"
 	sparks "gitlab.com/ModelRocket/sparks/types"
 
+	"github.com/libopenstorage/autopilot/api/autopilot"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/provider"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/source"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
@@ -48,20 +49,6 @@ type CollectorAPI interface {
 	CollectorList(ctx *autopilot.Context, params collector.CollectorListParams) middleware.Responder
 	// CollectorUpdate is Update the properties of the specified collector
 	CollectorUpdate(ctx *autopilot.Context, params collector.CollectorUpdateParams) middleware.Responder
-}
-
-// ProviderAPI
-type ProviderAPI interface {
-	// ProviderCreate is Create a new telemetry provider from the provided definition
-	ProviderCreate(ctx *autopilot.Context, params provider.ProviderCreateParams) middleware.Responder
-	// ProviderDelete is Returns the request collected object
-	ProviderDelete(ctx *autopilot.Context, params provider.ProviderDeleteParams) middleware.Responder
-	// ProviderGet is Returns the request collected object
-	ProviderGet(ctx *autopilot.Context, params provider.ProviderGetParams) middleware.Responder
-	// ProviderList is Returns an array of telemetry providers defined in the system
-	ProviderList(ctx *autopilot.Context, params provider.ProviderListParams) middleware.Responder
-	// ProviderUpdate is Update the properties of the specified provider
-	ProviderUpdate(ctx *autopilot.Context, params provider.ProviderUpdateParams) middleware.Responder
 }
 
 // RuleAPI
@@ -94,6 +81,20 @@ type SampleAPI interface {
 	SampleUpdate(ctx *autopilot.Context, params sample.SampleUpdateParams) middleware.Responder
 }
 
+// SourceAPI
+type SourceAPI interface {
+	// SourceCreate is Create a new telemetry source from the provided definition
+	SourceCreate(ctx *autopilot.Context, params source.SourceCreateParams) middleware.Responder
+	// SourceDelete is Returns the request collected object
+	SourceDelete(ctx *autopilot.Context, params source.SourceDeleteParams) middleware.Responder
+	// SourceGet is Returns the request collected object
+	SourceGet(ctx *autopilot.Context, params source.SourceGetParams) middleware.Responder
+	// SourceList is Returns an array of telemetry sources defined in the system
+	SourceList(ctx *autopilot.Context, params source.SourceListParams) middleware.Responder
+	// SourceUpdate is Update the properties of the specified source
+	SourceUpdate(ctx *autopilot.Context, params source.SourceUpdateParams) middleware.Responder
+}
+
 // TaskAPI
 type TaskAPI interface {
 	// TaskGet is Returns the request task object
@@ -104,9 +105,9 @@ type TaskAPI interface {
 
 type AutopilotAPI interface {
 	CollectorAPI
-	ProviderAPI
 	RuleAPI
 	SampleAPI
+	SourceAPI
 	TaskAPI
 	// Initialize is called during handler creation to perform and changes during startup
 	Initialize() error
@@ -181,41 +182,6 @@ func Handler(c Config) (http.Handler, error) {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorUpdate(ctx, params)
-	})
-	api.ProviderProviderCreateHandler = provider.ProviderCreateHandlerFunc(func(params provider.ProviderCreateParams, principal provider.AuthToken) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.ProviderCreate(ctx, params)
-	})
-	api.ProviderProviderDeleteHandler = provider.ProviderDeleteHandlerFunc(func(params provider.ProviderDeleteParams, principal provider.AuthToken) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.ProviderDelete(ctx, params)
-	})
-	api.ProviderProviderGetHandler = provider.ProviderGetHandlerFunc(func(params provider.ProviderGetParams, principal provider.AuthToken) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.ProviderGet(ctx, params)
-	})
-	api.ProviderProviderListHandler = provider.ProviderListHandlerFunc(func(params provider.ProviderListParams, principal provider.AuthToken) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.ProviderList(ctx, params)
-	})
-	api.ProviderProviderUpdateHandler = provider.ProviderUpdateHandlerFunc(func(params provider.ProviderUpdateParams, principal provider.AuthToken) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.ProviderUpdate(ctx, params)
 	})
 	api.SampleRecommendationsGetHandler = sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
@@ -293,6 +259,41 @@ func Handler(c Config) (http.Handler, error) {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleUpdate(ctx, params)
+	})
+	api.SourceSourceCreateHandler = source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourceCreate(ctx, params)
+	})
+	api.SourceSourceDeleteHandler = source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourceDelete(ctx, params)
+	})
+	api.SourceSourceGetHandler = source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourceGet(ctx, params)
+	})
+	api.SourceSourceListHandler = source.SourceListHandlerFunc(func(params source.SourceListParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourceList(ctx, params)
+	})
+	api.SourceSourceUpdateHandler = source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal provider.AuthToken) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourceUpdate(ctx, params)
 	})
 	api.TaskTaskGetHandler = task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal provider.AuthToken) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)

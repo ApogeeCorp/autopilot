@@ -18,27 +18,27 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Provider A provider is a telemetry source that provides stats and anlytics data in the autopilot csv format
+// Source A source is a telemetry source that provides stats and anlytics data in the autopilot csv format
 //
-// swagger:model Provider
-type Provider struct {
+// swagger:model source
+type Source struct {
 
-	// The provider configuration
+	// The source configuration
 	Config map[string]interface{} `json:"config,omitempty"`
 
-	// The provider id
+	// The source id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The provider name
+	// The source name
 	Name string `json:"name,omitempty"`
 
 	// type
-	Type ProviderType `json:"type,omitempty"`
+	Type SourceType `json:"type,omitempty"`
 }
 
-// Validate validates this provider
-func (m *Provider) Validate(formats strfmt.Registry) error {
+// Validate validates this source
+func (m *Source) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -55,7 +55,7 @@ func (m *Provider) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Provider) validateID(formats strfmt.Registry) error {
+func (m *Source) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -68,7 +68,7 @@ func (m *Provider) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Provider) validateType(formats strfmt.Registry) error {
+func (m *Source) validateType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Type) { // not required
 		return nil
@@ -85,7 +85,7 @@ func (m *Provider) validateType(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Provider) MarshalBinary() ([]byte, error) {
+func (m *Source) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -93,8 +93,8 @@ func (m *Provider) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Provider) UnmarshalBinary(b []byte) error {
-	var res Provider
+func (m *Source) UnmarshalBinary(b []byte) error {
+	var res Source
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

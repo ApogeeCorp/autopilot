@@ -1,18 +1,21 @@
 // Copyright 2018 Portworx Inc. All rights reserved.
 // Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file at the 
+// license that can be found in the LICENSE file at the
 // root of this project.
 
 // Package autopilot is the internal implementation of the AutopilotAPI
 package autopilot
 
 import (
+	"net/http"
+
 	"github.com/sirupsen/logrus"
+	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // API is the acme API interface implementation
 type API struct {
-  Log *logrus.Logger
+	Log *logrus.Logger
 }
 
 // Initialize initializes the API before the server starts handling request
