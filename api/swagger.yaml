@@ -733,6 +733,16 @@ definitions:
         key: "{}"
       created_at: "2000-01-23T04:56:07.000+00:00"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+  Rule:
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+        description: "The rule id"
+      source:
+        type: "string"
+        description: "The rule source data"
+    description: "A rule is a yaml rule set to executed by the recommendation engine\n"
   Recommendation:
     properties:
       id:
