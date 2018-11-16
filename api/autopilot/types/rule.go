@@ -18,36 +18,24 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry provider, parses,
-// and reformats the data to be consumed by the autopilot engine.
+// Rule A rule is a yaml rule set to executed by the recommendation engine
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:model Rule
+type Rule struct {
 
-	// The collector id
+	// The rule id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The interval the collector will run at
-	Interval string `json:"interval,omitempty"`
-
-	// The parameters to pass to the provider
-	Params map[string]interface{} `json:"params,omitempty"`
-
-	// The provider id the provider this collector will use
-	// Format: uuid
-	ProviderID strfmt.UUID `json:"provider_id,omitempty"`
+	// The rule source data
+	Source string `json:"source,omitempty"`
 }
 
-// Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+// Validate validates this rule
+func (m *Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateProviderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,7 +45,7 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateID(formats strfmt.Registry) error {
+func (m *Rule) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -70,21 +58,8 @@ func (m *Collector) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateProviderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ProviderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("provider_id", "body", "uuid", m.ProviderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
+func (m *Rule) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -92,8 +67,8 @@ func (m *Collector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
+func (m *Rule) UnmarshalBinary(b []byte) error {
+	var res Rule
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

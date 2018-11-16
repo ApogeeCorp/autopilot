@@ -18,36 +18,32 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry provider, parses,
-// and reformats the data to be consumed by the autopilot engine.
+// Recommendation A recommendation is a list of recommended arbitrations for a specific sample set
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:model Recommendation
+type Recommendation struct {
 
-	// The collector id
+	// The recommendation id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The interval the collector will run at
-	Interval string `json:"interval,omitempty"`
+	// The recommendation values mapping
+	Proposals map[string]interface{} `json:"proposals,omitempty"`
 
-	// The parameters to pass to the provider
-	Params map[string]interface{} `json:"params,omitempty"`
-
-	// The provider id the provider this collector will use
+	// The sample id
 	// Format: uuid
-	ProviderID strfmt.UUID `json:"provider_id,omitempty"`
+	SampleID strfmt.UUID `json:"sample_id,omitempty"`
 }
 
-// Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+// Validate validates this recommendation
+func (m *Recommendation) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateProviderID(formats); err != nil {
+	if err := m.validateSampleID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,7 +53,7 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateID(formats strfmt.Registry) error {
+func (m *Recommendation) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -70,13 +66,13 @@ func (m *Collector) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateProviderID(formats strfmt.Registry) error {
+func (m *Recommendation) validateSampleID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ProviderID) { // not required
+	if swag.IsZero(m.SampleID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("provider_id", "body", "uuid", m.ProviderID.String(), formats); err != nil {
+	if err := validate.FormatOf("sample_id", "body", "uuid", m.SampleID.String(), formats); err != nil {
 		return err
 	}
 
@@ -84,7 +80,7 @@ func (m *Collector) validateProviderID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
+func (m *Recommendation) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -92,8 +88,8 @@ func (m *Collector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
+func (m *Recommendation) UnmarshalBinary(b []byte) error {
+	var res Recommendation
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

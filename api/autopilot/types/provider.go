@@ -18,36 +18,34 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry provider, parses,
-// and reformats the data to be consumed by the autopilot engine.
+// Provider A provider is a telemetry source that provides stats and anlytics data in the autopilot csv format
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:model Provider
+type Provider struct {
 
-	// The collector id
+	// The provider configuration
+	Config map[string]interface{} `json:"config,omitempty"`
+
+	// The provider id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The interval the collector will run at
-	Interval string `json:"interval,omitempty"`
+	// The provider name
+	Name string `json:"name,omitempty"`
 
-	// The parameters to pass to the provider
-	Params map[string]interface{} `json:"params,omitempty"`
-
-	// The provider id the provider this collector will use
-	// Format: uuid
-	ProviderID strfmt.UUID `json:"provider_id,omitempty"`
+	// type
+	Type ProviderType `json:"type,omitempty"`
 }
 
-// Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+// Validate validates this provider
+func (m *Provider) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateProviderID(formats); err != nil {
+	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,7 +55,7 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateID(formats strfmt.Registry) error {
+func (m *Provider) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -70,13 +68,16 @@ func (m *Collector) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Collector) validateProviderID(formats strfmt.Registry) error {
+func (m *Provider) validateType(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ProviderID) { // not required
+	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("provider_id", "body", "uuid", m.ProviderID.String(), formats); err != nil {
+	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		}
 		return err
 	}
 
@@ -84,7 +85,7 @@ func (m *Collector) validateProviderID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
+func (m *Provider) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -92,8 +93,8 @@ func (m *Collector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
+func (m *Provider) UnmarshalBinary(b []byte) error {
+	var res Provider
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

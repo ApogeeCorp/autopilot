@@ -27,6 +27,10 @@ import (
 	context "golang.org/x/net/context"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/provider"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
 // NewAutopilotAPI creates a new Autopilot instance
@@ -60,6 +64,60 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		}),
 		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorUpdate has not yet been implemented")
+		}),
+		ProviderProviderCreateHandler: provider.ProviderCreateHandlerFunc(func(params provider.ProviderCreateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderProviderCreate has not yet been implemented")
+		}),
+		ProviderProviderDeleteHandler: provider.ProviderDeleteHandlerFunc(func(params provider.ProviderDeleteParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderProviderDelete has not yet been implemented")
+		}),
+		ProviderProviderGetHandler: provider.ProviderGetHandlerFunc(func(params provider.ProviderGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderProviderGet has not yet been implemented")
+		}),
+		ProviderProviderListHandler: provider.ProviderListHandlerFunc(func(params provider.ProviderListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderProviderList has not yet been implemented")
+		}),
+		ProviderProviderUpdateHandler: provider.ProviderUpdateHandlerFunc(func(params provider.ProviderUpdateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderProviderUpdate has not yet been implemented")
+		}),
+		SampleRecommendationsGetHandler: sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleRecommendationsGet has not yet been implemented")
+		}),
+		RuleRuleCreateHandler: rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation RuleRuleCreate has not yet been implemented")
+		}),
+		RuleRuleDeleteHandler: rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation RuleRuleDelete has not yet been implemented")
+		}),
+		RuleRuleGetHandler: rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation RuleRuleGet has not yet been implemented")
+		}),
+		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
+		}),
+		RuleRuleUpdateHandler: rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation RuleRuleUpdate has not yet been implemented")
+		}),
+		SampleSampleCreateHandler: sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleSampleCreate has not yet been implemented")
+		}),
+		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleSampleDelete has not yet been implemented")
+		}),
+		SampleSampleGetHandler: sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleSampleGet has not yet been implemented")
+		}),
+		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
+		}),
+		SampleSampleUpdateHandler: sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation SampleSampleUpdate has not yet been implemented")
+		}),
+		TaskTaskGetHandler: task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation TaskTaskGet has not yet been implemented")
+		}),
+		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal provider.AuthToken) middleware.Responder {
+			return middleware.NotImplemented("operation TaskTaskList has not yet been implemented")
 		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
@@ -117,6 +175,42 @@ type AutopilotAPI struct {
 	CollectorCollectorListHandler collector.CollectorListHandler
 	// CollectorCollectorUpdateHandler sets the operation handler for the collector update operation
 	CollectorCollectorUpdateHandler collector.CollectorUpdateHandler
+	// ProviderProviderCreateHandler sets the operation handler for the provider create operation
+	ProviderProviderCreateHandler provider.ProviderCreateHandler
+	// ProviderProviderDeleteHandler sets the operation handler for the provider delete operation
+	ProviderProviderDeleteHandler provider.ProviderDeleteHandler
+	// ProviderProviderGetHandler sets the operation handler for the provider get operation
+	ProviderProviderGetHandler provider.ProviderGetHandler
+	// ProviderProviderListHandler sets the operation handler for the provider list operation
+	ProviderProviderListHandler provider.ProviderListHandler
+	// ProviderProviderUpdateHandler sets the operation handler for the provider update operation
+	ProviderProviderUpdateHandler provider.ProviderUpdateHandler
+	// SampleRecommendationsGetHandler sets the operation handler for the recommendations get operation
+	SampleRecommendationsGetHandler sample.RecommendationsGetHandler
+	// RuleRuleCreateHandler sets the operation handler for the rule create operation
+	RuleRuleCreateHandler rule.RuleCreateHandler
+	// RuleRuleDeleteHandler sets the operation handler for the rule delete operation
+	RuleRuleDeleteHandler rule.RuleDeleteHandler
+	// RuleRuleGetHandler sets the operation handler for the rule get operation
+	RuleRuleGetHandler rule.RuleGetHandler
+	// RuleRuleListHandler sets the operation handler for the rule list operation
+	RuleRuleListHandler rule.RuleListHandler
+	// RuleRuleUpdateHandler sets the operation handler for the rule update operation
+	RuleRuleUpdateHandler rule.RuleUpdateHandler
+	// SampleSampleCreateHandler sets the operation handler for the sample create operation
+	SampleSampleCreateHandler sample.SampleCreateHandler
+	// SampleSampleDeleteHandler sets the operation handler for the sample delete operation
+	SampleSampleDeleteHandler sample.SampleDeleteHandler
+	// SampleSampleGetHandler sets the operation handler for the sample get operation
+	SampleSampleGetHandler sample.SampleGetHandler
+	// SampleSampleListHandler sets the operation handler for the sample list operation
+	SampleSampleListHandler sample.SampleListHandler
+	// SampleSampleUpdateHandler sets the operation handler for the sample update operation
+	SampleSampleUpdateHandler sample.SampleUpdateHandler
+	// TaskTaskGetHandler sets the operation handler for the task get operation
+	TaskTaskGetHandler task.TaskGetHandler
+	// TaskTaskListHandler sets the operation handler for the task list operation
+	TaskTaskListHandler task.TaskListHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -202,6 +296,78 @@ func (o *AutopilotAPI) Validate() error {
 
 	if o.CollectorCollectorUpdateHandler == nil {
 		unregistered = append(unregistered, "collector.CollectorUpdateHandler")
+	}
+
+	if o.ProviderProviderCreateHandler == nil {
+		unregistered = append(unregistered, "provider.ProviderCreateHandler")
+	}
+
+	if o.ProviderProviderDeleteHandler == nil {
+		unregistered = append(unregistered, "provider.ProviderDeleteHandler")
+	}
+
+	if o.ProviderProviderGetHandler == nil {
+		unregistered = append(unregistered, "provider.ProviderGetHandler")
+	}
+
+	if o.ProviderProviderListHandler == nil {
+		unregistered = append(unregistered, "provider.ProviderListHandler")
+	}
+
+	if o.ProviderProviderUpdateHandler == nil {
+		unregistered = append(unregistered, "provider.ProviderUpdateHandler")
+	}
+
+	if o.SampleRecommendationsGetHandler == nil {
+		unregistered = append(unregistered, "sample.RecommendationsGetHandler")
+	}
+
+	if o.RuleRuleCreateHandler == nil {
+		unregistered = append(unregistered, "rule.RuleCreateHandler")
+	}
+
+	if o.RuleRuleDeleteHandler == nil {
+		unregistered = append(unregistered, "rule.RuleDeleteHandler")
+	}
+
+	if o.RuleRuleGetHandler == nil {
+		unregistered = append(unregistered, "rule.RuleGetHandler")
+	}
+
+	if o.RuleRuleListHandler == nil {
+		unregistered = append(unregistered, "rule.RuleListHandler")
+	}
+
+	if o.RuleRuleUpdateHandler == nil {
+		unregistered = append(unregistered, "rule.RuleUpdateHandler")
+	}
+
+	if o.SampleSampleCreateHandler == nil {
+		unregistered = append(unregistered, "sample.SampleCreateHandler")
+	}
+
+	if o.SampleSampleDeleteHandler == nil {
+		unregistered = append(unregistered, "sample.SampleDeleteHandler")
+	}
+
+	if o.SampleSampleGetHandler == nil {
+		unregistered = append(unregistered, "sample.SampleGetHandler")
+	}
+
+	if o.SampleSampleListHandler == nil {
+		unregistered = append(unregistered, "sample.SampleListHandler")
+	}
+
+	if o.SampleSampleUpdateHandler == nil {
+		unregistered = append(unregistered, "sample.SampleUpdateHandler")
+	}
+
+	if o.TaskTaskGetHandler == nil {
+		unregistered = append(unregistered, "task.TaskGetHandler")
+	}
+
+	if o.TaskTaskListHandler == nil {
+		unregistered = append(unregistered, "task.TaskListHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -338,6 +504,96 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/collectors/{collector_id}"] = collector.NewCollectorUpdate(o.context, o.CollectorCollectorUpdateHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/providers"] = provider.NewProviderCreate(o.context, o.ProviderProviderCreateHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/providers/{provider_id}"] = provider.NewProviderDelete(o.context, o.ProviderProviderDeleteHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/providers/{provider_id}"] = provider.NewProviderGet(o.context, o.ProviderProviderGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/providers"] = provider.NewProviderList(o.context, o.ProviderProviderListHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/providers/{provider_id}"] = provider.NewProviderUpdate(o.context, o.ProviderProviderUpdateHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/samples/{sample_id}/recommendations"] = sample.NewRecommendationsGet(o.context, o.SampleRecommendationsGetHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/rules"] = rule.NewRuleCreate(o.context, o.RuleRuleCreateHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/rules/{rule_id}"] = rule.NewRuleDelete(o.context, o.RuleRuleDeleteHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rules/{rule_id}"] = rule.NewRuleGet(o.context, o.RuleRuleGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rules"] = rule.NewRuleList(o.context, o.RuleRuleListHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/rules/{rule_id}"] = rule.NewRuleUpdate(o.context, o.RuleRuleUpdateHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/samples"] = sample.NewSampleCreate(o.context, o.SampleSampleCreateHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/samples/{sample_id}"] = sample.NewSampleDelete(o.context, o.SampleSampleDeleteHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/samples/{sample_id}"] = sample.NewSampleGet(o.context, o.SampleSampleGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/samples"] = sample.NewSampleList(o.context, o.SampleSampleListHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/samples/{sample_id}"] = sample.NewSampleUpdate(o.context, o.SampleSampleUpdateHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/tasks/{task_id}"] = task.NewTaskGet(o.context, o.TaskTaskGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/tasks"] = task.NewTaskList(o.context, o.TaskTaskListHandler)
 
 }
 
