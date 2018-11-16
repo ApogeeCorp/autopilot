@@ -183,21 +183,24 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The collector id"
-      provider:
+      provider_id:
         type: "string"
-        description: "The telemetry provider for the collector"
-        enum:
-        - "prometheus"
+        format: "uuid"
+        description: "The provider id the provider this collector will use"
       params:
         type: "object"
         description: "The parameters to pass to the provider"
         additionalProperties:
           type: "object"
           properties: {}
+      interval:
+        type: "string"
+        description: "The interval the collector will run at"
     description: "A collector pulls data from a telemetry provider, parses, \nand\
       \ reformats the data to be consumed by the autopilot engine.\n"
     example:
-      provider: "prometheus"
+      provider_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      interval: "interval"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       params:
         key: "{}"
@@ -222,9 +225,6 @@ definitions:
         type: "string"
         format: "date-time"
         description: "The timestamp the next execution of the task"
-      interval:
-        type: "string"
-        description: "The task run interval"
       status:
         type: "string"
         description: "The task status"
@@ -234,6 +234,30 @@ definitions:
         - "succeeded"
         - "failed"
     description: "A task is a scheduled operation in the engine\n"
+  ProviderType:
+    type: "string"
+    description: "ProviderType:\n  * prometheus - a prometheus server\n"
+    enum:
+    - "prometheus"
+  Provider:
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+        description: "The provider id"
+      name:
+        type: "string"
+        description: "The provider name"
+      type:
+        $ref: "#/definitions/ProviderType"
+      config:
+        type: "object"
+        description: "The parameters to pass to the provider"
+        additionalProperties:
+          type: "object"
+          properties: {}
+    description: "A provider is a telemetry source that provides stats and anlytics\
+      \ data in the autopilot csv format\n"
   Sample:
     properties:
       id:
@@ -241,10 +265,7 @@ definitions:
         format: "uuid"
         description: "The sample id"
       provider:
-        type: "string"
-        description: "The telemetry provider for the collector"
-        enum:
-        - "prometheus"
+        $ref: "#/definitions/ProviderType"
       created_at:
         type: "string"
         format: "date-time"
