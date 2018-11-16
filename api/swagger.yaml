@@ -597,6 +597,7 @@ definitions:
         description: "The task type"
         enum:
         - "collector"
+        - "processor"
       params:
         type: "object"
         description: "The parameters to pass to the provider"
