@@ -223,7 +223,8 @@ definitions:
           type: "object"
           properties: {}
     description: "A sample is a set of collected data from a particular provider that\
-      \ \nis stored in the system. The sample data itself is stored in the filesystem.\n"
+      \ has be reformatted\nis stored in the system. The sample data itself is stored\
+      \ in the filesystem.\n"
   Error:
     type: "object"
     properties:
