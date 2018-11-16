@@ -15,6 +15,8 @@ security:
 paths:
   /collectors:
     get:
+      tags:
+      - "collector"
       summary: "Get a list of telemetry collectors"
       description: "Returns an array of telemetry collectors defined in the system"
       operationId: "collectorList"
@@ -27,13 +29,15 @@ paths:
             items:
               $ref: "#/definitions/Collector"
         500:
-          description: "Server Error"
+          description: "ServerError"
           examples:
             application/json:
-              message: "Internal server error"
+              message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
     post:
+      tags:
+      - "collector"
       summary: "Create a new telemetry collector"
       description: "Create a new telemetry collector from the provided definition"
       operationId: "collectorCreate"
@@ -50,21 +54,23 @@ paths:
           schema:
             $ref: "#/definitions/Collector"
         400:
-          description: "Bad Request"
+          description: "BadRequest"
           examples:
             application/json:
-              message: "Missing collector name"
+              message: "invalid parameter"
           schema:
             $ref: "#/definitions/Error"
         500:
-          description: "Server Error"
+          description: "ServerError"
           examples:
             application/json:
-              message: "Internal server error"
+              message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
   /collectors/{collector_id}:
     get:
+      tags:
+      - "collector"
       summary: "Get a list of telemetry collectors"
       description: "Returns the request collected object"
       operationId: "collectorGet"
@@ -80,18 +86,91 @@ paths:
           description: "OK"
           schema:
             $ref: "#/definitions/Collector"
-        404:
-          description: "Not Found"
+        400:
+          description: "BadRequest"
           examples:
             application/json:
-              message: "Probes Not Found"
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
           schema:
             $ref: "#/definitions/Error"
         500:
-          description: "Server Error"
+          description: "ServerError"
           examples:
             application/json:
-              message: "Internal server error"
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "collector"
+      summary: "Update a collector object"
+      description: "Update the properties of the specified collector"
+      operationId: "collectorUpdate"
+      parameters:
+      - name: "collector_id"
+        in: "path"
+        description: "The id of the collector"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "collector"
+        description: "The collector to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Collector"
+      responses:
+        204:
+          description: "No Content"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "collector"
+      summary: "Get a list of telemetry collectors"
+      description: "Returns the request collected object"
+      operationId: "collectorDelete"
+      parameters:
+      - name: "collector_id"
+        in: "path"
+        description: "The id of the collector"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
 securityDefinitions:
@@ -142,7 +221,7 @@ definitions:
     description: "Common Error Model"
 responses:
   NotFound:
-    description: "ResourceNotFound"
+    description: "NotFound"
     examples:
       application/json:
         message: "object not found"
