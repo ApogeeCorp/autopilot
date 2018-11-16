@@ -173,13 +173,13 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /providers:
+  /sources:
     get:
       tags:
-      - "provider"
-      summary: "Get a list of telemetry providers"
-      description: "Returns an array of telemetry providers defined in the system"
-      operationId: "providerList"
+      - "source"
+      summary: "Get a list of telemetry sources"
+      description: "Returns an array of telemetry sources defined in the system"
+      operationId: "sourceList"
       parameters: []
       responses:
         200:
@@ -187,7 +187,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/Provider"
+              $ref: "#/definitions/source"
         500:
           description: "ServerError"
           examples:
@@ -197,22 +197,22 @@ paths:
             $ref: "#/definitions/Error"
     post:
       tags:
-      - "provider"
-      summary: "Create a new telemetry provider"
-      description: "Create a new telemetry provider from the provided definition"
-      operationId: "providerCreate"
+      - "source"
+      summary: "Create a new telemetry source"
+      description: "Create a new telemetry source from the provided definition"
+      operationId: "sourceCreate"
       parameters:
       - in: "body"
-        name: "provider"
-        description: "The provider to create"
+        name: "source"
+        description: "The source to create"
         required: true
         schema:
-          $ref: "#/definitions/Provider"
+          $ref: "#/definitions/source"
       responses:
         201:
           description: "Created"
           schema:
-            $ref: "#/definitions/Provider"
+            $ref: "#/definitions/source"
         400:
           description: "BadRequest"
           examples:
@@ -227,17 +227,17 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /providers/{provider_id}:
+  /sources/{source_id}:
     get:
       tags:
-      - "provider"
-      summary: "Get a list of telemetry providers"
+      - "source"
+      summary: "Get a list of telemetry sources"
       description: "Returns the request collected object"
-      operationId: "providerGet"
+      operationId: "sourceGet"
       parameters:
-      - name: "provider_id"
+      - name: "source_id"
         in: "path"
-        description: "The id of the provider"
+        description: "The id of the source"
         required: true
         type: "string"
         format: "uuid"
@@ -245,7 +245,7 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/Provider"
+            $ref: "#/definitions/source"
         400:
           description: "BadRequest"
           examples:
@@ -269,23 +269,23 @@ paths:
             $ref: "#/definitions/Error"
     put:
       tags:
-      - "provider"
-      summary: "Update a provider object"
-      description: "Update the properties of the specified provider"
-      operationId: "providerUpdate"
+      - "source"
+      summary: "Update a source object"
+      description: "Update the properties of the specified source"
+      operationId: "sourceUpdate"
       parameters:
-      - name: "provider_id"
+      - name: "source_id"
         in: "path"
-        description: "The id of the provider"
+        description: "The id of the source"
         required: true
         type: "string"
         format: "uuid"
       - in: "body"
-        name: "provider"
-        description: "The provider to create"
+        name: "source"
+        description: "The source to create"
         required: true
         schema:
-          $ref: "#/definitions/Provider"
+          $ref: "#/definitions/source"
       responses:
         204:
           description: "No Content"
@@ -305,14 +305,14 @@ paths:
             $ref: "#/definitions/Error"
     delete:
       tags:
-      - "provider"
-      summary: "Get a list of telemetry providers"
+      - "source"
+      summary: "Get a list of telemetry sources"
       description: "Returns the request collected object"
-      operationId: "providerDelete"
+      operationId: "sourceDelete"
       parameters:
-      - name: "provider_id"
+      - name: "source_id"
         in: "path"
-        description: "The id of the provider"
+        description: "The id of the source"
         required: true
         type: "string"
         format: "uuid"
@@ -776,25 +776,25 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The collector id"
-      provider_id:
+      source_id:
         type: "string"
         format: "uuid"
-        description: "The provider id the provider this collector will use"
+        description: "The source id the source this collector will use"
       params:
         type: "object"
-        description: "The parameters to pass to the provider"
+        description: "The parameters to pass to the source"
         additionalProperties:
           type: "object"
           properties: {}
       interval:
         type: "string"
         description: "The interval the collector will run at"
-    description: "A collector pulls data from a telemetry provider, parses, \nand\
-      \ reformats the data to be consumed by the autopilot engine.\n"
+    description: "A collector pulls data from a telemetry source, parses, \nand reformats\
+      \ the data to be consumed by the autopilot engine.\n"
     example:
-      provider_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       interval: "interval"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      source_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       params:
         key: "{}"
   Task:
@@ -812,7 +812,7 @@ definitions:
         - "predictor"
       params:
         type: "object"
-        description: "The parameters to pass to the provider"
+        description: "The parameters to pass to the source"
         additionalProperties:
           type: "object"
           properties: {}
@@ -836,29 +836,29 @@ definitions:
       params:
         key: "{}"
       status: "pending"
-  ProviderType:
+  sourceType:
     type: "string"
-    description: "ProviderType:\n  * prometheus - a prometheus server\n"
+    description: "sourceType:\n  * prometheus - a prometheus server\n"
     enum:
     - "prometheus"
-  Provider:
+  source:
     properties:
       id:
         type: "string"
         format: "uuid"
-        description: "The provider id"
+        description: "The source id"
       name:
         type: "string"
-        description: "The provider name"
+        description: "The source name"
       type:
-        $ref: "#/definitions/ProviderType"
+        $ref: "#/definitions/sourceType"
       config:
         type: "object"
-        description: "The provider configuration"
+        description: "The source configuration"
         additionalProperties:
           type: "object"
           properties: {}
-    description: "A provider is a telemetry source that provides stats and anlytics\
+    description: "A source is a telemetry source that provides stats and anlytics\
       \ data in the autopilot csv format\n"
     example:
       name: "name"
@@ -872,27 +872,27 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The sample id"
-      provider:
-        $ref: "#/definitions/ProviderType"
+      source:
+        $ref: "#/definitions/sourceType"
       created_at:
         type: "string"
         format: "date-time"
         description: "The timestamp for the sample"
       meta:
         type: "object"
-        description: "Provider specific meta data"
+        description: "source specific meta data"
         additionalProperties:
           type: "object"
           properties: {}
-    description: "A sample is a set of collected data from a particular provider that\
+    description: "A sample is a set of collected data from a particular source that\
       \ has be reformatted\nand prepared for consumption. The sample data itself is\
       \ stored in the filesystem.\n"
     example:
-      provider: {}
       meta:
         key: "{}"
       created_at: "2000-01-23T04:56:07.000+00:00"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      source: {}
   Rule:
     properties:
       id:
