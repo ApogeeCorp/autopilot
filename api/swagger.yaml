@@ -656,7 +656,7 @@ paths:
         description: "The rule to create"
         required: true
         schema:
-          $ref: "#/definitions/Rule"
+          $ref: "#/definitions/RuleSet"
       responses:
         204:
           description: "No Content"
@@ -899,13 +899,64 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The rule id"
-      source:
+      expr:
         type: "string"
-        description: "The rule source data"
+        example: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
+        description: "The expression to match"
+      for:
+        type: "integer"
+        format: "int64"
+        example: 3600
+        description: "The duration/interval the expression must be valid for in seconds"
+      issue:
+        type: "string"
+        example: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is\
+          \ high."
+        description: "The issue template"
+      severity:
+        type: "string"
+        enum:
+        - "critical"
+      proposal:
+        type: "string"
+        example: "Add additional storage node to {{$labels.cluster}}"
+        description: "The proposal template"
+    description: "An proposal is a recommended solution that matches a certain constraint\n"
+    example:
+      severity: "critical"
+      proposal: "Add additional storage node to {{$labels.cluster}}"
+      issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
+      for: 3600
+      expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+  RuleSet:
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+        description: "The ruleset id"
+      rules:
+        type: "array"
+        items:
+          $ref: "#/definitions/Rule"
     description: "A rule is a yaml rule set to executed by the recommendation engine\n"
     example:
+      rules:
+      - severity: "critical"
+        proposal: "Add additional storage node to {{$labels.cluster}}"
+        issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is\
+          \ high."
+        for: 3600
+        expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
+        id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      - severity: "critical"
+        proposal: "Add additional storage node to {{$labels.cluster}}"
+        issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is\
+          \ high."
+        for: 3600
+        expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
+        id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      source: "source"
   Recommendation:
     properties:
       id:
