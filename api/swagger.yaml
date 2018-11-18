@@ -778,11 +778,7 @@ definitions:
         format: "uuid"
         description: "The source id the source this collector will use"
       params:
-        type: "object"
-        description: "The parameters to pass to the source"
-        additionalProperties:
-          type: "object"
-          properties: {}
+        $ref: "#/definitions/JSONMap"
       interval:
         type: "string"
         description: "The interval the collector will run at"
@@ -792,8 +788,7 @@ definitions:
       interval: "interval"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       source_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      params:
-        key: "{}"
+      params: {}
   Task:
     properties:
       id:
@@ -850,19 +845,14 @@ definitions:
       type:
         $ref: "#/definitions/SourceType"
       config:
-        type: "object"
-        description: "The source configuration"
-        additionalProperties:
-          type: "object"
-          properties: {}
+        $ref: "#/definitions/JSONMap"
     description: "A source is a telemetry source that provides stats and anlytics\
       \ data in the autopilot csv format\n"
     example:
       name: "name"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       type: {}
-      config:
-        key: "{}"
+      config: {}
   Sample:
     properties:
       id:
@@ -876,17 +866,12 @@ definitions:
         format: "date-time"
         description: "The timestamp for the sample"
       meta:
-        type: "object"
-        description: "source specific meta data"
-        additionalProperties:
-          type: "object"
-          properties: {}
+        $ref: "#/definitions/JSONMap"
     description: "A sample is a set of collected data from a particular source that\
       \ has be reformatted\nand prepared for consumption. The sample data itself is\
       \ stored in the filesystem.\n"
     example:
-      meta:
-        key: "{}"
+      meta: {}
       created_at: "2000-01-23T04:56:07.000+00:00"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       source: {}
@@ -985,6 +970,19 @@ definitions:
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       proposals:
         key: "{}"
+  JSONMap:
+    type: "object"
+    description: "json data object"
+    additionalProperties:
+      type: "object"
+      properties: {}
+    x-go-type:
+      type: "Params"
+      import:
+        package: "gitlab.com/ModelRocket/sparks/types"
+        alias: "sparks"
+    x-nullable: true
+    x-omitempty: true
   Error:
     type: "object"
     properties:
