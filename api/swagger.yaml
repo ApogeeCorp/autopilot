@@ -374,7 +374,7 @@ paths:
         description: "The provider to process the sample with"
         required: false
         type: "string"
-        default: "[prometheus]"
+        default: "prometheus"
         enum:
         - "prometheus"
       responses:
