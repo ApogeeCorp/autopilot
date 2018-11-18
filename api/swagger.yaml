@@ -564,7 +564,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/Rule"
+              $ref: "#/definitions/RuleSet"
         500:
           description: "ServerError"
           examples:
@@ -584,12 +584,12 @@ paths:
         description: "The rule to create"
         required: true
         schema:
-          $ref: "#/definitions/Rule"
+          $ref: "#/definitions/RuleSet"
       responses:
         201:
           description: "Created"
           schema:
-            $ref: "#/definitions/Rule"
+            $ref: "#/definitions/RuleSet"
         400:
           description: "BadRequest"
           examples:
@@ -622,7 +622,7 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/Rule"
+            $ref: "#/definitions/RuleSet"
         400:
           description: "BadRequest"
           examples:
