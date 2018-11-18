@@ -925,10 +925,14 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The ruleset id"
+      name:
+        type: "string"
+        description: "The rule set name"
       rules:
         $ref: "#/definitions/RuleArray"
     description: "A rule is a yaml rule set to executed by the recommendation engine\n"
     example:
+      name: "name"
       rules: ""
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
   Recommendation:
