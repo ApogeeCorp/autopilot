@@ -369,6 +369,14 @@ paths:
         description: "The sample to create"
         required: true
         type: "file"
+      - name: "provider"
+        in: "query"
+        description: "The provider to process the sample with"
+        required: false
+        type: "string"
+        default: "[prometheus]"
+        enum:
+        - "prometheus"
       responses:
         201:
           description: "Created"
