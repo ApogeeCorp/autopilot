@@ -95,9 +95,6 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
 		}),
-		SampleSampleUpdateHandler: sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleUpdate has not yet been implemented")
-		}),
 		SourceSourceCreateHandler: source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceCreate has not yet been implemented")
 		}),
@@ -109,6 +106,9 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		}),
 		SourceSourceListHandler: source.SourceListHandlerFunc(func(params source.SourceListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceList has not yet been implemented")
+		}),
+		SourceSourcePollHandler: source.SourcePollHandlerFunc(func(params source.SourcePollParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation SourceSourcePoll has not yet been implemented")
 		}),
 		SourceSourceUpdateHandler: source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceUpdate has not yet been implemented")
@@ -197,8 +197,6 @@ type AutopilotAPI struct {
 	SampleSampleGetHandler sample.SampleGetHandler
 	// SampleSampleListHandler sets the operation handler for the sample list operation
 	SampleSampleListHandler sample.SampleListHandler
-	// SampleSampleUpdateHandler sets the operation handler for the sample update operation
-	SampleSampleUpdateHandler sample.SampleUpdateHandler
 	// SourceSourceCreateHandler sets the operation handler for the source create operation
 	SourceSourceCreateHandler source.SourceCreateHandler
 	// SourceSourceDeleteHandler sets the operation handler for the source delete operation
@@ -207,6 +205,8 @@ type AutopilotAPI struct {
 	SourceSourceGetHandler source.SourceGetHandler
 	// SourceSourceListHandler sets the operation handler for the source list operation
 	SourceSourceListHandler source.SourceListHandler
+	// SourceSourcePollHandler sets the operation handler for the source poll operation
+	SourceSourcePollHandler source.SourcePollHandler
 	// SourceSourceUpdateHandler sets the operation handler for the source update operation
 	SourceSourceUpdateHandler source.SourceUpdateHandler
 	// TaskTaskGetHandler sets the operation handler for the task get operation
@@ -344,10 +344,6 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "sample.SampleListHandler")
 	}
 
-	if o.SampleSampleUpdateHandler == nil {
-		unregistered = append(unregistered, "sample.SampleUpdateHandler")
-	}
-
 	if o.SourceSourceCreateHandler == nil {
 		unregistered = append(unregistered, "source.SourceCreateHandler")
 	}
@@ -362,6 +358,10 @@ func (o *AutopilotAPI) Validate() error {
 
 	if o.SourceSourceListHandler == nil {
 		unregistered = append(unregistered, "source.SourceListHandler")
+	}
+
+	if o.SourceSourcePollHandler == nil {
+		unregistered = append(unregistered, "source.SourcePollHandler")
 	}
 
 	if o.SourceSourceUpdateHandler == nil {
@@ -562,11 +562,6 @@ func (o *AutopilotAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/samples"] = sample.NewSampleList(o.context, o.SampleSampleListHandler)
 
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/samples/{sample_id}"] = sample.NewSampleUpdate(o.context, o.SampleSampleUpdateHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -586,6 +581,11 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/sources"] = source.NewSourceList(o.context, o.SourceSourceListHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/sources/{source_id}/poll"] = source.NewSourcePoll(o.context, o.SourceSourcePollHandler)
 
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)

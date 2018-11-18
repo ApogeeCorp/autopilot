@@ -37,3 +37,8 @@ func (a *API) SourceList(ctx *Context, params source.SourceListParams) middlewar
 func (a *API) SourceUpdate(ctx *Context, params source.SourceUpdateParams) middleware.Responder {
 	return sparks.ErrNotImplemented("sourceUpdate")
 }
+
+// SourcePoll Poll a source and collect a sample manually
+func (a *API) SourcePoll(ctx *Context, params source.SourcePollParams) middleware.Responder {
+	return sparks.ErrNotImplemented("sourcePoll")
+}

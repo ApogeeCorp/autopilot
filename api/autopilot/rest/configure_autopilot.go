@@ -76,8 +76,6 @@ type SampleAPI interface {
 	SampleGet(ctx *autopilot.Context, params sample.SampleGetParams) middleware.Responder
 	// SampleList is Returns an array of telemetry samples defined in the system
 	SampleList(ctx *autopilot.Context, params sample.SampleListParams) middleware.Responder
-	// SampleUpdate is Update the properties of the specified sample
-	SampleUpdate(ctx *autopilot.Context, params sample.SampleUpdateParams) middleware.Responder
 }
 
 // SourceAPI
@@ -90,6 +88,8 @@ type SourceAPI interface {
 	SourceGet(ctx *autopilot.Context, params source.SourceGetParams) middleware.Responder
 	// SourceList is Returns an array of telemetry sources defined in the system
 	SourceList(ctx *autopilot.Context, params source.SourceListParams) middleware.Responder
+	// SourcePoll is Poll a source and collect a sample manually
+	SourcePoll(ctx *autopilot.Context, params source.SourcePollParams) middleware.Responder
 	// SourceUpdate is Update the properties of the specified source
 	SourceUpdate(ctx *autopilot.Context, params source.SourceUpdateParams) middleware.Responder
 }
@@ -253,13 +253,6 @@ func Handler(c Config) (http.Handler, error) {
 		}
 		return c.AutopilotAPI.SampleList(ctx, params)
 	})
-	api.SampleSampleUpdateHandler = sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal interface{}) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.SampleUpdate(ctx, params)
-	})
 	api.SourceSourceCreateHandler = source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
@@ -287,6 +280,13 @@ func Handler(c Config) (http.Handler, error) {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceList(ctx, params)
+	})
+	api.SourceSourcePollHandler = source.SourcePollHandlerFunc(func(params source.SourcePollParams, principal interface{}) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.SourcePoll(ctx, params)
 	})
 	api.SourceSourceUpdateHandler = source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)

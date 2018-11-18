@@ -678,60 +678,6 @@ func init() {
           }
         }
       },
-      "put": {
-        "description": "Update the properties of the specified sample",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Update a sample object",
-        "operationId": "sampleUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "description": "Returns the request collected object",
         "tags": [
@@ -1065,6 +1011,67 @@ func init() {
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/{source_id}/poll": {
+      "get": {
+        "description": "Poll a source and collect a sample manually",
+        "tags": [
+          "source"
+        ],
+        "summary": "Poll a source",
+        "operationId": "sourcePoll",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Sample"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
           },
           "404": {
             "description": "NotFound",
@@ -2174,60 +2181,6 @@ func init() {
           }
         }
       },
-      "put": {
-        "description": "Update the properties of the specified sample",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Update a sample object",
-        "operationId": "sampleUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "description": "Returns the request collected object",
         "tags": [
@@ -2561,6 +2514,67 @@ func init() {
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/{source_id}/poll": {
+      "get": {
+        "description": "Poll a source and collect a sample manually",
+        "tags": [
+          "source"
+        ],
+        "summary": "Poll a source",
+        "operationId": "sourcePoll",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "The id of the source",
+            "name": "source_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Sample"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "invalid parameter"
+              }
+            }
           },
           "404": {
             "description": "NotFound",

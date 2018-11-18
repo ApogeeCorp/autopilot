@@ -111,8 +111,3 @@ func (a *API) SampleList(ctx *Context, params sample.SampleListParams) middlewar
 	}
 	return sample.NewSampleListOK().WithPayload(samples)
 }
-
-// SampleUpdate Update the properties of the specified sample
-func (a *API) SampleUpdate(ctx *Context, params sample.SampleUpdateParams) middleware.Responder {
-	return sparks.ErrNotImplemented("sampleUpdate")
-}
