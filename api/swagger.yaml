@@ -371,7 +371,7 @@ paths:
         type: "file"
       - name: "type"
         in: "query"
-        description: "The provider to process the sample with"
+        description: "The provider type to process the sample with"
         required: false
         type: "string"
         default: "prometheus"
@@ -868,7 +868,7 @@ definitions:
         type: "string"
         format: "uuid"
         description: "The sample id"
-      source:
+      type:
         $ref: "#/definitions/SourceType"
       created_at:
         type: "string"
@@ -883,7 +883,7 @@ definitions:
       meta: {}
       created_at: "2000-01-23T04:56:07.000+00:00"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      source: {}
+      type: {}
   Rule:
     properties:
       id:
