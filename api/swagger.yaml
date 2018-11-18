@@ -519,7 +519,7 @@ paths:
       - name: "rules"
         in: "query"
         description: "The rules to apply to get the recommendations"
-        required: false
+        required: true
         type: "string"
         format: "uuid"
       responses:
