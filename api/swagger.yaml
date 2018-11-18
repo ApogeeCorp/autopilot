@@ -511,11 +511,8 @@ paths:
         in: "query"
         description: "The rules to apply to get the recommendations"
         required: false
-        type: "array"
-        items:
-          type: "string"
-          format: "uuid"
-        collectionFormat: "csv"
+        type: "string"
+        format: "uuid"
       responses:
         200:
           description: "OK"
