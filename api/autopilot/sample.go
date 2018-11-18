@@ -6,6 +6,7 @@
 package autopilot
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
 
@@ -15,6 +16,7 @@ import (
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
 	"github.com/libopenstorage/autopilot/api/autopilot/types"
+	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 )
 
 // RecommendationsGet Returns the recommendations for a particular sample
@@ -33,7 +35,7 @@ func (a *API) RecommendationsGet(ctx *Context, params sample.RecommendationsGetP
 	}
 
 	// check for the sample files
-	samplePath := path.Join(os.Getenv("SAMPLE_VOL"), "samples", s.ID.String(), "output")
+	samplePath := path.Join(os.Getenv("SAMPLE_VOL"), s.ID.String())
 	if _, err := os.Stat(samplePath); err != nil {
 		return sparks.NewError(err)
 	}
@@ -48,7 +50,47 @@ func (a *API) RecommendationsGet(ctx *Context, params sample.RecommendationsGetP
 
 // SampleCreate Create a new telemetry sample from the provided definition
 func (a *API) SampleCreate(ctx *Context, params sample.SampleCreateParams) middleware.Responder {
-	return sparks.ErrNotImplemented("sampleCreate")
+	if *params.Type != string(types.SourceTypePrometheus) {
+		return sparks.ErrInvalidParameter.Reason("invalid type")
+	}
+
+	source, err := ioutil.ReadAll(params.Sample)
+	if err != nil {
+		return sparks.NewError(err)
+	}
+
+	tx := a.DB.Begin()
+	s := &types.Sample{
+		Type: types.SourceTypePrometheus,
+	}
+
+	if err := tx.Create(s).Error; err != nil {
+		tx.Rollback()
+		return sparks.NewError(err)
+	}
+
+	// check for the sample files
+	samplePath := path.Join(os.Getenv("SAMPLE_VOL"), s.ID.String())
+	if err := os.MkdirAll(samplePath, 0600); err != nil {
+		tx.Rollback()
+		return sparks.NewError(err)
+	}
+	a.Log.Debugf("creating new sample at %s", samplePath)
+
+	prom := &prometheus.Prometheus{
+		Log: a.Log,
+	}
+
+	if err := prom.Parse(source, nil, samplePath); err != nil {
+		tx.Rollback()
+		return sparks.NewError(err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return sparks.NewError(err)
+	}
+
+	return sample.NewSampleCreateCreated().WithPayload(s)
 }
 
 // SampleDelete Returns the request collected object

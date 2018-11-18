@@ -553,6 +553,9 @@ func init() {
       },
       "post": {
         "description": "Create a new telemetry sample from the provided definition",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "sample"
         ],
@@ -560,13 +563,21 @@ func init() {
         "operationId": "sampleCreate",
         "parameters": [
           {
+            "type": "file",
             "description": "The sample to create",
             "name": "sample",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
+            "in": "formData",
+            "required": true
+          },
+          {
+            "enum": [
+              "prometheus"
+            ],
+            "type": "string",
+            "default": "prometheus",
+            "description": "The provider type to process the sample with",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1181,11 +1192,7 @@ func init() {
           "type": "string"
         },
         "params": {
-          "description": "The parameters to pass to the source",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
         "source_id": {
           "description": "The source id the source this collector will use",
@@ -1196,9 +1203,7 @@ func init() {
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
         "interval": "interval",
-        "params": {
-          "key": "{}"
-        },
+        "params": {},
         "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       }
     },
@@ -1225,6 +1230,22 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "JSONMap": {
+      "description": "json data object",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      },
+      "x-go-type": {
+        "import": {
+          "alias": "sparks",
+          "package": "gitlab.com/ModelRocket/sparks/types"
+        },
+        "type": "Params"
+      },
+      "x-nullable": true,
+      "x-omitempty": true
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
@@ -1349,45 +1370,29 @@ func init() {
     "Sample": {
       "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
       "properties": {
-        "created_at": {
-          "description": "The timestamp for the sample",
-          "type": "string",
-          "format": "date-time"
-        },
         "id": {
           "description": "The sample id",
           "type": "string",
           "format": "uuid"
         },
         "meta": {
-          "description": "source specific meta data",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
-        "source": {
+        "type": {
           "$ref": "#/definitions/SourceType"
         }
       },
       "example": {
-        "created_at": "2000-01-23T04:56:07.000+00:00",
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "meta": {
-          "key": "{}"
-        },
-        "source": {}
+        "meta": {},
+        "type": {}
       }
     },
     "Source": {
       "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
       "properties": {
         "config": {
-          "description": "The source configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
         "id": {
           "description": "The source id",
@@ -1403,9 +1408,7 @@ func init() {
         }
       },
       "example": {
-        "config": {
-          "key": "{}"
-        },
+        "config": {},
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
         "name": "name",
         "type": {}
@@ -2057,6 +2060,9 @@ func init() {
       },
       "post": {
         "description": "Create a new telemetry sample from the provided definition",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "sample"
         ],
@@ -2064,13 +2070,21 @@ func init() {
         "operationId": "sampleCreate",
         "parameters": [
           {
+            "type": "file",
             "description": "The sample to create",
             "name": "sample",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
+            "in": "formData",
+            "required": true
+          },
+          {
+            "enum": [
+              "prometheus"
+            ],
+            "type": "string",
+            "default": "prometheus",
+            "description": "The provider type to process the sample with",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2685,11 +2699,7 @@ func init() {
           "type": "string"
         },
         "params": {
-          "description": "The parameters to pass to the source",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
         "source_id": {
           "description": "The source id the source this collector will use",
@@ -2700,9 +2710,7 @@ func init() {
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
         "interval": "interval",
-        "params": {
-          "key": "{}"
-        },
+        "params": {},
         "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       }
     },
@@ -2729,6 +2737,22 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "JSONMap": {
+      "description": "json data object",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      },
+      "x-go-type": {
+        "import": {
+          "alias": "sparks",
+          "package": "gitlab.com/ModelRocket/sparks/types"
+        },
+        "type": "Params"
+      },
+      "x-nullable": true,
+      "x-omitempty": true
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
@@ -2853,45 +2877,29 @@ func init() {
     "Sample": {
       "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
       "properties": {
-        "created_at": {
-          "description": "The timestamp for the sample",
-          "type": "string",
-          "format": "date-time"
-        },
         "id": {
           "description": "The sample id",
           "type": "string",
           "format": "uuid"
         },
         "meta": {
-          "description": "source specific meta data",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
-        "source": {
+        "type": {
           "$ref": "#/definitions/SourceType"
         }
       },
       "example": {
-        "created_at": "2000-01-23T04:56:07.000+00:00",
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "meta": {
-          "key": "{}"
-        },
-        "source": {}
+        "meta": {},
+        "type": {}
       }
     },
     "Source": {
       "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
       "properties": {
         "config": {
-          "description": "The source configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+          "$ref": "#/definitions/JSONMap"
         },
         "id": {
           "description": "The source id",
@@ -2907,9 +2915,7 @@ func init() {
         }
       },
       "example": {
-        "config": {
-          "key": "{}"
-        },
+        "config": {},
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
         "name": "name",
         "type": {}

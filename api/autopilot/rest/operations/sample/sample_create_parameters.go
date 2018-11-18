@@ -12,20 +12,30 @@ package sample
 
 import (
 	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
-	types "github.com/libopenstorage/autopilot/api/autopilot/types"
+	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewSampleCreateParams creates a new SampleCreateParams object
-// no default values defined in spec.
+// with the default values initialized.
 func NewSampleCreateParams() SampleCreateParams {
 
-	return SampleCreateParams{}
+	var (
+		// initialize parameters with default values
+
+		typeVarDefault = string("prometheus")
+	)
+
+	return SampleCreateParams{
+		Type: &typeVarDefault,
+	}
 }
 
 // SampleCreateParams contains all the bound params for the sample create operation
@@ -39,9 +49,14 @@ type SampleCreateParams struct {
 
 	/*The sample to create
 	  Required: true
-	  In: body
+	  In: formData
 	*/
-	Sample *types.Sample
+	Sample io.ReadCloser
+	/*The provider type to process the sample with
+	  In: query
+	  Default: "prometheus"
+	*/
+	Type *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -53,30 +68,73 @@ func (o *SampleCreateParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	o.HTTPRequest = r
 
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body types.Sample
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("sample", "body"))
-			} else {
-				res = append(res, errors.NewParseError("sample", "body", "", err))
-			}
-		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
+	qs := runtime.Values(r.URL.Query())
 
-			if len(res) == 0 {
-				o.Sample = &body
-			}
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		if err != http.ErrNotMultipart {
+			return errors.New(400, "%v", err)
+		} else if err := r.ParseForm(); err != nil {
+			return errors.New(400, "%v", err)
 		}
-	} else {
-		res = append(res, errors.Required("sample", "body"))
 	}
+
+	sample, sampleHeader, err := r.FormFile("sample")
+	if err != nil {
+		res = append(res, errors.New(400, "reading file %q failed: %v", "sample", err))
+	} else if err := o.bindSample(sample, sampleHeader); err != nil {
+		// Required: true
+		res = append(res, err)
+	} else {
+		o.Sample = &runtime.File{Data: sample, Header: sampleHeader}
+	}
+
+	qType, qhkType, _ := qs.GetOK("type")
+	if err := o.bindType(qType, qhkType, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindSample binds file parameter Sample.
+//
+// The only supported validations on files are MinLength and MaxLength
+func (o *SampleCreateParams) bindSample(file multipart.File, header *multipart.FileHeader) error {
+	return nil
+}
+
+// bindType binds and validates parameter Type from query.
+func (o *SampleCreateParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		// Default values have been previously initialized by NewSampleCreateParams()
+		return nil
+	}
+
+	o.Type = &raw
+
+	if err := o.validateType(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateType carries on validations for parameter Type
+func (o *SampleCreateParams) validateType(formats strfmt.Registry) error {
+
+	if err := validate.Enum("type", "query", *o.Type, []interface{}{"prometheus"}); err != nil {
+		return err
+	}
+
 	return nil
 }

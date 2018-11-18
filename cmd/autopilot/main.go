@@ -60,11 +60,13 @@ func main() {
 			Name:   "db-source",
 			Usage:  "set the database source",
 			EnvVar: "DB_SOURCE",
-			Value:  "dbname=autopilot host=localhost sslmode=disable user=postgres",
+			Value:  "dbname=autopilot host=autopilot.cig1ipcep3yi.us-east-1.rds.amazonaws.com user=postgres password=D1g1tal*23",
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
+		log.SetLevel(logrus.DebugLevel)
+
 		// open the rds database
 		db, err := gorm.Open(c.GlobalString("db-driver"), c.GlobalString("db-source"))
 		if err != nil {

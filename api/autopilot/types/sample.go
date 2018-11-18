@@ -16,6 +16,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 // Sample A sample is a set of collected data from a particular source that has be reformatted
@@ -24,53 +26,36 @@ import (
 // swagger:model Sample
 type Sample struct {
 
-	// The timestamp for the sample
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
-
 	// The sample id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// source specific meta data
-	Meta map[string]interface{} `json:"meta,omitempty"`
+	// meta
+	Meta sparks.Params `json:"meta,omitempty"`
 
-	// source
-	Source SourceType `json:"source,omitempty"`
+	// type
+	Type SourceType `json:"type,omitempty"`
 }
 
 // Validate validates this sample
 func (m *Sample) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSource(formats); err != nil {
+	if err := m.validateMeta(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *Sample) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -87,15 +72,31 @@ func (m *Sample) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Sample) validateSource(formats strfmt.Registry) error {
+func (m *Sample) validateMeta(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Source) { // not required
+	if swag.IsZero(m.Meta) { // not required
 		return nil
 	}
 
-	if err := m.Source.Validate(formats); err != nil {
+	if err := m.Meta.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("source")
+			return ve.ValidateName("meta")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Sample) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Type) { // not required
+		return nil
+	}
+
+	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
 		}
 		return err
 	}

@@ -18,7 +18,11 @@ import (
 
 // SampleCreateURL generates an URL for the sample create operation
 type SampleCreateURL struct {
+	Type *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -44,6 +48,18 @@ func (o *SampleCreateURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var typeVar string
+	if o.Type != nil {
+		typeVar = *o.Type
+	}
+	if typeVar != "" {
+		qs.Set("type", typeVar)
+	}
+
+	result.RawQuery = qs.Encode()
 
 	return &result, nil
 }

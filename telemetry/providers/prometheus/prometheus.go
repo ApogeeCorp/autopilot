@@ -111,7 +111,6 @@ type (
 
 	// Prometheus defines the prometheus provider
 	Prometheus struct {
-		URL string
 		Log *logrus.Logger
 	}
 )
@@ -162,7 +161,7 @@ func Keys(m map[string]string) (keys []string) {
 }
 
 // Collect implements the provider interface
-func (p *Prometheus) Collect(params map[string]string, stagingPath string) error {
+func (p *Prometheus) Collect(host string, params map[string]string, stagingPath string) error {
 	endDate := time.Now()
 	startDate := endDate.Add(time.Hour * -24)
 	step := "15m"
@@ -191,7 +190,7 @@ func (p *Prometheus) Collect(params map[string]string, stagingPath string) error
 
 	client := &http.Client{}
 
-	req, _ := http.NewRequest("GET", p.URL+"/query_range", nil)
+	req, _ := http.NewRequest("GET", host+"/query_range", nil)
 
 	q := req.URL.Query()
 
@@ -227,6 +226,25 @@ func (p *Prometheus) Collect(params map[string]string, stagingPath string) error
 	p.WriteCSV(timeseries, base, Pool)
 	p.WriteCSV(timeseries, base, Cluster)
 	p.WriteAlertCSV(base, alerts)
+
+	return nil
+}
+
+// Parse parses prometheus data and creates the csv
+func (p *Prometheus) Parse(source []byte, params map[string]string, outPath string) error {
+	results := ClusterResults{}
+	err := json.Unmarshal(source, &results)
+	if err != nil {
+		return err
+	}
+
+	timeseries, alerts := p.TransformToRows(&results)
+
+	p.WriteCSV(timeseries, outPath, Volume)
+	p.WriteCSV(timeseries, outPath, Disk)
+	p.WriteCSV(timeseries, outPath, Pool)
+	p.WriteCSV(timeseries, outPath, Cluster)
+	p.WriteAlertCSV(outPath, alerts)
 
 	return nil
 }

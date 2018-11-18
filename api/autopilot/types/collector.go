@@ -16,6 +16,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 // Collector A collector pulls data from a telemetry source, parses,
@@ -31,8 +33,8 @@ type Collector struct {
 	// The interval the collector will run at
 	Interval string `json:"interval,omitempty"`
 
-	// The parameters to pass to the source
-	Params map[string]interface{} `json:"params,omitempty"`
+	// params
+	Params sparks.Params `json:"params,omitempty"`
 
 	// The source id the source this collector will use
 	// Format: uuid
@@ -44,6 +46,10 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateParams(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -64,6 +70,22 @@ func (m *Collector) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Collector) validateParams(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Params) { // not required
+		return nil
+	}
+
+	if err := m.Params.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("params")
+		}
 		return err
 	}
 

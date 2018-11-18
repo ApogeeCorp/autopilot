@@ -35,20 +35,20 @@ import (
 // NewAutopilotAPI creates a new Autopilot instance
 func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 	return &AutopilotAPI{
-		handlers:            make(map[string]map[string]http.Handler),
-		formats:             strfmt.Default,
-		defaultConsumes:     "application/json",
-		defaultProduces:     "application/json",
-		customConsumers:     make(map[string]runtime.Consumer),
-		customProducers:     make(map[string]runtime.Producer),
-		ServerShutdown:      func() {},
-		spec:                spec,
-		ServeError:          errors.ServeError,
-		BasicAuthenticator:  security.BasicAuthCtx,
-		APIKeyAuthenticator: security.APIKeyAuthCtx,
-		BearerAuthenticator: security.BearerAuthCtx,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+		handlers:              make(map[string]map[string]http.Handler),
+		formats:               strfmt.Default,
+		defaultConsumes:       "application/json",
+		defaultProduces:       "application/json",
+		customConsumers:       make(map[string]runtime.Consumer),
+		customProducers:       make(map[string]runtime.Producer),
+		ServerShutdown:        func() {},
+		spec:                  spec,
+		ServeError:            errors.ServeError,
+		BasicAuthenticator:    security.BasicAuthCtx,
+		APIKeyAuthenticator:   security.APIKeyAuthCtx,
+		BearerAuthenticator:   security.BearerAuthCtx,
+		MultipartformConsumer: runtime.DiscardConsumer,
+		JSONProducer:          runtime.JSONProducer(),
 		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorCreate has not yet been implemented")
 		}),
@@ -151,8 +151,8 @@ type AutopilotAPI struct {
 	// It has a default implemention in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthenticationCtx) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json" mime type
-	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
+	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
@@ -265,8 +265,8 @@ func (o *AutopilotAPI) RegisterFormat(name string, format strfmt.Format, validat
 func (o *AutopilotAPI) Validate() error {
 	var unregistered []string
 
-	if o.JSONConsumer == nil {
-		unregistered = append(unregistered, "JSONConsumer")
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
 	}
 
 	if o.JSONProducer == nil {
@@ -412,8 +412,8 @@ func (o *AutopilotAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Cons
 	for _, mt := range mediaTypes {
 		switch mt {
 
-		case "application/json":
-			result["application/json"] = o.JSONConsumer
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
 

@@ -16,6 +16,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 // Source A source is a telemetry source that provides stats and anlytics data in the autopilot csv format
@@ -23,8 +25,8 @@ import (
 // swagger:model Source
 type Source struct {
 
-	// The source configuration
-	Config map[string]interface{} `json:"config,omitempty"`
+	// config
+	Config sparks.Params `json:"config,omitempty"`
 
 	// The source id
 	// Format: uuid
@@ -41,6 +43,10 @@ type Source struct {
 func (m *Source) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -52,6 +58,22 @@ func (m *Source) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Source) validateConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Config) { // not required
+		return nil
+	}
+
+	if err := m.Config.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("config")
+		}
+		return err
+	}
+
 	return nil
 }
 
