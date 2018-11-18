@@ -870,10 +870,6 @@ definitions:
         description: "The sample id"
       type:
         $ref: "#/definitions/SourceType"
-      created_at:
-        type: "string"
-        format: "date-time"
-        description: "The timestamp for the sample"
       meta:
         $ref: "#/definitions/JSONMap"
     description: "A sample is a set of collected data from a particular source that\
@@ -881,7 +877,6 @@ definitions:
       \ stored in the filesystem.\n"
     example:
       meta: {}
-      created_at: "2000-01-23T04:56:07.000+00:00"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       type: {}
   Rule:
