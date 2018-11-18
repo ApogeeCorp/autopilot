@@ -70,8 +70,8 @@ func (a *API) SampleCreate(ctx *Context, params sample.SampleCreateParams) middl
 	}
 
 	// check for the sample files
-	samplePath := path.Join(os.Getenv("SAMPLE_VOL"), s.ID.String())
-	if err := os.MkdirAll(samplePath, 0600); err != nil {
+	samplePath := path.Join(a.DataDir, s.ID.String())
+	if err := os.MkdirAll(samplePath, 0770); err != nil {
 		tx.Rollback()
 		return sparks.NewError(err)
 	}

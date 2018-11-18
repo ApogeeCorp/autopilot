@@ -16,9 +16,10 @@ import (
 
 // API is the acme API interface implementation
 type API struct {
-	Log    *logrus.Logger
-	DB     *gorm.DB
-	engine *engine.Engine
+	Log     *logrus.Logger
+	DB      *gorm.DB
+	DataDir string
+	engine  *engine.Engine
 }
 
 // Initialize initializes the API before the server starts handling request

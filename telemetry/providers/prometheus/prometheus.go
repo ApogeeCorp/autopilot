@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -240,11 +241,21 @@ func (p *Prometheus) Parse(source []byte, params map[string]string, outPath stri
 
 	timeseries, alerts := p.TransformToRows(&results)
 
-	p.WriteCSV(timeseries, outPath, Volume)
-	p.WriteCSV(timeseries, outPath, Disk)
-	p.WriteCSV(timeseries, outPath, Pool)
-	p.WriteCSV(timeseries, outPath, Cluster)
-	p.WriteAlertCSV(outPath, alerts)
+	if err := p.WriteCSV(timeseries, outPath, Volume); err != nil {
+		return err
+	}
+	if err := p.WriteCSV(timeseries, outPath, Disk); err != nil {
+		return err
+	}
+	if err := p.WriteCSV(timeseries, outPath, Pool); err != nil {
+		return err
+	}
+	if err := p.WriteCSV(timeseries, outPath, Cluster); err != nil {
+		return err
+	}
+	if err := p.WriteAlertCSV(outPath, alerts); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -270,10 +281,12 @@ func (p *Prometheus) CreateCSVRows(br CSVRow, m map[string]map[string]string, la
 }
 
 // WriteCSV for a particular metric category, create the CSV file
-func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name string) {
-	f, err := os.Create(base + "-" + name + ".csv")
+func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name string) error {
+	base = path.Join(base, name)
+	f, err := os.Create(base + ".csv")
 	if err != nil {
-		p.Log.Fatalln("Error Creating File", name, err)
+		p.Log.Errorln("Error Creating File", name, err)
+		return err
 	}
 
 	defer f.Close()
@@ -295,32 +308,43 @@ func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name stri
 
 		csvRows, csvHeader := p.CreateCSVRows(br, m, name)
 		if wroteHeader == false {
-			w.Write(csvHeader)
+			if err := w.Write(csvHeader); err != nil {
+				return err
+			}
 			wroteHeader = true
 		}
 		for _, csvRow := range csvRows {
-			w.Write(csvRow)
+			if err := w.Write(csvRow); err != nil {
+				return err
+			}
 		}
 	}
 	w.Flush()
+	return nil
 }
 
 // WriteAlertCSV for the alerts csv
-func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) {
+func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) error {
 	f, err := os.Create(base + "-alerts.csv")
 	if err != nil {
-		p.Log.Fatalln("Error Creating Alerts File", err)
+		p.Log.Errorln("Error Creating Alerts File", err)
+		return err
 	}
 
 	defer f.Close()
 	w := csv.NewWriter(f)
-	w.Write([]string{Timestamp, Cluster, Instance, Node, "alert_name", "alert_state", "alert_severity", "alert_value"})
+	if err := w.Write([]string{Timestamp, Cluster, Instance, Node, "alert_name", "alert_state", "alert_severity", "alert_value"}); err != nil {
+		return err
+	}
 	for _, alert := range alerts {
 		var row []string
 		row = append(row, strconv.FormatUint(uint64(alert.csvRow.Timestamp), 10), alert.csvRow.Cluster, alert.csvRow.Instance, alert.csvRow.Node, alert.AlertName, alert.AlertState, alert.AlertSeverity, alert.AlertValue)
-		w.Write(row)
+		if err := w.Write(row); err != nil {
+			return err
+		}
 	}
 	w.Flush()
+	return nil
 }
 
 // TransformToRows takes the Prometheus API Calls ClusterResults and flattens it to the structure that can exported as CSV

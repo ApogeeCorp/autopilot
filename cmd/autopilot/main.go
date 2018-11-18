@@ -62,6 +62,12 @@ func main() {
 			EnvVar: "DB_SOURCE",
 			Value:  "dbname=autopilot host=autopilot.cig1ipcep3yi.us-east-1.rds.amazonaws.com user=postgres password=D1g1tal*23",
 		},
+		cli.StringFlag{
+			Name:   "data-dir",
+			Usage:  "set the data directory for the process",
+			EnvVar: "DATA_DIR",
+			Value:  "/var/run/autopilot",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -74,8 +80,15 @@ func main() {
 		}
 
 		api := &autopilot.API{
-			Log: log,
-			DB:  db,
+			Log:     log,
+			DB:      db,
+			DataDir: c.GlobalString("data-dir"),
+		}
+
+		log.Debugf("DataDir=%s", api.DataDir)
+
+		if _, err := os.Stat(api.DataDir); err != nil {
+			return err
 		}
 
 		handler, err := rest.Handler(rest.Config{
@@ -95,6 +108,7 @@ func main() {
 			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		}
+		log.Infof("starting server %s", s.Addr)
 		log.Fatal(s.ListenAndServe())
 
 		return nil
