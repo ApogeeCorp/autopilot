@@ -5,11 +5,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 	"github.com/libopenstorage/autopilot/api/autopilot"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest"
 	"github.com/sirupsen/logrus"
@@ -46,14 +49,33 @@ func main() {
 	app.Version = "0.0.1"
 	app.Usage = "Autopilot Storage Optimization Engine"
 
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "db-driver",
+			Usage:  "set the database driver",
+			EnvVar: "DB_DRIVER",
+			Value:  "postgres",
+		},
+	}
+
 	app.Action = func(c *cli.Context) error {
+		// open the rds database
+		db, err := gorm.Open(c.GlobalString("db-driver"), os.Getenv("DB_SOURCE"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		api := &autopilot.API{
 			Log: log,
+			DB:  db,
 		}
 
 		handler, err := rest.Handler(rest.Config{
 			AutopilotAPI: api,
 			Logger:       log,
+			AuthBasicAuth: func(ctx context.Context, username string, pass string) (context.Context, interface{}, error) {
+				return ctx, username, nil
+			},
 		})
 		if err != nil {
 			log.Fatalln(err)
@@ -70,8 +92,7 @@ func main() {
 		return nil
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
+	if err := app.Run(os.Args); err != nil {
 		fmt.Println(err)
 	}
 }

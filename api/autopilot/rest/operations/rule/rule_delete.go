@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // RuleDeleteHandlerFunc turns a function with the right signature into a rule delete handler
-type RuleDeleteHandlerFunc func(RuleDeleteParams, provider.AuthToken) middleware.Responder
+type RuleDeleteHandlerFunc func(RuleDeleteParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn RuleDeleteHandlerFunc) Handle(params RuleDeleteParams, principal provider.AuthToken) middleware.Responder {
+func (fn RuleDeleteHandlerFunc) Handle(params RuleDeleteParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // RuleDeleteHandler interface for that can handle valid rule delete params
 type RuleDeleteHandler interface {
-	Handle(RuleDeleteParams, provider.AuthToken) middleware.Responder
+	Handle(RuleDeleteParams, interface{}) middleware.Responder
 }
 
 // NewRuleDelete creates a new http.Handler for the rule delete operation
@@ -62,9 +61,9 @@ func (o *RuleDelete) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

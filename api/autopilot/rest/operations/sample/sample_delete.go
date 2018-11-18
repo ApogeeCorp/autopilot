@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SampleDeleteHandlerFunc turns a function with the right signature into a sample delete handler
-type SampleDeleteHandlerFunc func(SampleDeleteParams, provider.AuthToken) middleware.Responder
+type SampleDeleteHandlerFunc func(SampleDeleteParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SampleDeleteHandlerFunc) Handle(params SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+func (fn SampleDeleteHandlerFunc) Handle(params SampleDeleteParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SampleDeleteHandler interface for that can handle valid sample delete params
 type SampleDeleteHandler interface {
-	Handle(SampleDeleteParams, provider.AuthToken) middleware.Responder
+	Handle(SampleDeleteParams, interface{}) middleware.Responder
 }
 
 // NewSampleDelete creates a new http.Handler for the sample delete operation
@@ -62,9 +61,9 @@ func (o *SampleDelete) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

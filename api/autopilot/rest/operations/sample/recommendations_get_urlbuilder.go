@@ -17,14 +17,13 @@ import (
 	"strings"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // RecommendationsGetURL generates an URL for the recommendations get operation
 type RecommendationsGetURL struct {
 	SampleID strfmt.UUID
 
-	Rules []strfmt.UUID
+	Rules *strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -64,21 +63,12 @@ func (o *RecommendationsGetURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var rulesIR []string
-	for _, rulesI := range o.Rules {
-		rulesIS := rulesI.String()
-		if rulesIS != "" {
-			rulesIR = append(rulesIR, rulesIS)
-		}
+	var rules string
+	if o.Rules != nil {
+		rules = o.Rules.String()
 	}
-
-	rules := swag.JoinByFormat(rulesIR, "csv")
-
-	if len(rules) > 0 {
-		qsv := rules[0]
-		if qsv != "" {
-			qs.Set("rules", qsv)
-		}
+	if rules != "" {
+		qs.Set("rules", rules)
 	}
 
 	result.RawQuery = qs.Encode()

@@ -19,7 +19,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 
 	interpose "github.com/carbocation/interpose/middleware"
 	sparks "gitlab.com/ModelRocket/sparks/types"
@@ -113,7 +112,7 @@ type AutopilotAPI interface {
 	Initialize() error
 
 	// InitializeContext is call before the api methods are executed
-	InitializeContext(principal provider.AuthToken, r *http.Request) (*autopilot.Context, error)
+	InitializeContext(principal interface{}, r *http.Request) (*autopilot.Context, error)
 }
 
 // Config is configuration for Handler
@@ -125,7 +124,7 @@ type Config struct {
 	InnerMiddleware func(http.Handler) http.Handler
 
 	// AuthBasicAuth for basic authentication
-	AuthBasicAuth func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error)
+	AuthBasicAuth func(ctx context.Context, user string, pass string) (context.Context, interface{}, error)
 }
 
 // Handler returns an http.Handler given the handler configuration
@@ -141,168 +140,168 @@ func Handler(c Config) (http.Handler, error) {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
-	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error) {
+	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
 		if c.AuthBasicAuth == nil {
 			return ctx, nil, sparks.ErrNotAuthorized
 		}
 		return c.AuthBasicAuth(ctx, user, pass)
 	}
 
-	api.CollectorCollectorCreateHandler = collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorCreateHandler = collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorCreate(ctx, params)
 	})
-	api.CollectorCollectorDeleteHandler = collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorDeleteHandler = collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorDelete(ctx, params)
 	})
-	api.CollectorCollectorGetHandler = collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorGetHandler = collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorGet(ctx, params)
 	})
-	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorList(ctx, params)
 	})
-	api.CollectorCollectorUpdateHandler = collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorUpdateHandler = collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorUpdate(ctx, params)
 	})
-	api.SampleRecommendationsGetHandler = sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleRecommendationsGetHandler = sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RecommendationsGet(ctx, params)
 	})
-	api.RuleRuleCreateHandler = rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleCreateHandler = rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleCreate(ctx, params)
 	})
-	api.RuleRuleDeleteHandler = rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleDeleteHandler = rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleDelete(ctx, params)
 	})
-	api.RuleRuleGetHandler = rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleGetHandler = rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleGet(ctx, params)
 	})
-	api.RuleRuleListHandler = rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleListHandler = rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleList(ctx, params)
 	})
-	api.RuleRuleUpdateHandler = rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleUpdateHandler = rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleUpdate(ctx, params)
 	})
-	api.SampleSampleCreateHandler = sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleCreateHandler = sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleCreate(ctx, params)
 	})
-	api.SampleSampleDeleteHandler = sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleDeleteHandler = sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleDelete(ctx, params)
 	})
-	api.SampleSampleGetHandler = sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleGetHandler = sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleGet(ctx, params)
 	})
-	api.SampleSampleListHandler = sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleListHandler = sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleList(ctx, params)
 	})
-	api.SampleSampleUpdateHandler = sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleUpdateHandler = sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleUpdate(ctx, params)
 	})
-	api.SourceSourceCreateHandler = source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal provider.AuthToken) middleware.Responder {
+	api.SourceSourceCreateHandler = source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceCreate(ctx, params)
 	})
-	api.SourceSourceDeleteHandler = source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal provider.AuthToken) middleware.Responder {
+	api.SourceSourceDeleteHandler = source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceDelete(ctx, params)
 	})
-	api.SourceSourceGetHandler = source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal provider.AuthToken) middleware.Responder {
+	api.SourceSourceGetHandler = source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceGet(ctx, params)
 	})
-	api.SourceSourceListHandler = source.SourceListHandlerFunc(func(params source.SourceListParams, principal provider.AuthToken) middleware.Responder {
+	api.SourceSourceListHandler = source.SourceListHandlerFunc(func(params source.SourceListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceList(ctx, params)
 	})
-	api.SourceSourceUpdateHandler = source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal provider.AuthToken) middleware.Responder {
+	api.SourceSourceUpdateHandler = source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SourceUpdate(ctx, params)
 	})
-	api.TaskTaskGetHandler = task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal provider.AuthToken) middleware.Responder {
+	api.TaskTaskGetHandler = task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.TaskGet(ctx, params)
 	})
-	api.TaskTaskListHandler = task.TaskListHandlerFunc(func(params task.TaskListParams, principal provider.AuthToken) middleware.Responder {
+	api.TaskTaskListHandler = task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)

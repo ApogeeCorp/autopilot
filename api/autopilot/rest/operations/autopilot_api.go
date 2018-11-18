@@ -23,7 +23,6 @@ import (
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 	context "golang.org/x/net/context"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
@@ -50,78 +49,78 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		BearerAuthenticator: security.BearerAuthCtx,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorCreate has not yet been implemented")
 		}),
-		CollectorCollectorDeleteHandler: collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorDeleteHandler: collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorDelete has not yet been implemented")
 		}),
-		CollectorCollectorGetHandler: collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorGetHandler: collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorGet has not yet been implemented")
 		}),
-		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorList has not yet been implemented")
 		}),
-		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorUpdate has not yet been implemented")
 		}),
-		SampleRecommendationsGetHandler: sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+		SampleRecommendationsGetHandler: sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleRecommendationsGet has not yet been implemented")
 		}),
-		RuleRuleCreateHandler: rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleCreateHandler: rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleCreate has not yet been implemented")
 		}),
-		RuleRuleDeleteHandler: rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleDeleteHandler: rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleDelete has not yet been implemented")
 		}),
-		RuleRuleGetHandler: rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleGetHandler: rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleGet has not yet been implemented")
 		}),
-		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
 		}),
-		RuleRuleUpdateHandler: rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleUpdateHandler: rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleUpdate has not yet been implemented")
 		}),
-		SampleSampleCreateHandler: sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleCreateHandler: sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleCreate has not yet been implemented")
 		}),
-		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleDelete has not yet been implemented")
 		}),
-		SampleSampleGetHandler: sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleGetHandler: sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleGet has not yet been implemented")
 		}),
-		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
 		}),
-		SampleSampleUpdateHandler: sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleUpdateHandler: sample.SampleUpdateHandlerFunc(func(params sample.SampleUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleUpdate has not yet been implemented")
 		}),
-		SourceSourceCreateHandler: source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal provider.AuthToken) middleware.Responder {
+		SourceSourceCreateHandler: source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceCreate has not yet been implemented")
 		}),
-		SourceSourceDeleteHandler: source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal provider.AuthToken) middleware.Responder {
+		SourceSourceDeleteHandler: source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceDelete has not yet been implemented")
 		}),
-		SourceSourceGetHandler: source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal provider.AuthToken) middleware.Responder {
+		SourceSourceGetHandler: source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceGet has not yet been implemented")
 		}),
-		SourceSourceListHandler: source.SourceListHandlerFunc(func(params source.SourceListParams, principal provider.AuthToken) middleware.Responder {
+		SourceSourceListHandler: source.SourceListHandlerFunc(func(params source.SourceListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceList has not yet been implemented")
 		}),
-		SourceSourceUpdateHandler: source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal provider.AuthToken) middleware.Responder {
+		SourceSourceUpdateHandler: source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SourceSourceUpdate has not yet been implemented")
 		}),
-		TaskTaskGetHandler: task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal provider.AuthToken) middleware.Responder {
+		TaskTaskGetHandler: task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation TaskTaskGet has not yet been implemented")
 		}),
-		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal provider.AuthToken) middleware.Responder {
+		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation TaskTaskList has not yet been implemented")
 		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
-		BasicAuthAuth: func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error) {
+		BasicAuthAuth: func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
 			return ctx, nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
 		},
 
@@ -160,7 +159,7 @@ type AutopilotAPI struct {
 
 	// BasicAuthAuth registers a function that takes username and password and returns a principal
 	// it performs authentication with basic auth
-	BasicAuthAuth func(context.Context, string, string) (context.Context, provider.AuthToken, error)
+	BasicAuthAuth func(context.Context, string, string) (context.Context, interface{}, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
@@ -391,9 +390,7 @@ func (o *AutopilotAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme)
 
 		case "basicAuth":
 			_ = scheme
-			result[name] = o.BasicAuthenticator(func(ctx context.Context, username, password string) (context.Context, interface{}, error) {
-				return o.BasicAuthAuth(ctx, username, password)
-			})
+			result[name] = o.BasicAuthenticator(o.BasicAuthAuth)
 
 		}
 	}

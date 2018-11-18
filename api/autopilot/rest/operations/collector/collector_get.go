@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // CollectorGetHandlerFunc turns a function with the right signature into a collector get handler
-type CollectorGetHandlerFunc func(CollectorGetParams, provider.AuthToken) middleware.Responder
+type CollectorGetHandlerFunc func(CollectorGetParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn CollectorGetHandlerFunc) Handle(params CollectorGetParams, principal provider.AuthToken) middleware.Responder {
+func (fn CollectorGetHandlerFunc) Handle(params CollectorGetParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // CollectorGetHandler interface for that can handle valid collector get params
 type CollectorGetHandler interface {
-	Handle(CollectorGetParams, provider.AuthToken) middleware.Responder
+	Handle(CollectorGetParams, interface{}) middleware.Responder
 }
 
 // NewCollectorGet creates a new http.Handler for the collector get operation
@@ -62,9 +61,9 @@ func (o *CollectorGet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

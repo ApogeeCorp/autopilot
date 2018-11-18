@@ -442,7 +442,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           }
         ],
@@ -779,12 +779,8 @@ func init() {
             "required": true
           },
           {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "collectionFormat": "csv",
+            "type": "string",
+            "format": "uuid",
             "description": "The rules to apply to get the recommendations",
             "name": "rules",
             "in": "query"
@@ -850,7 +846,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/source"
+                "$ref": "#/definitions/Source"
               }
             }
           },
@@ -881,7 +877,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           }
         ],
@@ -889,7 +885,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           },
           "400": {
@@ -939,7 +935,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           },
           "400": {
@@ -999,7 +995,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           }
         ],
@@ -1260,21 +1256,94 @@ func init() {
       }
     },
     "Rule": {
-      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
+      "description": "An proposal is a recommended solution that matches a certain constraint\n",
       "properties": {
+        "expr": {
+          "description": "The expression to match",
+          "type": "string",
+          "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
+        },
+        "for": {
+          "description": "The duration/interval the expression must be valid for in seconds",
+          "type": "integer",
+          "format": "int64",
+          "example": 3600
+        },
         "id": {
           "description": "The rule id",
           "type": "string",
           "format": "uuid"
         },
-        "source": {
-          "description": "The rule source data",
+        "issue": {
+          "description": "The issue template",
+          "type": "string",
+          "example": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
+        },
+        "name": {
+          "description": "the rule description",
           "type": "string"
+        },
+        "proposal": {
+          "description": "The proposal template",
+          "type": "string",
+          "example": "Add additional storage node to {{$labels.cluster}}"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "warning",
+            "error",
+            "critical"
+          ]
+        }
+      },
+      "example": {
+        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+        "for": 3600,
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+        "name": "name",
+        "proposal": "Add additional storage node to {{$labels.cluster}}",
+        "severity": "warning"
+      }
+    },
+    "RuleSet": {
+      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
+      "properties": {
+        "id": {
+          "description": "The ruleset id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          }
         }
       },
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "source": "source"
+        "rules": [
+          {
+            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+            "for": 3600,
+            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+            "name": "name",
+            "proposal": "Add additional storage node to {{$labels.cluster}}",
+            "severity": "warning"
+          },
+          {
+            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+            "for": 3600,
+            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+            "name": "name",
+            "proposal": "Add additional storage node to {{$labels.cluster}}",
+            "severity": "warning"
+          }
+        ]
       }
     },
     "Sample": {
@@ -1298,7 +1367,7 @@ func init() {
           }
         },
         "source": {
-          "$ref": "#/definitions/sourceType"
+          "$ref": "#/definitions/SourceType"
         }
       },
       "example": {
@@ -1309,6 +1378,45 @@ func init() {
         },
         "source": {}
       }
+    },
+    "Source": {
+      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
+      "properties": {
+        "config": {
+          "description": "The source configuration",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "description": "The source id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "The source name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/SourceType"
+        }
+      },
+      "example": {
+        "config": {
+          "key": "{}"
+        },
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "name": "name",
+        "type": {}
+      }
+    },
+    "SourceType": {
+      "description": "sourceType:\n  * prometheus - a prometheus server\n",
+      "type": "string",
+      "enum": [
+        "prometheus"
+      ]
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",
@@ -1359,45 +1467,6 @@ func init() {
         "status": "pending",
         "type": "collector"
       }
-    },
-    "source": {
-      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "description": "The source configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "id": {
-          "description": "The source id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The source name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/sourceType"
-        }
-      },
-      "example": {
-        "config": {
-          "key": "{}"
-        },
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "sourceType": {
-      "description": "sourceType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     }
   },
   "responses": {
@@ -1877,7 +1946,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           }
         ],
@@ -2214,12 +2283,8 @@ func init() {
             "required": true
           },
           {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "collectionFormat": "csv",
+            "type": "string",
+            "format": "uuid",
             "description": "The rules to apply to get the recommendations",
             "name": "rules",
             "in": "query"
@@ -2285,7 +2350,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/source"
+                "$ref": "#/definitions/Source"
               }
             }
           },
@@ -2316,7 +2381,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           }
         ],
@@ -2324,7 +2389,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           },
           "400": {
@@ -2374,7 +2439,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           },
           "400": {
@@ -2434,7 +2499,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/source"
+              "$ref": "#/definitions/Source"
             }
           }
         ],
@@ -2695,21 +2760,94 @@ func init() {
       }
     },
     "Rule": {
-      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
+      "description": "An proposal is a recommended solution that matches a certain constraint\n",
       "properties": {
+        "expr": {
+          "description": "The expression to match",
+          "type": "string",
+          "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
+        },
+        "for": {
+          "description": "The duration/interval the expression must be valid for in seconds",
+          "type": "integer",
+          "format": "int64",
+          "example": 3600
+        },
         "id": {
           "description": "The rule id",
           "type": "string",
           "format": "uuid"
         },
-        "source": {
-          "description": "The rule source data",
+        "issue": {
+          "description": "The issue template",
+          "type": "string",
+          "example": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
+        },
+        "name": {
+          "description": "the rule description",
           "type": "string"
+        },
+        "proposal": {
+          "description": "The proposal template",
+          "type": "string",
+          "example": "Add additional storage node to {{$labels.cluster}}"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "warning",
+            "error",
+            "critical"
+          ]
+        }
+      },
+      "example": {
+        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+        "for": 3600,
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+        "name": "name",
+        "proposal": "Add additional storage node to {{$labels.cluster}}",
+        "severity": "warning"
+      }
+    },
+    "RuleSet": {
+      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
+      "properties": {
+        "id": {
+          "description": "The ruleset id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          }
         }
       },
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "source": "source"
+        "rules": [
+          {
+            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+            "for": 3600,
+            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+            "name": "name",
+            "proposal": "Add additional storage node to {{$labels.cluster}}",
+            "severity": "warning"
+          },
+          {
+            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+            "for": 3600,
+            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
+            "name": "name",
+            "proposal": "Add additional storage node to {{$labels.cluster}}",
+            "severity": "warning"
+          }
+        ]
       }
     },
     "Sample": {
@@ -2733,7 +2871,7 @@ func init() {
           }
         },
         "source": {
-          "$ref": "#/definitions/sourceType"
+          "$ref": "#/definitions/SourceType"
         }
       },
       "example": {
@@ -2744,6 +2882,45 @@ func init() {
         },
         "source": {}
       }
+    },
+    "Source": {
+      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
+      "properties": {
+        "config": {
+          "description": "The source configuration",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "description": "The source id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "The source name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/SourceType"
+        }
+      },
+      "example": {
+        "config": {
+          "key": "{}"
+        },
+        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "name": "name",
+        "type": {}
+      }
+    },
+    "SourceType": {
+      "description": "sourceType:\n  * prometheus - a prometheus server\n",
+      "type": "string",
+      "enum": [
+        "prometheus"
+      ]
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",
@@ -2794,45 +2971,6 @@ func init() {
         "status": "pending",
         "type": "collector"
       }
-    },
-    "source": {
-      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "description": "The source configuration",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "id": {
-          "description": "The source id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The source name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/sourceType"
-        }
-      },
-      "example": {
-        "config": {
-          "key": "{}"
-        },
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "sourceType": {
-      "description": "sourceType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     }
   },
   "responses": {

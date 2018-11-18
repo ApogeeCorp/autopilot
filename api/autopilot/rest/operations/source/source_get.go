@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SourceGetHandlerFunc turns a function with the right signature into a source get handler
-type SourceGetHandlerFunc func(SourceGetParams, provider.AuthToken) middleware.Responder
+type SourceGetHandlerFunc func(SourceGetParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SourceGetHandlerFunc) Handle(params SourceGetParams, principal provider.AuthToken) middleware.Responder {
+func (fn SourceGetHandlerFunc) Handle(params SourceGetParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SourceGetHandler interface for that can handle valid source get params
 type SourceGetHandler interface {
-	Handle(SourceGetParams, provider.AuthToken) middleware.Responder
+	Handle(SourceGetParams, interface{}) middleware.Responder
 }
 
 // NewSourceGet creates a new http.Handler for the source get operation
@@ -62,9 +61,9 @@ func (o *SourceGet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

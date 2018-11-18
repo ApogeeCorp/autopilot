@@ -9,22 +9,28 @@ package autopilot
 import (
 	"net/http"
 
+	"github.com/jinzhu/gorm"
+	"github.com/libopenstorage/autopilot/engine"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // API is the acme API interface implementation
 type API struct {
-	Log *logrus.Logger
+	Log    *logrus.Logger
+	DB     *gorm.DB
+	engine *engine.Engine
 }
 
 // Initialize initializes the API before the server starts handling request
 func (a *API) Initialize() error {
+	a.engine = &engine.Engine{
+		Log: a.Log,
+	}
 	return nil
 }
 
 // InitializeContext is called after authorization and before the API method.
 // This method is used to setup the context for the next call.
-func (a *API) InitializeContext(principal provider.AuthToken, r *http.Request) (*Context, error) {
-	return &Context{principal}, nil
+func (a *API) InitializeContext(principal interface{}, r *http.Request) (*Context, error) {
+	return &Context{Username: principal.(string)}, nil
 }

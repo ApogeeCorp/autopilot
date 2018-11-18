@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SourceUpdateHandlerFunc turns a function with the right signature into a source update handler
-type SourceUpdateHandlerFunc func(SourceUpdateParams, provider.AuthToken) middleware.Responder
+type SourceUpdateHandlerFunc func(SourceUpdateParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SourceUpdateHandlerFunc) Handle(params SourceUpdateParams, principal provider.AuthToken) middleware.Responder {
+func (fn SourceUpdateHandlerFunc) Handle(params SourceUpdateParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SourceUpdateHandler interface for that can handle valid source update params
 type SourceUpdateHandler interface {
-	Handle(SourceUpdateParams, provider.AuthToken) middleware.Responder
+	Handle(SourceUpdateParams, interface{}) middleware.Responder
 }
 
 // NewSourceUpdate creates a new http.Handler for the source update operation
@@ -62,9 +61,9 @@ func (o *SourceUpdate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

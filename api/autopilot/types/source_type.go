@@ -22,7 +22,7 @@ import (
 // SourceType sourceType:
 //   * prometheus - a prometheus server
 //
-// swagger:model sourceType
+// swagger:model SourceType
 type SourceType string
 
 type SourceTypeScalar int

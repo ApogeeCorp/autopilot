@@ -11,13 +11,11 @@ package sample
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -41,9 +39,8 @@ type RecommendationsGetParams struct {
 
 	/*The rules to apply to get the recommendations
 	  In: query
-	  Collection Format: csv
 	*/
-	Rules []strfmt.UUID
+	Rules *strfmt.UUID
 	/*The id of the sample
 	  Required: true
 	  In: path
@@ -78,39 +75,39 @@ func (o *RecommendationsGetParams) BindRequest(r *http.Request, route *middlewar
 	return nil
 }
 
-// bindRules binds and validates array parameter Rules from query.
-//
-// Arrays are parsed according to CollectionFormat: "csv" (defaults to "csv" when empty).
+// bindRules binds and validates parameter Rules from query.
 func (o *RecommendationsGetParams) bindRules(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
-	var qvRules string
+	var raw string
 	if len(rawData) > 0 {
-		qvRules = rawData[len(rawData)-1]
+		raw = rawData[len(rawData)-1]
 	}
 
-	// CollectionFormat: csv
-	rulesIC := swag.SplitByFormat(qvRules, "csv")
-	if len(rulesIC) == 0 {
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
 		return nil
 	}
 
-	var rulesIR []strfmt.UUID
-	for i, rulesIV := range rulesIC {
-		// items.Format: "uuid"
-		value, err := formats.Parse("uuid", rulesIV)
-		if err != nil {
-			return errors.InvalidType(fmt.Sprintf("%s.%v", "rules", i), "query", "strfmt.UUID", value)
-		}
-		rulesI := *(value.(*strfmt.UUID))
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("rules", "query", "strfmt.UUID", raw)
+	}
+	o.Rules = (value.(*strfmt.UUID))
 
-		if err := validate.FormatOf(fmt.Sprintf("%s.%v", "rules", i), "query", "uuid", rulesI.String(), formats); err != nil {
-			return err
-		}
-		rulesIR = append(rulesIR, rulesI)
+	if err := o.validateRules(formats); err != nil {
+		return err
 	}
 
-	o.Rules = rulesIR
+	return nil
+}
 
+// validateRules carries on validations for parameter Rules
+func (o *RecommendationsGetParams) validateRules(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("rules", "query", "uuid", o.Rules.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SampleListHandlerFunc turns a function with the right signature into a sample list handler
-type SampleListHandlerFunc func(SampleListParams, provider.AuthToken) middleware.Responder
+type SampleListHandlerFunc func(SampleListParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SampleListHandlerFunc) Handle(params SampleListParams, principal provider.AuthToken) middleware.Responder {
+func (fn SampleListHandlerFunc) Handle(params SampleListParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SampleListHandler interface for that can handle valid sample list params
 type SampleListHandler interface {
-	Handle(SampleListParams, provider.AuthToken) middleware.Responder
+	Handle(SampleListParams, interface{}) middleware.Responder
 }
 
 // NewSampleList creates a new http.Handler for the sample list operation
@@ -62,9 +61,9 @@ func (o *SampleList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

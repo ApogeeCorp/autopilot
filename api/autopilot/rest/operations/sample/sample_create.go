@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SampleCreateHandlerFunc turns a function with the right signature into a sample create handler
-type SampleCreateHandlerFunc func(SampleCreateParams, provider.AuthToken) middleware.Responder
+type SampleCreateHandlerFunc func(SampleCreateParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SampleCreateHandlerFunc) Handle(params SampleCreateParams, principal provider.AuthToken) middleware.Responder {
+func (fn SampleCreateHandlerFunc) Handle(params SampleCreateParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SampleCreateHandler interface for that can handle valid sample create params
 type SampleCreateHandler interface {
-	Handle(SampleCreateParams, provider.AuthToken) middleware.Responder
+	Handle(SampleCreateParams, interface{}) middleware.Responder
 }
 
 // NewSampleCreate creates a new http.Handler for the sample create operation
@@ -62,9 +61,9 @@ func (o *SampleCreate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -11,6 +11,8 @@ package types
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,17 +20,33 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Rule A rule is a yaml rule set to executed by the recommendation engine
+// Rule An proposal is a recommended solution that matches a certain constraint
 //
 // swagger:model Rule
 type Rule struct {
+
+	// The expression to match
+	Expr string `json:"expr,omitempty"`
+
+	// The duration/interval the expression must be valid for in seconds
+	For int64 `json:"for,omitempty"`
 
 	// The rule id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The rule source data
-	Source string `json:"source,omitempty"`
+	// The issue template
+	Issue string `json:"issue,omitempty"`
+
+	// the rule description
+	Name string `json:"name,omitempty"`
+
+	// The proposal template
+	Proposal string `json:"proposal,omitempty"`
+
+	// severity
+	// Enum: [warning error critical]
+	Severity string `json:"severity,omitempty"`
 }
 
 // Validate validates this rule
@@ -36,6 +54,10 @@ func (m *Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSeverity(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -52,6 +74,52 @@ func (m *Rule) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var ruleTypeSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["warning","error","critical"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		ruleTypeSeverityPropEnum = append(ruleTypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// RuleSeverityWarning captures enum value "warning"
+	RuleSeverityWarning string = "warning"
+
+	// RuleSeverityError captures enum value "error"
+	RuleSeverityError string = "error"
+
+	// RuleSeverityCritical captures enum value "critical"
+	RuleSeverityCritical string = "critical"
+)
+
+// prop value enum
+func (m *Rule) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, ruleTypeSeverityPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Rule) validateSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateSeverityEnum("severity", "body", m.Severity); err != nil {
 		return err
 	}
 

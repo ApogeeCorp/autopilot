@@ -11,6 +11,8 @@ package types
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,34 +20,28 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Source A source is a telemetry source that provides stats and anlytics data in the autopilot csv format
+// RuleSet A rule is a yaml rule set to executed by the recommendation engine
 //
-// swagger:model Source
-type Source struct {
+// swagger:model RuleSet
+type RuleSet struct {
 
-	// The source configuration
-	Config map[string]interface{} `json:"config,omitempty"`
-
-	// The source id
+	// The ruleset id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// The source name
-	Name string `json:"name,omitempty"`
-
-	// type
-	Type SourceType `json:"type,omitempty"`
+	// rules
+	Rules []*Rule `json:"rules"`
 }
 
-// Validate validates this source
-func (m *Source) Validate(formats strfmt.Registry) error {
+// Validate validates this rule set
+func (m *RuleSet) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateType(formats); err != nil {
+	if err := m.validateRules(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -55,7 +51,7 @@ func (m *Source) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Source) validateID(formats strfmt.Registry) error {
+func (m *RuleSet) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -68,24 +64,33 @@ func (m *Source) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Source) validateType(formats strfmt.Registry) error {
+func (m *RuleSet) validateRules(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Type) { // not required
+	if swag.IsZero(m.Rules) { // not required
 		return nil
 	}
 
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
+	for i := 0; i < len(m.Rules); i++ {
+		if swag.IsZero(m.Rules[i]) { // not required
+			continue
 		}
-		return err
+
+		if m.Rules[i] != nil {
+			if err := m.Rules[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("rules" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Source) MarshalBinary() ([]byte, error) {
+func (m *RuleSet) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -93,8 +98,8 @@ func (m *Source) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Source) UnmarshalBinary(b []byte) error {
-	var res Source
+func (m *RuleSet) UnmarshalBinary(b []byte) error {
+	var res RuleSet
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

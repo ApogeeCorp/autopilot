@@ -3,3 +3,18 @@
 // license that can be found in the LICENSE file.
 
 package engine
+
+import (
+	"github.com/libopenstorage/autopilot/api/autopilot/types"
+	"github.com/sirupsen/logrus"
+)
+
+// Engine is the autopilot recommendation engine
+type Engine struct {
+	Log *logrus.Logger
+}
+
+// Recommend returns a recommendation from the engine based on the rules and sample
+func (e *Engine) Recommend(rules *types.RuleSet, samplePath string) ([]*types.Recommendation, error) {
+	return nil, nil
+}

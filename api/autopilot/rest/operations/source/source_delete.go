@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // SourceDeleteHandlerFunc turns a function with the right signature into a source delete handler
-type SourceDeleteHandlerFunc func(SourceDeleteParams, provider.AuthToken) middleware.Responder
+type SourceDeleteHandlerFunc func(SourceDeleteParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SourceDeleteHandlerFunc) Handle(params SourceDeleteParams, principal provider.AuthToken) middleware.Responder {
+func (fn SourceDeleteHandlerFunc) Handle(params SourceDeleteParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SourceDeleteHandler interface for that can handle valid source delete params
 type SourceDeleteHandler interface {
-	Handle(SourceDeleteParams, provider.AuthToken) middleware.Responder
+	Handle(SourceDeleteParams, interface{}) middleware.Responder
 }
 
 // NewSourceDelete creates a new http.Handler for the source delete operation
@@ -62,9 +61,9 @@ func (o *SourceDelete) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

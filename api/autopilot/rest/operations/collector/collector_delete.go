@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // CollectorDeleteHandlerFunc turns a function with the right signature into a collector delete handler
-type CollectorDeleteHandlerFunc func(CollectorDeleteParams, provider.AuthToken) middleware.Responder
+type CollectorDeleteHandlerFunc func(CollectorDeleteParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn CollectorDeleteHandlerFunc) Handle(params CollectorDeleteParams, principal provider.AuthToken) middleware.Responder {
+func (fn CollectorDeleteHandlerFunc) Handle(params CollectorDeleteParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // CollectorDeleteHandler interface for that can handle valid collector delete params
 type CollectorDeleteHandler interface {
-	Handle(CollectorDeleteParams, provider.AuthToken) middleware.Responder
+	Handle(CollectorDeleteParams, interface{}) middleware.Responder
 }
 
 // NewCollectorDelete creates a new http.Handler for the collector delete operation
@@ -62,9 +61,9 @@ func (o *CollectorDelete) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

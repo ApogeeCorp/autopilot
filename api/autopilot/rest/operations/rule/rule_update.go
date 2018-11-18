@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // RuleUpdateHandlerFunc turns a function with the right signature into a rule update handler
-type RuleUpdateHandlerFunc func(RuleUpdateParams, provider.AuthToken) middleware.Responder
+type RuleUpdateHandlerFunc func(RuleUpdateParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn RuleUpdateHandlerFunc) Handle(params RuleUpdateParams, principal provider.AuthToken) middleware.Responder {
+func (fn RuleUpdateHandlerFunc) Handle(params RuleUpdateParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // RuleUpdateHandler interface for that can handle valid rule update params
 type RuleUpdateHandler interface {
-	Handle(RuleUpdateParams, provider.AuthToken) middleware.Responder
+	Handle(RuleUpdateParams, interface{}) middleware.Responder
 }
 
 // NewRuleUpdate creates a new http.Handler for the rule update operation
@@ -62,9 +61,9 @@ func (o *RuleUpdate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
