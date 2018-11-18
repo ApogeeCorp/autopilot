@@ -337,7 +337,7 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /sources/{source_id/poll:
+  /sources/{source_id}/poll:
     get:
       tags:
       - "source"
