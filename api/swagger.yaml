@@ -337,6 +337,46 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
+  /sources/{source_id/poll:
+    get:
+      tags:
+      - "source"
+      summary: "Poll a source"
+      description: "Poll a source and collect a sample manually"
+      operationId: "sourcePoll"
+      parameters:
+      - name: "source_id"
+        in: "path"
+        description: "The id of the source"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Sample"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
   /samples:
     get:
       tags:
@@ -431,42 +471,6 @@ paths:
           examples:
             application/json:
               message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - "sample"
-      summary: "Update a sample object"
-      description: "Update the properties of the specified sample"
-      operationId: "sampleUpdate"
-      parameters:
-      - name: "sample_id"
-        in: "path"
-        description: "The id of the sample"
-        required: true
-        type: "string"
-        format: "uuid"
-      - in: "body"
-        name: "sample"
-        description: "The sample to create"
-        required: true
-        schema:
-          $ref: "#/definitions/Sample"
-      responses:
-        204:
-          description: "No Content"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
           schema:
             $ref: "#/definitions/Error"
         500:
