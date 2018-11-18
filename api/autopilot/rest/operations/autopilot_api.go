@@ -47,6 +47,7 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		BasicAuthenticator:    security.BasicAuthCtx,
 		APIKeyAuthenticator:   security.APIKeyAuthCtx,
 		BearerAuthenticator:   security.BearerAuthCtx,
+		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 		JSONProducer:          runtime.JSONProducer(),
 		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal interface{}) middleware.Responder {
@@ -151,6 +152,8 @@ type AutopilotAPI struct {
 	// It has a default implemention in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthenticationCtx) runtime.Authenticator
 
+	// JSONConsumer registers a consumer for a "application/json" mime type
+	JSONConsumer runtime.Consumer
 	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
 	MultipartformConsumer runtime.Consumer
 
@@ -264,6 +267,10 @@ func (o *AutopilotAPI) RegisterFormat(name string, format strfmt.Format, validat
 // Validate validates the registrations in the AutopilotAPI
 func (o *AutopilotAPI) Validate() error {
 	var unregistered []string
+
+	if o.JSONConsumer == nil {
+		unregistered = append(unregistered, "JSONConsumer")
+	}
 
 	if o.MultipartformConsumer == nil {
 		unregistered = append(unregistered, "MultipartformConsumer")
@@ -411,6 +418,9 @@ func (o *AutopilotAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Cons
 	result := make(map[string]runtime.Consumer)
 	for _, mt := range mediaTypes {
 		switch mt {
+
+		case "application/json":
+			result["application/json"] = o.JSONConsumer
 
 		case "multipart/form-data":
 			result["multipart/form-data"] = o.MultipartformConsumer

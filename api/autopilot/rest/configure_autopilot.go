@@ -138,6 +138,7 @@ func Handler(c Config) (http.Handler, error) {
 	api.ServeError = errors.ServeError
 	api.Logger = c.Logger.Printf
 
+	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 	api.JSONProducer = runtime.JSONProducer()
 	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {

@@ -38,9 +38,10 @@ type RecommendationsGetParams struct {
 	HTTPRequest *http.Request `json:"-"`
 
 	/*The rules to apply to get the recommendations
+	  Required: true
 	  In: query
 	*/
-	Rules *strfmt.UUID
+	Rules strfmt.UUID
 	/*The id of the sample
 	  Required: true
 	  In: path
@@ -77,15 +78,18 @@ func (o *RecommendationsGetParams) BindRequest(r *http.Request, route *middlewar
 
 // bindRules binds and validates parameter Rules from query.
 func (o *RecommendationsGetParams) bindRules(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("rules", "query")
+	}
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
 
-	// Required: false
+	// Required: true
 	// AllowEmptyValue: false
-	if raw == "" { // empty values pass all other validations
-		return nil
+	if err := validate.RequiredString("rules", "query", raw); err != nil {
+		return err
 	}
 
 	// Format: uuid
@@ -93,7 +97,7 @@ func (o *RecommendationsGetParams) bindRules(rawData []string, hasKey bool, form
 	if err != nil {
 		return errors.InvalidType("rules", "query", "strfmt.UUID", raw)
 	}
-	o.Rules = (value.(*strfmt.UUID))
+	o.Rules = *(value.(*strfmt.UUID))
 
 	if err := o.validateRules(formats); err != nil {
 		return err

@@ -23,7 +23,7 @@ import (
 type RecommendationsGetURL struct {
 	SampleID strfmt.UUID
 
-	Rules *strfmt.UUID
+	Rules strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -63,10 +63,7 @@ func (o *RecommendationsGetURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var rules string
-	if o.Rules != nil {
-		rules = o.Rules.String()
-	}
+	rules := o.Rules.String()
 	if rules != "" {
 		qs.Set("rules", rules)
 	}

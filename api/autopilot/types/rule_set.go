@@ -11,8 +11,6 @@ package types
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"strconv"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -29,8 +27,11 @@ type RuleSet struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// The rule set name
+	Name string `json:"name,omitempty"`
+
 	// rules
-	Rules []*Rule `json:"rules"`
+	Rules RuleArray `json:"rules,omitempty"`
 }
 
 // Validate validates this rule set
@@ -70,20 +71,11 @@ func (m *RuleSet) validateRules(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.Rules); i++ {
-		if swag.IsZero(m.Rules[i]) { // not required
-			continue
+	if err := m.Rules.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("rules")
 		}
-
-		if m.Rules[i] != nil {
-			if err := m.Rules[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("rules" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil

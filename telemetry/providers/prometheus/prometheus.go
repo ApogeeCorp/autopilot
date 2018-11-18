@@ -325,7 +325,8 @@ func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name stri
 
 // WriteAlertCSV for the alerts csv
 func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) error {
-	f, err := os.Create(base + "-alerts.csv")
+	base = path.Join(base, "Alerts.csv")
+	f, err := os.Create(base)
 	if err != nil {
 		p.Log.Errorln("Error Creating Alerts File", err)
 		return err

@@ -30,7 +30,7 @@ type RuleListOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*types.Rule `json:"body,omitempty"`
+	Payload []*types.RuleSet `json:"body,omitempty"`
 }
 
 // NewRuleListOK creates RuleListOK with default headers values
@@ -40,13 +40,13 @@ func NewRuleListOK() *RuleListOK {
 }
 
 // WithPayload adds the payload to the rule list o k response
-func (o *RuleListOK) WithPayload(payload []*types.Rule) *RuleListOK {
+func (o *RuleListOK) WithPayload(payload []*types.RuleSet) *RuleListOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the rule list o k response
-func (o *RuleListOK) SetPayload(payload []*types.Rule) {
+func (o *RuleListOK) SetPayload(payload []*types.RuleSet) {
 	o.Payload = payload
 }
 
@@ -56,7 +56,7 @@ func (o *RuleListOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 	rw.WriteHeader(200)
 	payload := o.Payload
 	if payload == nil {
-		payload = make([]*types.Rule, 0, 50)
+		payload = make([]*types.RuleSet, 0, 50)
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

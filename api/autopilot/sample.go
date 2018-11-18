@@ -105,7 +105,11 @@ func (a *API) SampleGet(ctx *Context, params sample.SampleGetParams) middleware.
 
 // SampleList Returns an array of telemetry samples defined in the system
 func (a *API) SampleList(ctx *Context, params sample.SampleListParams) middleware.Responder {
-	return sparks.ErrNotImplemented("sampleList")
+	samples := make([]*types.Sample, 0)
+	if err := a.DB.Find(samples).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return sample.NewSampleListOK().WithPayload(samples)
 }
 
 // SampleUpdate Update the properties of the specified sample

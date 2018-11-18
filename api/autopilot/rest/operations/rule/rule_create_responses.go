@@ -30,7 +30,7 @@ type RuleCreateCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *types.Rule `json:"body,omitempty"`
+	Payload *types.RuleSet `json:"body,omitempty"`
 }
 
 // NewRuleCreateCreated creates RuleCreateCreated with default headers values
@@ -40,13 +40,13 @@ func NewRuleCreateCreated() *RuleCreateCreated {
 }
 
 // WithPayload adds the payload to the rule create created response
-func (o *RuleCreateCreated) WithPayload(payload *types.Rule) *RuleCreateCreated {
+func (o *RuleCreateCreated) WithPayload(payload *types.RuleSet) *RuleCreateCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the rule create created response
-func (o *RuleCreateCreated) SetPayload(payload *types.Rule) {
+func (o *RuleCreateCreated) SetPayload(payload *types.RuleSet) {
 	o.Payload = payload
 }
 

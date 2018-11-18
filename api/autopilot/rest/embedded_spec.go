@@ -23,6 +23,12 @@ var (
 
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "schemes": [
     "http"
   ],
@@ -293,7 +299,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Rule"
+                "$ref": "#/definitions/RuleSet"
               }
             }
           },
@@ -324,7 +330,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           }
         ],
@@ -332,7 +338,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           },
           "400": {
@@ -382,7 +388,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           },
           "400": {
@@ -794,7 +800,8 @@ func init() {
             "format": "uuid",
             "description": "The rules to apply to get the recommendations",
             "name": "rules",
-            "in": "query"
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -1317,16 +1324,15 @@ func init() {
             "critical"
           ]
         }
-      },
-      "example": {
-        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-        "for": 3600,
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-        "name": "name",
-        "proposal": "Add additional storage node to {{$labels.cluster}}",
-        "severity": "warning"
       }
+    },
+    "RuleArray": {
+      "description": "A rule array type",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Rule"
+      },
+      "x-omitempty": true
     },
     "RuleSet": {
       "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
@@ -1336,35 +1342,18 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "name": {
+          "description": "The rule set name",
+          "type": "string"
+        },
         "rules": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Rule"
-          }
+          "$ref": "#/definitions/RuleArray"
         }
       },
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "rules": [
-          {
-            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-            "for": 3600,
-            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-            "name": "name",
-            "proposal": "Add additional storage node to {{$labels.cluster}}",
-            "severity": "warning"
-          },
-          {
-            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-            "for": 3600,
-            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-            "name": "name",
-            "proposal": "Add additional storage node to {{$labels.cluster}}",
-            "severity": "warning"
-          }
-        ]
+        "name": "name",
+        "rules": ""
       }
     },
     "Sample": {
@@ -1530,6 +1519,12 @@ func init() {
   ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "schemes": [
     "http"
   ],
@@ -1800,7 +1795,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Rule"
+                "$ref": "#/definitions/RuleSet"
               }
             }
           },
@@ -1831,7 +1826,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           }
         ],
@@ -1839,7 +1834,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           },
           "400": {
@@ -1889,7 +1884,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Rule"
+              "$ref": "#/definitions/RuleSet"
             }
           },
           "400": {
@@ -2301,7 +2296,8 @@ func init() {
             "format": "uuid",
             "description": "The rules to apply to get the recommendations",
             "name": "rules",
-            "in": "query"
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -2824,16 +2820,15 @@ func init() {
             "critical"
           ]
         }
-      },
-      "example": {
-        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-        "for": 3600,
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-        "name": "name",
-        "proposal": "Add additional storage node to {{$labels.cluster}}",
-        "severity": "warning"
       }
+    },
+    "RuleArray": {
+      "description": "A rule array type",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Rule"
+      },
+      "x-omitempty": true
     },
     "RuleSet": {
       "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
@@ -2843,35 +2838,18 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "name": {
+          "description": "The rule set name",
+          "type": "string"
+        },
         "rules": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Rule"
-          }
+          "$ref": "#/definitions/RuleArray"
         }
       },
       "example": {
         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "rules": [
-          {
-            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-            "for": 3600,
-            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-            "name": "name",
-            "proposal": "Add additional storage node to {{$labels.cluster}}",
-            "severity": "warning"
-          },
-          {
-            "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-            "for": 3600,
-            "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-            "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-            "name": "name",
-            "proposal": "Add additional storage node to {{$labels.cluster}}",
-            "severity": "warning"
-          }
-        ]
+        "name": "name",
+        "rules": ""
       }
     },
     "Sample": {

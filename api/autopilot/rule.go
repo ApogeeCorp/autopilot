@@ -11,29 +11,48 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
+	"github.com/libopenstorage/autopilot/api/autopilot/types"
 )
 
 // RuleCreate Create a new telemetry rule from the provided definition
 func (a *API) RuleCreate(ctx *Context, params rule.RuleCreateParams) middleware.Responder {
-	return sparks.ErrNotImplemented("ruleCreate")
+	if err := a.DB.Create(params.Rule).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return rule.NewRuleCreateCreated().WithPayload(params.Rule)
 }
 
 // RuleDelete Returns the request collected object
 func (a *API) RuleDelete(ctx *Context, params rule.RuleDeleteParams) middleware.Responder {
-	return sparks.ErrNotImplemented("ruleDelete")
+	if err := a.DB.Delete(&types.RuleSet{}, "id=?", params.RuleID).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return rule.NewRuleDeleteNoContent()
 }
 
 // RuleGet Returns the request collected object
 func (a *API) RuleGet(ctx *Context, params rule.RuleGetParams) middleware.Responder {
-	return sparks.ErrNotImplemented("ruleGet")
+	r := &types.RuleSet{}
+	if err := a.DB.First(r, "id=?", params.RuleID).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return rule.NewRuleGetOK().WithPayload(r)
 }
 
 // RuleList Returns an array of telemetry rules defined in the system
 func (a *API) RuleList(ctx *Context, params rule.RuleListParams) middleware.Responder {
-	return sparks.ErrNotImplemented("ruleList")
+	rules := make([]*types.RuleSet, 0)
+
+	if err := a.DB.Find(rules).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return rule.NewRuleListOK().WithPayload(rules)
 }
 
 // RuleUpdate Update the properties of the specified rule
 func (a *API) RuleUpdate(ctx *Context, params rule.RuleUpdateParams) middleware.Responder {
-	return sparks.ErrNotImplemented("ruleUpdate")
+	if err := a.DB.Model(params.Rule).Where("id=?", params.RuleID).Updates(params.Rule).Error; err != nil {
+		return sparks.NewError(err)
+	}
+	return rule.NewRuleUpdateNoContent()
 }
