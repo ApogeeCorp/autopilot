@@ -361,13 +361,14 @@ paths:
       summary: "Create a new telemetry sample"
       description: "Create a new telemetry sample from the provided definition"
       operationId: "sampleCreate"
+      consumes:
+      - "multipart/form-data"
       parameters:
-      - in: "body"
-        name: "sample"
+      - name: "sample"
+        in: "formData"
         description: "The sample to create"
         required: true
-        schema:
-          $ref: "#/definitions/Sample"
+        type: "file"
       responses:
         201:
           description: "Created"
