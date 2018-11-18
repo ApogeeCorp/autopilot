@@ -837,9 +837,9 @@ definitions:
       params:
         key: "{}"
       status: "pending"
-  SourceProvider:
+  SourceType:
     type: "string"
-    description: "SourceProvider:\n  * prometheus - a prometheus server\n"
+    description: "sourceType:\n  * prometheus - a prometheus server\n"
     enum:
     - "prometheus"
   Source:
@@ -852,7 +852,7 @@ definitions:
         type: "string"
         description: "The source name"
       type:
-        $ref: "#/definitions/SourceProvider"
+        $ref: "#/definitions/SourceType"
       config:
         $ref: "#/definitions/JSONMap"
     description: "A source is a telemetry source that provides stats and anlytics\
@@ -869,7 +869,7 @@ definitions:
         format: "uuid"
         description: "The sample id"
       source:
-        $ref: "#/definitions/SourceProvider"
+        $ref: "#/definitions/SourceType"
       created_at:
         type: "string"
         format: "date-time"
