@@ -951,7 +951,7 @@ definitions:
         description: "The sample id"
       proposals:
         type: "object"
-        description: "The recommendation values mapping"
+        description: "The recommendation values mapping rule.name -> formatted proposal"
         additionalProperties:
           type: "object"
           properties: {}
