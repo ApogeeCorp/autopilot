@@ -56,7 +56,7 @@ func main() {
 			Name:   "config,f",
 			Usage:  "set the configuration file path",
 			EnvVar: "CONFIG_FILE",
-			Value:  "./etc/autopilot/config.yaml",
+			Value:  "./etc/config.yaml",
 		},
 		cli.StringFlag{
 			Name:   "data-dir",
