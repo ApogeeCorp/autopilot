@@ -177,6 +177,166 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
+  /emitters:
+    get:
+      tags:
+      - "emitter"
+      summary: "Get a list of telemetry emitters"
+      description: "Returns an array of telemetry emitters defined in the system"
+      operationId: "emitterList"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Emitter"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "emitter"
+      summary: "Create a new telemetry emitter"
+      description: "Create a new telemetry emitter from the provided definition"
+      operationId: "emitterCreate"
+      parameters:
+      - in: "body"
+        name: "emitter"
+        description: "The emitter to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Emitter"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/Emitter"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /emitters/{emitter_id}:
+    get:
+      tags:
+      - "emitter"
+      summary: "Get a list of telemetry emitters"
+      description: "Returns the request collected object"
+      operationId: "emitterGet"
+      parameters:
+      - name: "emitter_id"
+        in: "path"
+        description: "The id of the emitter"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Emitter"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "emitter"
+      summary: "Update a emitter object"
+      description: "Update the properties of the specified emitter"
+      operationId: "emitterUpdate"
+      parameters:
+      - name: "emitter_id"
+        in: "path"
+        description: "The id of the emitter"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "emitter"
+        description: "The emitter to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Emitter"
+      responses:
+        204:
+          description: "No Content"
+        400:
+          description: "BadRequest"
+          examples:
+            application/json:
+              message: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "emitter"
+      summary: "Get a list of telemetry emitters"
+      description: "Returns the request collected object"
+      operationId: "emitterDelete"
+      parameters:
+      - name: "emitter_id"
+        in: "path"
+        description: "The id of the emitter"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "NotFound"
+          examples:
+            application/json:
+              message: "object not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "ServerError"
+          examples:
+            application/json:
+              message: "internal server error"
+          schema:
+            $ref: "#/definitions/Error"
   /samples:
     post:
       tags:
@@ -503,6 +663,11 @@ definitions:
           type: "object"
           properties: {}
     description: "An emitter emits recommendations to a system\n"
+    example:
+      name: "name"
+      type: "mqtt"
+      params:
+        key: "{}"
   Task:
     properties:
       id:
