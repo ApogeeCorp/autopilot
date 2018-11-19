@@ -61,12 +61,13 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /samples:
+  /recommend:
     post:
       tags:
-      - "sample"
+      - "autopilot"
       summary: "Post a telemetry sample and get recommendations"
-      description: "Create a new telemetry sample from the provided definition"
+      description: "Create a new telemetry sample from the provided definition and\
+        \ get recommendations"
       operationId: "recommendationsGet"
       consumes:
       - "multipart/form-data"
