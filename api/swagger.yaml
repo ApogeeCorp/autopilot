@@ -177,206 +177,6 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /sources:
-    get:
-      tags:
-      - "source"
-      summary: "Get a list of telemetry sources"
-      description: "Returns an array of telemetry sources defined in the system"
-      operationId: "sourceList"
-      parameters: []
-      responses:
-        200:
-          description: "OK"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Source"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-    post:
-      tags:
-      - "source"
-      summary: "Create a new telemetry source"
-      description: "Create a new telemetry source from the provided definition"
-      operationId: "sourceCreate"
-      parameters:
-      - in: "body"
-        name: "source"
-        description: "The source to create"
-        required: true
-        schema:
-          $ref: "#/definitions/Source"
-      responses:
-        201:
-          description: "Created"
-          schema:
-            $ref: "#/definitions/Source"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-  /sources/{source_id}:
-    get:
-      tags:
-      - "source"
-      summary: "Get a list of telemetry sources"
-      description: "Returns the request collected object"
-      operationId: "sourceGet"
-      parameters:
-      - name: "source_id"
-        in: "path"
-        description: "The id of the source"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
-        200:
-          description: "OK"
-          schema:
-            $ref: "#/definitions/Source"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - "source"
-      summary: "Update a source object"
-      description: "Update the properties of the specified source"
-      operationId: "sourceUpdate"
-      parameters:
-      - name: "source_id"
-        in: "path"
-        description: "The id of the source"
-        required: true
-        type: "string"
-        format: "uuid"
-      - in: "body"
-        name: "source"
-        description: "The source to create"
-        required: true
-        schema:
-          $ref: "#/definitions/Source"
-      responses:
-        204:
-          description: "No Content"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-    delete:
-      tags:
-      - "source"
-      summary: "Get a list of telemetry sources"
-      description: "Returns the request collected object"
-      operationId: "sourceDelete"
-      parameters:
-      - name: "source_id"
-        in: "path"
-        description: "The id of the source"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
-        204:
-          description: "No Content"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-  /sources/{source_id}/poll:
-    get:
-      tags:
-      - "source"
-      summary: "Poll a source"
-      description: "Poll a source and collect a sample manually"
-      operationId: "sourcePoll"
-      parameters:
-      - name: "source_id"
-        in: "path"
-        description: "The id of the source"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
-        200:
-          description: "OK"
-          schema:
-            $ref: "#/definitions/Sample"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
   /samples:
     post:
       tags:
@@ -401,115 +201,6 @@ paths:
         enum:
         - "prometheus"
       responses:
-        201:
-          description: "Created"
-          schema:
-            $ref: "#/definitions/Sample"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-  /samples/{sample_id}:
-    get:
-      tags:
-      - "sample"
-      summary: "Get a list of telemetry samples"
-      description: "Returns the request collected object"
-      operationId: "sampleGet"
-      parameters:
-      - name: "sample_id"
-        in: "path"
-        description: "The id of the sample"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
-        200:
-          description: "OK"
-          schema:
-            $ref: "#/definitions/Sample"
-        400:
-          description: "BadRequest"
-          examples:
-            application/json:
-              message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-    delete:
-      tags:
-      - "sample"
-      summary: "Get a list of telemetry samples"
-      description: "Returns the request collected object"
-      operationId: "sampleDelete"
-      parameters:
-      - name: "sample_id"
-        in: "path"
-        description: "The id of the sample"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
-        204:
-          description: "No Content"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "ServerError"
-          examples:
-            application/json:
-              message: "internal server error"
-          schema:
-            $ref: "#/definitions/Error"
-  /samples/{sample_id}/recommendations:
-    get:
-      tags:
-      - "sample"
-      summary: "Get a list of recommendations"
-      description: "Returns the recommendations for a particular sample"
-      operationId: "recommendationsGet"
-      parameters:
-      - name: "sample_id"
-        in: "path"
-        description: "The id of the sample"
-        required: true
-        type: "string"
-        format: "uuid"
-      - name: "rules"
-        in: "query"
-        description: "The rules to apply to get the recommendations"
-        required: true
-        type: "string"
-        format: "uuid"
-      responses:
         200:
           description: "OK"
           schema:
@@ -521,13 +212,6 @@ paths:
           examples:
             application/json:
               message: "invalid parameter"
-          schema:
-            $ref: "#/definitions/Error"
-        404:
-          description: "NotFound"
-          examples:
-            application/json:
-              message: "object not found"
           schema:
             $ref: "#/definitions/Error"
         500:
@@ -829,58 +513,6 @@ definitions:
       params:
         key: "{}"
       status: "pending"
-  SourceType:
-    type: "string"
-    description: "sourceType:\n  * prometheus - a prometheus server\n"
-    enum:
-    - "prometheus"
-  Source:
-    properties:
-      id:
-        type: "string"
-        format: "uuid"
-        description: "The source id"
-      name:
-        type: "string"
-        description: "The source name"
-      type:
-        $ref: "#/definitions/SourceType"
-      config:
-        type: "object"
-        description: "json data object"
-        additionalProperties:
-          type: "object"
-          properties: {}
-    description: "A source is a telemetry source that provides stats and anlytics\
-      \ data in the autopilot csv format\n"
-    example:
-      name: "name"
-      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      type: {}
-      config:
-        key: "{}"
-  Sample:
-    properties:
-      id:
-        type: "string"
-        format: "uuid"
-        description: "The sample id"
-      type:
-        $ref: "#/definitions/SourceType"
-      meta:
-        type: "object"
-        description: "json data object"
-        additionalProperties:
-          type: "object"
-          properties: {}
-    description: "A sample is a set of collected data from a particular source that\
-      \ has be reformatted\nand prepared for consumption. The sample data itself is\
-      \ stored in the filesystem.\n"
-    example:
-      meta:
-        key: "{}"
-      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      type: {}
   Rule:
     properties:
       name:
@@ -918,29 +550,57 @@ definitions:
       name: "name"
       for: 3600
       expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
+  Proposal:
+    type: "object"
+    properties:
+      rule:
+        type: "string"
+        description: "The rule that triggered the proposal"
+      cluster_id:
+        type: "string"
+        description: "The cluster id"
+      node_id:
+        type: "string"
+        description: "The node id"
+      volume_id:
+        type: "string"
+        description: "the volume id"
+      value:
+        type: "string"
+        description: "The proposal value"
+    description: "A proposal is a formatted propsal object\n"
+    example:
+      cluster_id: "cluster_id"
+      volume_id: "volume_id"
+      rule: "rule"
+      value: "value"
+      node_id: "node_id"
   Recommendation:
     properties:
-      id:
+      timestamp:
         type: "string"
-        format: "uuid"
-        description: "The recommendation id"
-      sample_id:
-        type: "string"
-        format: "uuid"
-        description: "The sample id"
+        format: "date-time"
+        description: "The recommendation timestamp"
       proposals:
-        type: "object"
+        type: "array"
         description: "The recommendation values mapping rule.name -> formatted proposal"
-        additionalProperties:
-          type: "object"
-          properties: {}
+        items:
+          $ref: "#/definitions/Proposal"
     description: "A recommendation is a list of recommended arbitrations for a specific\
       \ sample set\n"
     example:
-      sample_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       proposals:
-        key: "{}"
+      - cluster_id: "cluster_id"
+        volume_id: "volume_id"
+        rule: "rule"
+        value: "value"
+        node_id: "node_id"
+      - cluster_id: "cluster_id"
+        volume_id: "volume_id"
+        rule: "rule"
+        value: "value"
+        node_id: "node_id"
+      timestamp: "2000-01-23T04:56:07.000+00:00"
   Error:
     type: "object"
     properties:
