@@ -13,11 +13,6 @@ import (
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
-// TaskGet Returns the request task object
-func (a *API) TaskGet(ctx *Context, params task.TaskGetParams) middleware.Responder {
-	return sparks.ErrNotImplemented("taskGet")
-}
-
 // TaskList Returns an array of tasks
 func (a *API) TaskList(ctx *Context, params task.TaskListParams) middleware.Responder {
 	return sparks.ErrNotImplemented("taskList")

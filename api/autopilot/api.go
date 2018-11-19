@@ -9,7 +9,7 @@ package autopilot
 import (
 	"net/http"
 
-	"github.com/jinzhu/gorm"
+	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/engine"
 	"github.com/sirupsen/logrus"
 )
@@ -17,7 +17,7 @@ import (
 // API is the acme API interface implementation
 type API struct {
 	Log     *logrus.Logger
-	DB      *gorm.DB
+	Config  *config.Config
 	DataDir string
 	engine  *engine.Engine
 }

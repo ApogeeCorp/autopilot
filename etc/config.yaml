@@ -1,0 +1,66 @@
+
+collectors:
+  - name: Portworx
+    type: prometheus
+    url: http://70.0.69.141:9090/api/v1/query
+    param:
+      query: {cluster="greatdane-1914e166dc7"}
+    interval: 3600
+rules:
+  - rule: PortworxVolumeUsageCritical
+    expr: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80
+    for: 3600
+    issue: Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.
+    severity: critical
+    proposal: Add additional storage node to {{$labels.cluster}}
+  - rule: PortworxVolumeUsage
+    expr: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 70
+    for: 7200
+    issue: Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is critical.
+    severity: warning
+    proposal: Add additional storage node to {{$labels.cluster}}
+  - rule: PortworxVolumeWillFill
+    expr: (px_volume_usage_bytes / px_volume_capacity_bytes) > 0.7 and predict_linear(px_cluster_disk_available_bytes[1h],
+      14 * 86400) < 0
+    for: 7200
+    issue: Disk volume {{$labels.volumeid}} on {{$labels.host}} is predicted to
+      fill within 2 weeks.
+    severity: warning
+    proposal: Add additional disks to {{$labels.cluster}}
+  - rule: PortworxStorageUsageCritical
+    expr: 100 * (1 - px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes) < 20
+    for: 7200
+    issue: Portworx storage {{$labels.volumeid}} usage on {{$labels.host}} is high.
+    severity: critical
+    proposal: Add additional disks to {{$labels.cluster}}
+  - rule: PortworxStorageUsage
+    expr: 100 * (1 - (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes)) < 30
+    for: 7200
+    issue: Portworx storage {{$labels.volumeid}} usage on {{$labels.host}} is critical.
+    severity: warning
+    proposal: Add additional disks to {{$labels.cluster}}
+  - rule: PortworxStorageWillFill
+    expr: (100 * (1 - (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes))) < 30 and predict_linear(px_cluster_disk_available_bytes[1h], 14 * 86400) < 0
+    for: 7200
+    issue: Portworx storage {{$labels.volumeid}} on {{$labels.host}} is predicted
+      to fill within 2 weeks.
+    severity: warning
+    proposal: Add additional storage node to {{$labels.cluster}}
+  - rule: PortworxStorageNodeDown
+    expr: max(px_cluster_status_nodes_storage_down) > 0
+    for: 7200
+    issue: Portworx Storage Node is Offline.
+    severity: critical
+    proposal: Restart node with verbose debugging {{$labels.node}}
+  - rule: PortworxQuorumUnhealthy
+    expr: max(px_cluster_status_cluster_quorum) > 1
+    for: 7200
+    issue: Portworx Quorum Unhealthy.
+    severity: critical
+    proposal: Restart node with verbose debugging {{$labels.node}}
+  - rule: PortworxMemberDown
+    expr: (max(px_cluster_status_cluster_size) - count(px_cluster_status_cluster_size)) > 0
+    for: 5m
+    issue: Portworx cluster member(s) is(are) down.
+    severity: critical
+    proposal: Restart cluster with verbose debugging {{$labels.cluster}}

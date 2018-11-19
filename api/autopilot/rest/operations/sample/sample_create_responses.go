@@ -18,48 +18,51 @@ import (
 	types "github.com/libopenstorage/autopilot/api/autopilot/types"
 )
 
-// SampleCreateCreatedCode is the HTTP code returned for type SampleCreateCreated
-const SampleCreateCreatedCode int = 201
+// SampleCreateOKCode is the HTTP code returned for type SampleCreateOK
+const SampleCreateOKCode int = 200
 
-/*SampleCreateCreated Created
+/*SampleCreateOK OK
 
-swagger:response sampleCreateCreated
+swagger:response sampleCreateOK
 */
-type SampleCreateCreated struct {
+type SampleCreateOK struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *types.Sample `json:"body,omitempty"`
+	Payload []*types.Recommendation `json:"body,omitempty"`
 }
 
-// NewSampleCreateCreated creates SampleCreateCreated with default headers values
-func NewSampleCreateCreated() *SampleCreateCreated {
+// NewSampleCreateOK creates SampleCreateOK with default headers values
+func NewSampleCreateOK() *SampleCreateOK {
 
-	return &SampleCreateCreated{}
+	return &SampleCreateOK{}
 }
 
-// WithPayload adds the payload to the sample create created response
-func (o *SampleCreateCreated) WithPayload(payload *types.Sample) *SampleCreateCreated {
+// WithPayload adds the payload to the sample create o k response
+func (o *SampleCreateOK) WithPayload(payload []*types.Recommendation) *SampleCreateOK {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the sample create created response
-func (o *SampleCreateCreated) SetPayload(payload *types.Sample) {
+// SetPayload sets the payload to the sample create o k response
+func (o *SampleCreateOK) SetPayload(payload []*types.Recommendation) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *SampleCreateCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *SampleCreateOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(201)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	rw.WriteHeader(200)
+	payload := o.Payload
+	if payload == nil {
+		payload = make([]*types.Recommendation, 0, 50)
 	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+
 }
 
 // SampleCreateBadRequestCode is the HTTP code returned for type SampleCreateBadRequest

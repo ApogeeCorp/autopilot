@@ -31,10 +31,6 @@ type Rule struct {
 	// The duration/interval the expression must be valid for in seconds
 	For int64 `json:"for,omitempty"`
 
-	// The rule id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
 	// The issue template
 	Issue string `json:"issue,omitempty"`
 
@@ -53,10 +49,6 @@ type Rule struct {
 func (m *Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateSeverity(formats); err != nil {
 		res = append(res, err)
 	}
@@ -64,19 +56,6 @@ func (m *Rule) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *Rule) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

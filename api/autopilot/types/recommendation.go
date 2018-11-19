@@ -11,6 +11,8 @@ package types
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,32 +20,28 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Recommendation A recommendation is a list of recommended arbitrations for a specific sample set
+// Recommendation A recommendation is a list of recommended arbitrations to be emitted by the system
 //
 // swagger:model Recommendation
 type Recommendation struct {
 
-	// The recommendation id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	// The recommendation values mapping rule.name -> formatted proposal
+	Proposals []*Proposal `json:"proposals"`
 
-	// The recommendation values mapping
-	Proposals map[string]interface{} `json:"proposals,omitempty"`
-
-	// The sample id
-	// Format: uuid
-	SampleID strfmt.UUID `json:"sample_id,omitempty"`
+	// The recommendation timestamp
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
 }
 
 // Validate validates this recommendation
 func (m *Recommendation) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
+	if err := m.validateProposals(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSampleID(formats); err != nil {
+	if err := m.validateTimestamp(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -53,26 +51,38 @@ func (m *Recommendation) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Recommendation) validateID(formats strfmt.Registry) error {
+func (m *Recommendation) validateProposals(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ID) { // not required
+	if swag.IsZero(m.Proposals) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
+	for i := 0; i < len(m.Proposals); i++ {
+		if swag.IsZero(m.Proposals[i]) { // not required
+			continue
+		}
+
+		if m.Proposals[i] != nil {
+			if err := m.Proposals[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("proposals" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
-func (m *Recommendation) validateSampleID(formats strfmt.Registry) error {
+func (m *Recommendation) validateTimestamp(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.SampleID) { // not required
+	if swag.IsZero(m.Timestamp) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("sample_id", "body", "uuid", m.SampleID.String(), formats); err != nil {
+	if err := validate.FormatOf("timestamp", "body", "date-time", m.Timestamp.String(), formats); err != nil {
 		return err
 	}
 

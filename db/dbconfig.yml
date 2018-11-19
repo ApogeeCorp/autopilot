@@ -1,5 +1,0 @@
-development:
-  dialect: postgres
-  datasource: postgres://postgres:D1g1tal*23@autopilot.cig1ipcep3yi.us-east-1.rds.amazonaws.com/autopilot
-  dir: sql
-

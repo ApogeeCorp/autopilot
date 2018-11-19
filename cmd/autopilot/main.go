@@ -7,16 +7,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	"github.com/libopenstorage/autopilot/api/autopilot"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest"
+	"github.com/libopenstorage/autopilot/config"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	yaml "gopkg.in/yaml.v1"
 )
 
 var (
@@ -51,16 +53,10 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:   "db-driver",
-			Usage:  "set the database driver",
-			EnvVar: "DB_DRIVER",
-			Value:  "postgres",
-		},
-		cli.StringFlag{
-			Name:   "db-source",
-			Usage:  "set the database source",
-			EnvVar: "DB_SOURCE",
-			Value:  "dbname=autopilot host=autopilot.cig1ipcep3yi.us-east-1.rds.amazonaws.com user=postgres password=D1g1tal*23",
+			Name:   "config,f",
+			Usage:  "set the configuration file path",
+			EnvVar: "CONFIG_FILE",
+			Value:  "./etc/autopilot/config.yaml",
 		},
 		cli.StringFlag{
 			Name:   "data-dir",
@@ -71,18 +67,22 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		log.SetLevel(logrus.DebugLevel)
+		config := &config.Config{}
 
-		// open the rds database
-		db, err := gorm.Open(c.GlobalString("db-driver"), c.GlobalString("db-source"))
-		if err != nil {
-			log.Fatalln(err)
-		}
+		log.SetLevel(logrus.DebugLevel)
 
 		api := &autopilot.API{
 			Log:     log,
-			DB:      db,
 			DataDir: c.GlobalString("data-dir"),
+		}
+
+		data, err := ioutil.ReadFile(c.GlobalString("config"))
+		if err != nil {
+			return err
+		}
+
+		if err := yaml.Unmarshal(data, config); err != nil {
+			return err
 		}
 
 		log.Debugf("DataDir=%s", api.DataDir)

@@ -41,7 +41,7 @@ type Task struct {
 	Status string `json:"status,omitempty"`
 
 	// The task type
-	// Enum: [collector recommender predictor]
+	// Enum: [collector]
 	Type string `json:"type,omitempty"`
 }
 
@@ -150,7 +150,7 @@ var taskTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["collector","recommender","predictor"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["collector"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -162,12 +162,6 @@ const (
 
 	// TaskTypeCollector captures enum value "collector"
 	TaskTypeCollector string = "collector"
-
-	// TaskTypeRecommender captures enum value "recommender"
-	TaskTypeRecommender string = "recommender"
-
-	// TaskTypePredictor captures enum value "predictor"
-	TaskTypePredictor string = "predictor"
 )
 
 // prop value enum

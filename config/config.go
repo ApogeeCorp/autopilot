@@ -4,6 +4,11 @@
 
 package config
 
+import "github.com/libopenstorage/autopilot/api/autopilot/types"
+
 // Config defines the autopilot configuration structure
 type Config struct {
+	Rules      []*types.Rule      `yaml:"rules"`
+	Collectors []*types.Collector `yaml:"collectors"`
+	Emitters   []*types.Emitter   `yaml:"emitters"`
 }

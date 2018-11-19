@@ -20,34 +20,24 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Collector A collector pulls data from a telemetry source, parses,
-// and reformats the data to be consumed by the autopilot engine.
+// Emitter An emitter emits recommendations to a system
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:model Emitter
+type Emitter struct {
 
-	// The emitters to use after processing the samples
-	Emitters []string `json:"emitters"`
-
-	// The interval the collector will run at
-	Interval string `json:"interval,omitempty"`
-
-	// The collector name
+	// The emitter name
 	Name string `json:"name,omitempty"`
 
 	// json data object
 	Params map[string]interface{} `json:"params,omitempty"`
 
-	// The collector client to use
-	// Enum: [prometheus]
+	// The emitter type
+	// Enum: [mqtt]
 	Type string `json:"type,omitempty"`
-
-	// The collector url
-	URL string `json:"url,omitempty"`
 }
 
-// Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+// Validate validates this emitter
+func (m *Emitter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateType(formats); err != nil {
@@ -60,33 +50,33 @@ func (m *Collector) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var collectorTypeTypePropEnum []interface{}
+var emitterTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["prometheus"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["mqtt"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		collectorTypeTypePropEnum = append(collectorTypeTypePropEnum, v)
+		emitterTypeTypePropEnum = append(emitterTypeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// CollectorTypePrometheus captures enum value "prometheus"
-	CollectorTypePrometheus string = "prometheus"
+	// EmitterTypeMqtt captures enum value "mqtt"
+	EmitterTypeMqtt string = "mqtt"
 )
 
 // prop value enum
-func (m *Collector) validateTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, collectorTypeTypePropEnum); err != nil {
+func (m *Emitter) validateTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, emitterTypeTypePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Collector) validateType(formats strfmt.Registry) error {
+func (m *Emitter) validateType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Type) { // not required
 		return nil
@@ -101,7 +91,7 @@ func (m *Collector) validateType(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
+func (m *Emitter) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -109,8 +99,8 @@ func (m *Collector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
+func (m *Emitter) UnmarshalBinary(b []byte) error {
+	var res Emitter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

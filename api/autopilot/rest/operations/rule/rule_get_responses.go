@@ -30,7 +30,7 @@ type RuleGetOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *types.RuleSet `json:"body,omitempty"`
+	Payload *types.Rule `json:"body,omitempty"`
 }
 
 // NewRuleGetOK creates RuleGetOK with default headers values
@@ -40,13 +40,13 @@ func NewRuleGetOK() *RuleGetOK {
 }
 
 // WithPayload adds the payload to the rule get o k response
-func (o *RuleGetOK) WithPayload(payload *types.RuleSet) *RuleGetOK {
+func (o *RuleGetOK) WithPayload(payload *types.Rule) *RuleGetOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the rule get o k response
-func (o *RuleGetOK) SetPayload(payload *types.RuleSet) {
+func (o *RuleGetOK) SetPayload(payload *types.Rule) {
 	o.Payload = payload
 }
 

@@ -26,9 +26,8 @@ import (
 	context "golang.org/x/net/context"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/emitter"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/source"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
@@ -50,71 +49,17 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 		JSONProducer:          runtime.JSONProducer(),
-		CollectorCollectorCreateHandler: collector.CollectorCreateHandlerFunc(func(params collector.CollectorCreateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorCreate has not yet been implemented")
-		}),
-		CollectorCollectorDeleteHandler: collector.CollectorDeleteHandlerFunc(func(params collector.CollectorDeleteParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorDelete has not yet been implemented")
-		}),
-		CollectorCollectorGetHandler: collector.CollectorGetHandlerFunc(func(params collector.CollectorGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorGet has not yet been implemented")
-		}),
 		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorList has not yet been implemented")
 		}),
-		CollectorCollectorUpdateHandler: collector.CollectorUpdateHandlerFunc(func(params collector.CollectorUpdateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorUpdate has not yet been implemented")
+		EmitterEmitterListHandler: emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation EmitterEmitterList has not yet been implemented")
 		}),
-		SampleRecommendationsGetHandler: sample.RecommendationsGetHandlerFunc(func(params sample.RecommendationsGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleRecommendationsGet has not yet been implemented")
-		}),
-		RuleRuleCreateHandler: rule.RuleCreateHandlerFunc(func(params rule.RuleCreateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RuleRuleCreate has not yet been implemented")
-		}),
-		RuleRuleDeleteHandler: rule.RuleDeleteHandlerFunc(func(params rule.RuleDeleteParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RuleRuleDelete has not yet been implemented")
-		}),
-		RuleRuleGetHandler: rule.RuleGetHandlerFunc(func(params rule.RuleGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RuleRuleGet has not yet been implemented")
+		RecommendationsGetHandler: RecommendationsGetHandlerFunc(func(params RecommendationsGetParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation RecommendationsGet has not yet been implemented")
 		}),
 		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
-		}),
-		RuleRuleUpdateHandler: rule.RuleUpdateHandlerFunc(func(params rule.RuleUpdateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RuleRuleUpdate has not yet been implemented")
-		}),
-		SampleSampleCreateHandler: sample.SampleCreateHandlerFunc(func(params sample.SampleCreateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleCreate has not yet been implemented")
-		}),
-		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleDelete has not yet been implemented")
-		}),
-		SampleSampleGetHandler: sample.SampleGetHandlerFunc(func(params sample.SampleGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleGet has not yet been implemented")
-		}),
-		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
-		}),
-		SourceSourceCreateHandler: source.SourceCreateHandlerFunc(func(params source.SourceCreateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourceCreate has not yet been implemented")
-		}),
-		SourceSourceDeleteHandler: source.SourceDeleteHandlerFunc(func(params source.SourceDeleteParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourceDelete has not yet been implemented")
-		}),
-		SourceSourceGetHandler: source.SourceGetHandlerFunc(func(params source.SourceGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourceGet has not yet been implemented")
-		}),
-		SourceSourceListHandler: source.SourceListHandlerFunc(func(params source.SourceListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourceList has not yet been implemented")
-		}),
-		SourceSourcePollHandler: source.SourcePollHandlerFunc(func(params source.SourcePollParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourcePoll has not yet been implemented")
-		}),
-		SourceSourceUpdateHandler: source.SourceUpdateHandlerFunc(func(params source.SourceUpdateParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SourceSourceUpdate has not yet been implemented")
-		}),
-		TaskTaskGetHandler: task.TaskGetHandlerFunc(func(params task.TaskGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation TaskTaskGet has not yet been implemented")
 		}),
 		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation TaskTaskList has not yet been implemented")
@@ -167,50 +112,14 @@ type AutopilotAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// CollectorCollectorCreateHandler sets the operation handler for the collector create operation
-	CollectorCollectorCreateHandler collector.CollectorCreateHandler
-	// CollectorCollectorDeleteHandler sets the operation handler for the collector delete operation
-	CollectorCollectorDeleteHandler collector.CollectorDeleteHandler
-	// CollectorCollectorGetHandler sets the operation handler for the collector get operation
-	CollectorCollectorGetHandler collector.CollectorGetHandler
 	// CollectorCollectorListHandler sets the operation handler for the collector list operation
 	CollectorCollectorListHandler collector.CollectorListHandler
-	// CollectorCollectorUpdateHandler sets the operation handler for the collector update operation
-	CollectorCollectorUpdateHandler collector.CollectorUpdateHandler
-	// SampleRecommendationsGetHandler sets the operation handler for the recommendations get operation
-	SampleRecommendationsGetHandler sample.RecommendationsGetHandler
-	// RuleRuleCreateHandler sets the operation handler for the rule create operation
-	RuleRuleCreateHandler rule.RuleCreateHandler
-	// RuleRuleDeleteHandler sets the operation handler for the rule delete operation
-	RuleRuleDeleteHandler rule.RuleDeleteHandler
-	// RuleRuleGetHandler sets the operation handler for the rule get operation
-	RuleRuleGetHandler rule.RuleGetHandler
+	// EmitterEmitterListHandler sets the operation handler for the emitter list operation
+	EmitterEmitterListHandler emitter.EmitterListHandler
+	// RecommendationsGetHandler sets the operation handler for the recommendations get operation
+	RecommendationsGetHandler RecommendationsGetHandler
 	// RuleRuleListHandler sets the operation handler for the rule list operation
 	RuleRuleListHandler rule.RuleListHandler
-	// RuleRuleUpdateHandler sets the operation handler for the rule update operation
-	RuleRuleUpdateHandler rule.RuleUpdateHandler
-	// SampleSampleCreateHandler sets the operation handler for the sample create operation
-	SampleSampleCreateHandler sample.SampleCreateHandler
-	// SampleSampleDeleteHandler sets the operation handler for the sample delete operation
-	SampleSampleDeleteHandler sample.SampleDeleteHandler
-	// SampleSampleGetHandler sets the operation handler for the sample get operation
-	SampleSampleGetHandler sample.SampleGetHandler
-	// SampleSampleListHandler sets the operation handler for the sample list operation
-	SampleSampleListHandler sample.SampleListHandler
-	// SourceSourceCreateHandler sets the operation handler for the source create operation
-	SourceSourceCreateHandler source.SourceCreateHandler
-	// SourceSourceDeleteHandler sets the operation handler for the source delete operation
-	SourceSourceDeleteHandler source.SourceDeleteHandler
-	// SourceSourceGetHandler sets the operation handler for the source get operation
-	SourceSourceGetHandler source.SourceGetHandler
-	// SourceSourceListHandler sets the operation handler for the source list operation
-	SourceSourceListHandler source.SourceListHandler
-	// SourceSourcePollHandler sets the operation handler for the source poll operation
-	SourceSourcePollHandler source.SourcePollHandler
-	// SourceSourceUpdateHandler sets the operation handler for the source update operation
-	SourceSourceUpdateHandler source.SourceUpdateHandler
-	// TaskTaskGetHandler sets the operation handler for the task get operation
-	TaskTaskGetHandler task.TaskGetHandler
 	// TaskTaskListHandler sets the operation handler for the task list operation
 	TaskTaskListHandler task.TaskListHandler
 
@@ -284,92 +193,20 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "BasicAuthAuth")
 	}
 
-	if o.CollectorCollectorCreateHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorCreateHandler")
-	}
-
-	if o.CollectorCollectorDeleteHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorDeleteHandler")
-	}
-
-	if o.CollectorCollectorGetHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorGetHandler")
-	}
-
 	if o.CollectorCollectorListHandler == nil {
 		unregistered = append(unregistered, "collector.CollectorListHandler")
 	}
 
-	if o.CollectorCollectorUpdateHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorUpdateHandler")
+	if o.EmitterEmitterListHandler == nil {
+		unregistered = append(unregistered, "emitter.EmitterListHandler")
 	}
 
-	if o.SampleRecommendationsGetHandler == nil {
-		unregistered = append(unregistered, "sample.RecommendationsGetHandler")
-	}
-
-	if o.RuleRuleCreateHandler == nil {
-		unregistered = append(unregistered, "rule.RuleCreateHandler")
-	}
-
-	if o.RuleRuleDeleteHandler == nil {
-		unregistered = append(unregistered, "rule.RuleDeleteHandler")
-	}
-
-	if o.RuleRuleGetHandler == nil {
-		unregistered = append(unregistered, "rule.RuleGetHandler")
+	if o.RecommendationsGetHandler == nil {
+		unregistered = append(unregistered, "RecommendationsGetHandler")
 	}
 
 	if o.RuleRuleListHandler == nil {
 		unregistered = append(unregistered, "rule.RuleListHandler")
-	}
-
-	if o.RuleRuleUpdateHandler == nil {
-		unregistered = append(unregistered, "rule.RuleUpdateHandler")
-	}
-
-	if o.SampleSampleCreateHandler == nil {
-		unregistered = append(unregistered, "sample.SampleCreateHandler")
-	}
-
-	if o.SampleSampleDeleteHandler == nil {
-		unregistered = append(unregistered, "sample.SampleDeleteHandler")
-	}
-
-	if o.SampleSampleGetHandler == nil {
-		unregistered = append(unregistered, "sample.SampleGetHandler")
-	}
-
-	if o.SampleSampleListHandler == nil {
-		unregistered = append(unregistered, "sample.SampleListHandler")
-	}
-
-	if o.SourceSourceCreateHandler == nil {
-		unregistered = append(unregistered, "source.SourceCreateHandler")
-	}
-
-	if o.SourceSourceDeleteHandler == nil {
-		unregistered = append(unregistered, "source.SourceDeleteHandler")
-	}
-
-	if o.SourceSourceGetHandler == nil {
-		unregistered = append(unregistered, "source.SourceGetHandler")
-	}
-
-	if o.SourceSourceListHandler == nil {
-		unregistered = append(unregistered, "source.SourceListHandler")
-	}
-
-	if o.SourceSourcePollHandler == nil {
-		unregistered = append(unregistered, "source.SourcePollHandler")
-	}
-
-	if o.SourceSourceUpdateHandler == nil {
-		unregistered = append(unregistered, "source.SourceUpdateHandler")
-	}
-
-	if o.TaskTaskGetHandler == nil {
-		unregistered = append(unregistered, "task.TaskGetHandler")
 	}
 
 	if o.TaskTaskListHandler == nil {
@@ -487,115 +324,25 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/collectors"] = collector.NewCollectorCreate(o.context, o.CollectorCollectorCreateHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/collectors/{collector_id}"] = collector.NewCollectorDelete(o.context, o.CollectorCollectorDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/collectors/{collector_id}"] = collector.NewCollectorGet(o.context, o.CollectorCollectorGetHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/collectors"] = collector.NewCollectorList(o.context, o.CollectorCollectorListHandler)
 
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/collectors/{collector_id}"] = collector.NewCollectorUpdate(o.context, o.CollectorCollectorUpdateHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/samples/{sample_id}/recommendations"] = sample.NewRecommendationsGet(o.context, o.SampleRecommendationsGetHandler)
+	o.handlers["GET"]["/emitters"] = emitter.NewEmitterList(o.context, o.EmitterEmitterListHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/rules"] = rule.NewRuleCreate(o.context, o.RuleRuleCreateHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/rules/{rule_id}"] = rule.NewRuleDelete(o.context, o.RuleRuleDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/rules/{rule_id}"] = rule.NewRuleGet(o.context, o.RuleRuleGetHandler)
+	o.handlers["POST"]["/recommend"] = NewRecommendationsGet(o.context, o.RecommendationsGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/rules"] = rule.NewRuleList(o.context, o.RuleRuleListHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/rules/{rule_id}"] = rule.NewRuleUpdate(o.context, o.RuleRuleUpdateHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/samples"] = sample.NewSampleCreate(o.context, o.SampleSampleCreateHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/samples/{sample_id}"] = sample.NewSampleDelete(o.context, o.SampleSampleDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/samples/{sample_id}"] = sample.NewSampleGet(o.context, o.SampleSampleGetHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/samples"] = sample.NewSampleList(o.context, o.SampleSampleListHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/sources"] = source.NewSourceCreate(o.context, o.SourceSourceCreateHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/sources/{source_id}"] = source.NewSourceDelete(o.context, o.SourceSourceDeleteHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/sources/{source_id}"] = source.NewSourceGet(o.context, o.SourceSourceGetHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/sources"] = source.NewSourceList(o.context, o.SourceSourceListHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/sources/{source_id}/poll"] = source.NewSourcePoll(o.context, o.SourceSourcePollHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/sources/{source_id}"] = source.NewSourceUpdate(o.context, o.SourceSourceUpdateHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/tasks/{task_id}"] = task.NewTaskGet(o.context, o.TaskTaskGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

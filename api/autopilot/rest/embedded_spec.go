@@ -74,40 +74,23 @@ func init() {
             }
           }
         }
-      },
-      "post": {
-        "description": "Create a new telemetry collector from the provided definition",
+      }
+    },
+    "/emitters": {
+      "get": {
+        "description": "Returns an array of telemetry emitters defined in the system",
         "tags": [
-          "collector"
+          "emitter"
         ],
-        "summary": "Create a new telemetry collector",
-        "operationId": "collectorCreate",
-        "parameters": [
-          {
-            "description": "The collector to create",
-            "name": "collector",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          }
-        ],
+        "summary": "Get a list of telemetry emitters",
+        "operationId": "emitterList",
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Emitter"
               }
             }
           },
@@ -125,29 +108,41 @@ func init() {
         }
       }
     },
-    "/collectors/{collector_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "collector"
+    "/recommend": {
+      "post": {
+        "description": "Create a new telemetry sample from the provided definition and get recommendations",
+        "consumes": [
+          "multipart/form-data"
         ],
-        "summary": "Get a list of telemetry collectors",
-        "operationId": "collectorGet",
+        "summary": "Post a telemetry sample and get recommendations",
+        "operationId": "recommendationsGet",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
+            "type": "file",
+            "description": "The sample to create",
+            "name": "sample",
+            "in": "formData",
             "required": true
+          },
+          {
+            "enum": [
+              "prometheus"
+            ],
+            "type": "string",
+            "default": "prometheus",
+            "description": "The provider type to process the sample with",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Collector"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Recommendation"
+              }
             }
           },
           "400": {
@@ -158,116 +153,6 @@ func init() {
             "examples": {
               "application/json": {
                 "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified collector",
-        "tags": [
-          "collector"
-        ],
-        "summary": "Update a collector object",
-        "operationId": "collectorUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The collector to create",
-            "name": "collector",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "collector"
-        ],
-        "summary": "Get a list of telemetry collectors",
-        "operationId": "collectorDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
               }
             }
           },
@@ -299,788 +184,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/RuleSet"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry rule from the provided definition",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Create a new telemetry rule",
-        "operationId": "ruleCreate",
-        "parameters": [
-          {
-            "description": "The rule to create",
-            "name": "rule",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/rules/{rule_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Get a list of telemetry rules",
-        "operationId": "ruleGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified rule",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Update a rule object",
-        "operationId": "ruleUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The rule to create",
-            "name": "rule",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Get a list of telemetry rules",
-        "operationId": "ruleDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples": {
-      "get": {
-        "description": "Returns an array of telemetry samples defined in the system",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Sample"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry sample from the provided definition",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "tags": [
-          "sample"
-        ],
-        "summary": "Create a new telemetry sample",
-        "operationId": "sampleCreate",
-        "parameters": [
-          {
-            "type": "file",
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "enum": [
-              "prometheus"
-            ],
-            "type": "string",
-            "default": "prometheus",
-            "description": "The provider type to process the sample with",
-            "name": "type",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}/recommendations": {
-      "get": {
-        "description": "Returns the recommendations for a particular sample",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of recommendations",
-        "operationId": "recommendationsGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The rules to apply to get the recommendations",
-            "name": "rules",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Recommendation"
-              }
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources": {
-      "get": {
-        "description": "Returns an array of telemetry sources defined in the system",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Source"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry source from the provided definition",
-        "tags": [
-          "source"
-        ],
-        "summary": "Create a new telemetry source",
-        "operationId": "sourceCreate",
-        "parameters": [
-          {
-            "description": "The source to create",
-            "name": "source",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources/{source_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified source",
-        "tags": [
-          "source"
-        ],
-        "summary": "Update a source object",
-        "operationId": "sourceUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The source to create",
-            "name": "source",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources/{source_id}/poll": {
-      "get": {
-        "description": "Poll a source and collect a sample manually",
-        "tags": [
-          "source"
-        ],
-        "summary": "Poll a source",
-        "operationId": "sourcePoll",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
+                "$ref": "#/definitions/Rule"
               }
             }
           },
@@ -1129,96 +233,88 @@ func init() {
           }
         }
       }
-    },
-    "/tasks/{task_id}": {
-      "get": {
-        "description": "Returns the request task object",
-        "tags": [
-          "task"
-        ],
-        "summary": "Get a task",
-        "operationId": "taskGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the task",
-            "name": "task_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Task"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
     "Collector": {
       "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
-        "id": {
-          "description": "The collector id",
-          "type": "string",
-          "format": "uuid"
+        "emitters": {
+          "description": "The emitters to use after processing the samples",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "interval": {
           "description": "The interval the collector will run at",
           "type": "string"
         },
-        "params": {
-          "$ref": "#/definitions/JSONMap"
+        "name": {
+          "description": "The collector name",
+          "type": "string"
         },
-        "source_id": {
-          "description": "The source id the source this collector will use",
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "type": {
+          "description": "The collector client to use",
           "type": "string",
-          "format": "uuid"
+          "enum": [
+            "prometheus"
+          ]
+        },
+        "url": {
+          "description": "The collector url",
+          "type": "string"
         }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "emitters": [
+          "emitters",
+          "emitters"
+        ],
         "interval": "interval",
-        "params": {},
-        "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "name": "name",
+        "params": {
+          "key": "{}"
+        },
+        "type": "prometheus",
+        "url": "url"
+      }
+    },
+    "Emitter": {
+      "description": "An emitter emits recommendations to a system\n",
+      "properties": {
+        "name": {
+          "description": "The emitter name",
+          "type": "string"
+        },
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "type": {
+          "description": "The emitter type",
+          "type": "string",
+          "enum": [
+            "mqtt"
+          ]
+        }
+      },
+      "example": {
+        "name": "name",
+        "params": {
+          "key": "{}"
+        },
+        "type": "mqtt"
       }
     },
     "Error": {
@@ -1245,49 +341,72 @@ func init() {
         }
       }
     },
-    "JSONMap": {
-      "description": "json data object",
-      "type": "object",
-      "additionalProperties": {
-        "type": "object"
-      },
-      "x-go-type": {
-        "import": {
-          "alias": "sparks",
-          "package": "gitlab.com/ModelRocket/sparks/types"
-        },
-        "type": "Params"
-      },
-      "x-nullable": true,
-      "x-omitempty": true
-    },
-    "Recommendation": {
-      "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
+    "Proposal": {
+      "description": "A proposal is a formatted propsal object\n",
       "properties": {
-        "id": {
-          "description": "The recommendation id",
-          "type": "string",
-          "format": "uuid"
+        "cluster_id": {
+          "description": "The cluster id",
+          "type": "string"
         },
-        "proposals": {
-          "description": "The recommendation values mapping",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+        "node_id": {
+          "description": "The node id",
+          "type": "string"
         },
-        "sample_id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
+        "rule": {
+          "description": "The rule that triggered the proposal",
+          "type": "string"
+        },
+        "value": {
+          "description": "The proposal value",
+          "type": "string"
+        },
+        "volume_id": {
+          "description": "the volume id",
+          "type": "string"
         }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "cluster_id": "cluster_id",
+        "node_id": "node_id",
+        "rule": "rule",
+        "value": "value",
+        "volume_id": "volume_id"
+      }
+    },
+    "Recommendation": {
+      "description": "A recommendation is a list of recommended arbitrations to be emitted by the system\n",
+      "properties": {
         "proposals": {
-          "key": "{}"
+          "description": "The recommendation values mapping rule.name -\u003e formatted proposal",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Proposal"
+          }
         },
-        "sample_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "timestamp": {
+          "description": "The recommendation timestamp",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "example": {
+        "proposals": [
+          {
+            "cluster_id": "cluster_id",
+            "node_id": "node_id",
+            "rule": "rule",
+            "value": "value",
+            "volume_id": "volume_id"
+          },
+          {
+            "cluster_id": "cluster_id",
+            "node_id": "node_id",
+            "rule": "rule",
+            "value": "value",
+            "volume_id": "volume_id"
+          }
+        ],
+        "timestamp": "2000-01-23T04:56:07.000+00:00"
       }
     },
     "Rule": {
@@ -1303,11 +422,6 @@ func init() {
           "type": "integer",
           "format": "int64",
           "example": 3600
-        },
-        "id": {
-          "description": "The rule id",
-          "type": "string",
-          "format": "uuid"
         },
         "issue": {
           "description": "The issue template",
@@ -1331,91 +445,15 @@ func init() {
             "critical"
           ]
         }
-      }
-    },
-    "RuleArray": {
-      "description": "A rule array type",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Rule"
-      },
-      "x-omitempty": true
-    },
-    "RuleSet": {
-      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
-      "properties": {
-        "id": {
-          "description": "The ruleset id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The rule set name",
-          "type": "string"
-        },
-        "rules": {
-          "$ref": "#/definitions/RuleArray"
-        }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+        "for": 3600,
+        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
         "name": "name",
-        "rules": ""
+        "proposal": "Add additional storage node to {{$labels.cluster}}",
+        "severity": "warning"
       }
-    },
-    "Sample": {
-      "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
-      "properties": {
-        "id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "meta": {
-          "$ref": "#/definitions/JSONMap"
-        },
-        "type": {
-          "$ref": "#/definitions/SourceType"
-        }
-      },
-      "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "meta": {},
-        "type": {}
-      }
-    },
-    "Source": {
-      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "$ref": "#/definitions/JSONMap"
-        },
-        "id": {
-          "description": "The source id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The source name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/SourceType"
-        }
-      },
-      "example": {
-        "config": {},
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "SourceType": {
-      "description": "sourceType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",
@@ -1451,9 +489,7 @@ func init() {
           "description": "The task type",
           "type": "string",
           "enum": [
-            "collector",
-            "recommender",
-            "predictor"
+            "collector"
           ]
         }
       },
@@ -1577,40 +613,23 @@ func init() {
             }
           }
         }
-      },
-      "post": {
-        "description": "Create a new telemetry collector from the provided definition",
+      }
+    },
+    "/emitters": {
+      "get": {
+        "description": "Returns an array of telemetry emitters defined in the system",
         "tags": [
-          "collector"
+          "emitter"
         ],
-        "summary": "Create a new telemetry collector",
-        "operationId": "collectorCreate",
-        "parameters": [
-          {
-            "description": "The collector to create",
-            "name": "collector",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          }
-        ],
+        "summary": "Get a list of telemetry emitters",
+        "operationId": "emitterList",
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Emitter"
               }
             }
           },
@@ -1628,29 +647,41 @@ func init() {
         }
       }
     },
-    "/collectors/{collector_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "collector"
+    "/recommend": {
+      "post": {
+        "description": "Create a new telemetry sample from the provided definition and get recommendations",
+        "consumes": [
+          "multipart/form-data"
         ],
-        "summary": "Get a list of telemetry collectors",
-        "operationId": "collectorGet",
+        "summary": "Post a telemetry sample and get recommendations",
+        "operationId": "recommendationsGet",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
+            "type": "file",
+            "description": "The sample to create",
+            "name": "sample",
+            "in": "formData",
             "required": true
+          },
+          {
+            "enum": [
+              "prometheus"
+            ],
+            "type": "string",
+            "default": "prometheus",
+            "description": "The provider type to process the sample with",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Collector"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Recommendation"
+              }
             }
           },
           "400": {
@@ -1661,116 +692,6 @@ func init() {
             "examples": {
               "application/json": {
                 "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified collector",
-        "tags": [
-          "collector"
-        ],
-        "summary": "Update a collector object",
-        "operationId": "collectorUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The collector to create",
-            "name": "collector",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Collector"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "collector"
-        ],
-        "summary": "Get a list of telemetry collectors",
-        "operationId": "collectorDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the collector",
-            "name": "collector_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
               }
             }
           },
@@ -1802,788 +723,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/RuleSet"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry rule from the provided definition",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Create a new telemetry rule",
-        "operationId": "ruleCreate",
-        "parameters": [
-          {
-            "description": "The rule to create",
-            "name": "rule",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/rules/{rule_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Get a list of telemetry rules",
-        "operationId": "ruleGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified rule",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Update a rule object",
-        "operationId": "ruleUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The rule to create",
-            "name": "rule",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RuleSet"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "rule"
-        ],
-        "summary": "Get a list of telemetry rules",
-        "operationId": "ruleDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the rule",
-            "name": "rule_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples": {
-      "get": {
-        "description": "Returns an array of telemetry samples defined in the system",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Sample"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry sample from the provided definition",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "tags": [
-          "sample"
-        ],
-        "summary": "Create a new telemetry sample",
-        "operationId": "sampleCreate",
-        "parameters": [
-          {
-            "type": "file",
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "enum": [
-              "prometheus"
-            ],
-            "type": "string",
-            "default": "prometheus",
-            "description": "The provider type to process the sample with",
-            "name": "type",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of telemetry samples",
-        "operationId": "sampleDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}/recommendations": {
-      "get": {
-        "description": "Returns the recommendations for a particular sample",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of recommendations",
-        "operationId": "recommendationsGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the sample",
-            "name": "sample_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The rules to apply to get the recommendations",
-            "name": "rules",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Recommendation"
-              }
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources": {
-      "get": {
-        "description": "Returns an array of telemetry sources defined in the system",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Source"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create a new telemetry source from the provided definition",
-        "tags": [
-          "source"
-        ],
-        "summary": "Create a new telemetry source",
-        "operationId": "sourceCreate",
-        "parameters": [
-          {
-            "description": "The source to create",
-            "name": "source",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources/{source_id}": {
-      "get": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Update the properties of the specified source",
-        "tags": [
-          "source"
-        ],
-        "summary": "Update a source object",
-        "operationId": "sourceUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "The source to create",
-            "name": "source",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Source"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Returns the request collected object",
-        "tags": [
-          "source"
-        ],
-        "summary": "Get a list of telemetry sources",
-        "operationId": "sourceDelete",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sources/{source_id}/poll": {
-      "get": {
-        "description": "Poll a source and collect a sample manually",
-        "tags": [
-          "source"
-        ],
-        "summary": "Poll a source",
-        "operationId": "sourcePoll",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the source",
-            "name": "source_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Sample"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
+                "$ref": "#/definitions/Rule"
               }
             }
           },
@@ -2632,96 +772,88 @@ func init() {
           }
         }
       }
-    },
-    "/tasks/{task_id}": {
-      "get": {
-        "description": "Returns the request task object",
-        "tags": [
-          "task"
-        ],
-        "summary": "Get a task",
-        "operationId": "taskGet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "The id of the task",
-            "name": "task_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Task"
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
     "Collector": {
       "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
       "properties": {
-        "id": {
-          "description": "The collector id",
-          "type": "string",
-          "format": "uuid"
+        "emitters": {
+          "description": "The emitters to use after processing the samples",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "interval": {
           "description": "The interval the collector will run at",
           "type": "string"
         },
-        "params": {
-          "$ref": "#/definitions/JSONMap"
+        "name": {
+          "description": "The collector name",
+          "type": "string"
         },
-        "source_id": {
-          "description": "The source id the source this collector will use",
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "type": {
+          "description": "The collector client to use",
           "type": "string",
-          "format": "uuid"
+          "enum": [
+            "prometheus"
+          ]
+        },
+        "url": {
+          "description": "The collector url",
+          "type": "string"
         }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "emitters": [
+          "emitters",
+          "emitters"
+        ],
         "interval": "interval",
-        "params": {},
-        "source_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "name": "name",
+        "params": {
+          "key": "{}"
+        },
+        "type": "prometheus",
+        "url": "url"
+      }
+    },
+    "Emitter": {
+      "description": "An emitter emits recommendations to a system\n",
+      "properties": {
+        "name": {
+          "description": "The emitter name",
+          "type": "string"
+        },
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "type": {
+          "description": "The emitter type",
+          "type": "string",
+          "enum": [
+            "mqtt"
+          ]
+        }
+      },
+      "example": {
+        "name": "name",
+        "params": {
+          "key": "{}"
+        },
+        "type": "mqtt"
       }
     },
     "Error": {
@@ -2748,49 +880,72 @@ func init() {
         }
       }
     },
-    "JSONMap": {
-      "description": "json data object",
-      "type": "object",
-      "additionalProperties": {
-        "type": "object"
-      },
-      "x-go-type": {
-        "import": {
-          "alias": "sparks",
-          "package": "gitlab.com/ModelRocket/sparks/types"
-        },
-        "type": "Params"
-      },
-      "x-nullable": true,
-      "x-omitempty": true
-    },
-    "Recommendation": {
-      "description": "A recommendation is a list of recommended arbitrations for a specific sample set\n",
+    "Proposal": {
+      "description": "A proposal is a formatted propsal object\n",
       "properties": {
-        "id": {
-          "description": "The recommendation id",
-          "type": "string",
-          "format": "uuid"
+        "cluster_id": {
+          "description": "The cluster id",
+          "type": "string"
         },
-        "proposals": {
-          "description": "The recommendation values mapping",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+        "node_id": {
+          "description": "The node id",
+          "type": "string"
         },
-        "sample_id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
+        "rule": {
+          "description": "The rule that triggered the proposal",
+          "type": "string"
+        },
+        "value": {
+          "description": "The proposal value",
+          "type": "string"
+        },
+        "volume_id": {
+          "description": "the volume id",
+          "type": "string"
         }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "cluster_id": "cluster_id",
+        "node_id": "node_id",
+        "rule": "rule",
+        "value": "value",
+        "volume_id": "volume_id"
+      }
+    },
+    "Recommendation": {
+      "description": "A recommendation is a list of recommended arbitrations to be emitted by the system\n",
+      "properties": {
         "proposals": {
-          "key": "{}"
+          "description": "The recommendation values mapping rule.name -\u003e formatted proposal",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Proposal"
+          }
         },
-        "sample_id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        "timestamp": {
+          "description": "The recommendation timestamp",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "example": {
+        "proposals": [
+          {
+            "cluster_id": "cluster_id",
+            "node_id": "node_id",
+            "rule": "rule",
+            "value": "value",
+            "volume_id": "volume_id"
+          },
+          {
+            "cluster_id": "cluster_id",
+            "node_id": "node_id",
+            "rule": "rule",
+            "value": "value",
+            "volume_id": "volume_id"
+          }
+        ],
+        "timestamp": "2000-01-23T04:56:07.000+00:00"
       }
     },
     "Rule": {
@@ -2806,11 +961,6 @@ func init() {
           "type": "integer",
           "format": "int64",
           "example": 3600
-        },
-        "id": {
-          "description": "The rule id",
-          "type": "string",
-          "format": "uuid"
         },
         "issue": {
           "description": "The issue template",
@@ -2834,91 +984,15 @@ func init() {
             "critical"
           ]
         }
-      }
-    },
-    "RuleArray": {
-      "description": "A rule array type",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Rule"
-      },
-      "x-omitempty": true
-    },
-    "RuleSet": {
-      "description": "A rule is a yaml rule set to executed by the recommendation engine\n",
-      "properties": {
-        "id": {
-          "description": "The ruleset id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The rule set name",
-          "type": "string"
-        },
-        "rules": {
-          "$ref": "#/definitions/RuleArray"
-        }
       },
       "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
+        "for": 3600,
+        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
         "name": "name",
-        "rules": ""
+        "proposal": "Add additional storage node to {{$labels.cluster}}",
+        "severity": "warning"
       }
-    },
-    "Sample": {
-      "description": "A sample is a set of collected data from a particular source that has be reformatted\nand prepared for consumption. The sample data itself is stored in the filesystem.\n",
-      "properties": {
-        "id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "meta": {
-          "$ref": "#/definitions/JSONMap"
-        },
-        "type": {
-          "$ref": "#/definitions/SourceType"
-        }
-      },
-      "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "meta": {},
-        "type": {}
-      }
-    },
-    "Source": {
-      "description": "A source is a telemetry source that provides stats and anlytics data in the autopilot csv format\n",
-      "properties": {
-        "config": {
-          "$ref": "#/definitions/JSONMap"
-        },
-        "id": {
-          "description": "The source id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "name": {
-          "description": "The source name",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/SourceType"
-        }
-      },
-      "example": {
-        "config": {},
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "name": "name",
-        "type": {}
-      }
-    },
-    "SourceType": {
-      "description": "sourceType:\n  * prometheus - a prometheus server\n",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",
@@ -2954,9 +1028,7 @@ func init() {
           "description": "The task type",
           "type": "string",
           "enum": [
-            "collector",
-            "recommender",
-            "predictor"
+            "collector"
           ]
         }
       },
