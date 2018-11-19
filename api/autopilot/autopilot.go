@@ -21,10 +21,6 @@ import (
 
 // RecommendationsGet Create a new telemetry sample from the provided definition
 func (a *API) RecommendationsGet(ctx *Context, params operations.RecommendationsGetParams) middleware.Responder {
-	if *params.Type != "promethus" {
-		return sparks.ErrInvalidParameter.Reason("invalid type")
-	}
-
 	source, err := ioutil.ReadAll(params.Sample)
 	if err != nil {
 		return sparks.NewError(err)
