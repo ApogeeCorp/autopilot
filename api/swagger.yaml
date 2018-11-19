@@ -61,10 +61,10 @@ paths:
               message: "internal server error"
           schema:
             $ref: "#/definitions/Error"
-  /recommend:
+  /samples:
     post:
       tags:
-      - "recommend"
+      - "sample"
       summary: "Create a new telemetry sample"
       description: "Create a new telemetry sample from the provided definition"
       operationId: "recommendationsGet"
