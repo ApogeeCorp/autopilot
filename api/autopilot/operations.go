@@ -6,6 +6,7 @@
 package autopilot
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path"
@@ -16,11 +17,28 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
+	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 )
 
 // RecommendationsGet Create a new telemetry sample from the provided definition
 func (a *API) RecommendationsGet(ctx *Context, params operations.RecommendationsGetParams) middleware.Responder {
+	rules := a.Config.Rules
+
+	// read in the rules
+	if params.Rules != nil {
+		rules = make([]*types.Rule, 0)
+		data, err := ioutil.ReadAll(params.Rules)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+
+		if err := json.Unmarshal(data, &rules); err != nil {
+			return sparks.NewError(err)
+		}
+	}
+
+	// read in the source
 	source, err := ioutil.ReadAll(params.Sample)
 	if err != nil {
 		return sparks.NewError(err)
@@ -46,7 +64,7 @@ func (a *API) RecommendationsGet(ctx *Context, params operations.Recommendations
 		return sparks.NewError(err)
 	}
 
-	recs, err := a.engine.Recommend(a.Config.Rules, samplePath)
+	recs, err := a.engine.Recommend(rules, samplePath)
 	if err != nil {
 		return sparks.NewError(err)
 	}

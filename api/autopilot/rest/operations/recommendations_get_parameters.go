@@ -47,6 +47,10 @@ type RecommendationsGetParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*The rules to apply
+	  In: formData
+	*/
+	Rules io.ReadCloser
 	/*The sample to create
 	  Required: true
 	  In: formData
@@ -78,6 +82,17 @@ func (o *RecommendationsGetParams) BindRequest(r *http.Request, route *middlewar
 		}
 	}
 
+	rules, rulesHeader, err := r.FormFile("rules")
+	if err != nil && err != http.ErrMissingFile {
+		res = append(res, errors.New(400, "reading file %q failed: %v", "rules", err))
+	} else if err == http.ErrMissingFile {
+		// no-op for missing but optional file parameter
+	} else if err := o.bindRules(rules, rulesHeader); err != nil {
+		res = append(res, err)
+	} else {
+		o.Rules = &runtime.File{Data: rules, Header: rulesHeader}
+	}
+
 	sample, sampleHeader, err := r.FormFile("sample")
 	if err != nil {
 		res = append(res, errors.New(400, "reading file %q failed: %v", "sample", err))
@@ -96,6 +111,13 @@ func (o *RecommendationsGetParams) BindRequest(r *http.Request, route *middlewar
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindRules binds file parameter Rules.
+//
+// The only supported validations on files are MinLength and MaxLength
+func (o *RecommendationsGetParams) bindRules(file multipart.File, header *multipart.FileHeader) error {
 	return nil
 }
 

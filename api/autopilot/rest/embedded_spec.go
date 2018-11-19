@@ -125,6 +125,12 @@ func init() {
             "required": true
           },
           {
+            "type": "file",
+            "description": "The rules to apply",
+            "name": "rules",
+            "in": "formData"
+          },
+          {
             "enum": [
               "prometheus"
             ],
@@ -662,6 +668,12 @@ func init() {
             "name": "sample",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "file",
+            "description": "The rules to apply",
+            "name": "rules",
+            "in": "formData"
           },
           {
             "enum": [
