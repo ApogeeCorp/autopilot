@@ -795,7 +795,11 @@ definitions:
         format: "uuid"
         description: "The source id the source this collector will use"
       params:
-        $ref: "#/definitions/JSONMap"
+        type: "object"
+        description: "json data object"
+        additionalProperties:
+          type: "object"
+          properties: {}
       interval:
         type: "string"
         description: "The interval the collector will run at"
@@ -805,7 +809,8 @@ definitions:
       interval: "interval"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       source_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      params: {}
+      params:
+        key: "{}"
   Task:
     properties:
       id:
@@ -862,14 +867,19 @@ definitions:
       type:
         $ref: "#/definitions/SourceType"
       config:
-        $ref: "#/definitions/JSONMap"
+        type: "object"
+        description: "json data object"
+        additionalProperties:
+          type: "object"
+          properties: {}
     description: "A source is a telemetry source that provides stats and anlytics\
       \ data in the autopilot csv format\n"
     example:
       name: "name"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       type: {}
-      config: {}
+      config:
+        key: "{}"
   Sample:
     properties:
       id:
@@ -879,12 +889,17 @@ definitions:
       type:
         $ref: "#/definitions/SourceType"
       meta:
-        $ref: "#/definitions/JSONMap"
+        type: "object"
+        description: "json data object"
+        additionalProperties:
+          type: "object"
+          properties: {}
     description: "A sample is a set of collected data from a particular source that\
       \ has be reformatted\nand prepared for consumption. The sample data itself is\
       \ stored in the filesystem.\n"
     example:
-      meta: {}
+      meta:
+        key: "{}"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       type: {}
   Rule:
@@ -947,19 +962,6 @@ definitions:
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       proposals:
         key: "{}"
-  JSONMap:
-    type: "object"
-    description: "json data object"
-    additionalProperties:
-      type: "object"
-      properties: {}
-    x-go-type:
-      type: "Params"
-      import:
-        package: "gitlab.com/ModelRocket/sparks/types"
-        alias: "sparks"
-    x-nullable: true
-    x-omitempty: true
   Error:
     type: "object"
     properties:
