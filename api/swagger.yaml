@@ -572,7 +572,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/RuleSet"
+              $ref: "#/definitions/Rule"
         500:
           description: "ServerError"
           examples:
@@ -592,12 +592,12 @@ paths:
         description: "The rule to create"
         required: true
         schema:
-          $ref: "#/definitions/RuleSet"
+          $ref: "#/definitions/Rule"
       responses:
         201:
           description: "Created"
           schema:
-            $ref: "#/definitions/RuleSet"
+            $ref: "#/definitions/Rule"
         400:
           description: "BadRequest"
           examples:
@@ -630,7 +630,7 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/RuleSet"
+            $ref: "#/definitions/Rule"
         400:
           description: "BadRequest"
           examples:
@@ -670,7 +670,7 @@ paths:
         description: "The rule to create"
         required: true
         schema:
-          $ref: "#/definitions/RuleSet"
+          $ref: "#/definitions/Rule"
       responses:
         204:
           description: "No Content"
@@ -921,27 +921,13 @@ definitions:
         example: "Add additional storage node to {{$labels.cluster}}"
         description: "The proposal template"
     description: "An proposal is a recommended solution that matches a certain constraint\n"
-  RuleArray:
-    type: "array"
-    description: "A rule array type"
-    items:
-      $ref: "#/definitions/Rule"
-    x-omitempty: true
-  RuleSet:
-    properties:
-      id:
-        type: "string"
-        format: "uuid"
-        description: "The ruleset id"
-      name:
-        type: "string"
-        description: "The rule set name"
-      rules:
-        $ref: "#/definitions/RuleArray"
-    description: "A rule is a yaml rule set to executed by the recommendation engine\n"
     example:
+      severity: "warning"
+      proposal: "Add additional storage node to {{$labels.cluster}}"
+      issue: "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
       name: "name"
-      rules: ""
+      for: 3600
+      expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
   Recommendation:
     properties:
