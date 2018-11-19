@@ -163,7 +163,7 @@ definitions:
         description: "The collector client to use"
         enum:
         - "prometheus"
-      host:
+      url:
         type: "string"
         description: "The collector host"
       params:
@@ -187,11 +187,11 @@ definitions:
       - "emitters"
       - "emitters"
       name: "name"
-      host: "host"
       interval: "interval"
       type: "prometheus"
       params:
         key: "{}"
+      url: "url"
   Emitter:
     properties:
       name:
