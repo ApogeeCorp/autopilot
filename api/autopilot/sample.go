@@ -27,15 +27,13 @@ func (a *API) RecommendationsGet(ctx *Context, params sample.RecommendationsGetP
 	if err := a.DB.First(&rules, "id=?", params.Rules).Error; err != nil {
 		return sparks.NewError(err)
 	}
-
 	// lookup the sample
 	s := &types.Sample{}
 	if err := a.DB.First(s, "id=?", params.SampleID).Error; err != nil {
 		return sparks.NewError(err)
 	}
-
 	// check for the sample files
-	samplePath := path.Join(os.Getenv("SAMPLE_VOL"), s.ID.String())
+	samplePath := path.Join(a.DataDir, s.ID.String())
 	if _, err := os.Stat(samplePath); err != nil {
 		return sparks.NewError(err)
 	}
