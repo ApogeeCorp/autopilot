@@ -74,6 +74,7 @@ func main() {
 		api := &autopilot.API{
 			Log:     log,
 			DataDir: c.GlobalString("data-dir"),
+			Config:  config,
 		}
 
 		data, err := ioutil.ReadFile(c.GlobalString("config"))
