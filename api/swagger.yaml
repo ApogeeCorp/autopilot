@@ -449,14 +449,17 @@ securityDefinitions:
 definitions:
   Collector:
     properties:
-      id:
+      name:
         type: "string"
-        format: "uuid"
-        description: "The collector id"
-      source_id:
+        description: "The collector name"
+      provider:
         type: "string"
-        format: "uuid"
-        description: "The source id the source this collector will use"
+        description: "The provider client to use"
+        enum:
+        - "prometheus"
+      host:
+        type: "string"
+        description: "The provider host"
       params:
         type: "object"
         description: "json data object"
@@ -469,9 +472,10 @@ definitions:
     description: "A collector pulls data from a telemetry source, parses, \nand reformats\
       \ the data to be consumed by the autopilot engine.\n"
     example:
+      provider: "prometheus"
+      name: "name"
+      host: "host"
       interval: "interval"
-      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
-      source_id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       params:
         key: "{}"
   Task:
@@ -485,8 +489,6 @@ definitions:
         description: "The task type"
         enum:
         - "collector"
-        - "recommender"
-        - "predictor"
       params:
         type: "object"
         description: "The parameters to pass to the source"
