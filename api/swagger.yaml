@@ -75,6 +75,11 @@ paths:
         description: "The sample to create"
         required: true
         type: "file"
+      - name: "rules"
+        in: "formData"
+        description: "The rules to apply"
+        required: false
+        type: "file"
       - name: "type"
         in: "query"
         description: "The provider type to process the sample with"
