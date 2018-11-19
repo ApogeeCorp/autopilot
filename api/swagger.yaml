@@ -63,8 +63,6 @@ paths:
             $ref: "#/definitions/Error"
   /recommend:
     post:
-      tags:
-      - "autopilot"
       summary: "Post a telemetry sample and get recommendations"
       description: "Create a new telemetry sample from the provided definition and\
         \ get recommendations"
