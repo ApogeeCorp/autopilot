@@ -588,8 +588,7 @@ definitions:
         description: "The recommendation values mapping rule.name -> formatted proposal"
         items:
           $ref: "#/definitions/Proposal"
-    description: "A recommendation is a list of recommended arbitrations for a specific\
-      \ sample set\n"
+    description: "A recommendation is a list of recommended arbitrations\n"
     example:
       proposals:
       - cluster_id: "cluster_id"
