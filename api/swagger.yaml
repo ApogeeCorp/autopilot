@@ -64,7 +64,7 @@ paths:
   /recommend:
     post:
       tags:
-      - "autopilot"
+      - "recommend"
       summary: "Create a new telemetry sample"
       description: "Create a new telemetry sample from the provided definition"
       operationId: "recommendationsGet"
@@ -165,7 +165,7 @@ definitions:
         - "prometheus"
       url:
         type: "string"
-        description: "The collector host"
+        description: "The collector url"
       params:
         type: "object"
         description: "json data object"
