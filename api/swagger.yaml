@@ -65,7 +65,7 @@ paths:
     post:
       tags:
       - "sample"
-      summary: "Create a new telemetry sample"
+      summary: "Post a telemetry sample and get recommendations"
       description: "Create a new telemetry sample from the provided definition"
       operationId: "recommendationsGet"
       consumes:
