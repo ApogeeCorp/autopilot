@@ -225,7 +225,7 @@ func (p *Prometheus) Collect(host string, params map[string]string, stagingPath 
 	p.WriteCSV(timeseries, base, Volume)
 	p.WriteCSV(timeseries, base, Disk)
 	p.WriteCSV(timeseries, base, Pool)
-	p.WriteCSV(timeseries, base, Cluster)
+	p.WriteCSV(timeseries, base, Node)
 	p.WriteAlertCSV(base, alerts)
 
 	return nil
@@ -250,7 +250,7 @@ func (p *Prometheus) Parse(source []byte, params map[string]string, outPath stri
 	if err := p.WriteCSV(timeseries, outPath, Pool); err != nil {
 		return err
 	}
-	if err := p.WriteCSV(timeseries, outPath, Cluster); err != nil {
+	if err := p.WriteCSV(timeseries, outPath, Node); err != nil {
 		return err
 	}
 	if err := p.WriteAlertCSV(outPath, alerts); err != nil {
