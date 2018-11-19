@@ -889,10 +889,6 @@ definitions:
       type: {}
   Rule:
     properties:
-      id:
-        type: "string"
-        format: "uuid"
-        description: "The rule id"
       name:
         type: "string"
         description: "the rule description"
@@ -928,7 +924,6 @@ definitions:
       name: "name"
       for: 3600
       expr: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80"
-      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
   Recommendation:
     properties:
       id:
