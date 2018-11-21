@@ -334,7 +334,7 @@ func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) error {
 
 	defer f.Close()
 	w := csv.NewWriter(f)
-	if err := w.Write([]string{Timestamp, Cluster, Instance, Node, "alert_name", "alert_state", "alert_severity", "alert_value"}); err != nil {
+	if err := w.Write([]string{Timestamp, Cluster, Instance, Node, "px_alert_name", "px_alert_state", "px_alert_severity", "px_alert_value"}); err != nil {
 		return err
 	}
 	for _, alert := range alerts {
@@ -408,7 +408,7 @@ func (p *Prometheus) TransformToRows(results *ClusterResults) (timeseries map[CS
 				if csvMetrics.Node[result.Metric.Node] == nil {
 					csvMetrics.Node[result.Metric.Node] = make(map[string]string)
 				}
-				csvMetrics.Node[result.Metric.Node][*result.Metric.Proc+"_"+result.Metric.Name] = value[1].(string)
+				csvMetrics.Node[result.Metric.Node][result.Metric.Name+"_"+*result.Metric.Proc] = value[1].(string)
 			} else if strings.HasPrefix(result.Metric.Name, "px_node_stats") == true || strings.HasPrefix(result.Metric.Name, "px_network_") == true ||
 				strings.HasPrefix(result.Metric.Name, "px_cluster_") == true {
 				if csvMetrics.Node == nil {
