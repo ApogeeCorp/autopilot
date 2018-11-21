@@ -1,0 +1,17 @@
+
+collectors:
+  - name: Portworx
+    type: prometheus
+    url: http://70.0.69.141:9090/api/v1/query
+    param:
+      query: {cluster="greatdane-1914e166dc7"}
+    interval: 3600
+rules:
+  - rule: PortworxVolumeUsage
+    name: foo
+    expr: (px_volume_usage_bytes / px_volume_capacity_bytes) > 0.20
+    for: 7200
+    issue: Portworx volume {{.volume}} usage on Node {{.node}} on Instance {{.instance}} is critical.
+    severity: warning
+    proposal: Add additional storage node to {{$labels.cluster}}
+  
