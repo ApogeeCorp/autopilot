@@ -2,6 +2,7 @@ name: autopilot
 apis:
   autopilot:
     spec: api/swagger.yaml
+    source: https://api.swaggerhub.com/apis/ModelRocket/autopilot/1.0.0/swagger.yaml
 license:
   owner: Portworx
   type: Apache

@@ -1,0 +1,310 @@
+swagger: '2.0'
+info:
+  description: libopenstorage autopilot API
+  version: "1.0.0"
+  title: autopilot
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: localhost:9000
+schemes:
+  - http
+  
+securityDefinitions:
+  basicAuth:
+    type: basic
+
+security:
+  - basicAuth: []
+  
+consumes:
+  - application/json
+  
+produces:
+  - application/json
+  
+paths:
+  /collectors:
+    get:
+      summary: Get a list of telemetry collectors
+      description: Returns an array of telemetry collectors defined in the system
+      operationId: collectorList
+      tags: [ collector ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Collector'
+        500:
+          $ref: '#/responses/ServerError'
+  /emitters:
+    get:
+      summary: Get a list of telemetry emitters
+      description: Returns an array of telemetry emitters defined in the system
+      operationId: emitterList
+      tags: [ emitter ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Emitter'
+        500:
+          $ref: '#/responses/ServerError'
+  /recommend:
+    post:
+      summary: Post a telemetry sample and get recommendations
+      description: Create a new telemetry sample from the provided definition and get recommendations
+      operationId: recommendationsGet
+      consumes:
+         - multipart/form-data
+      parameters:
+        - name: sample
+          description: The sample to create
+          type: file
+          in: formData
+          required: true
+        - name: rules
+          description: The rules to apply
+          type: file
+          in: formData
+        - name: type
+          description: The provider type to process the sample with
+          type: string
+          enum: [ prometheus ] 
+          in: query
+          default: prometheus
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recommendation'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
+  /rules:
+    get:
+      summary: Get a list of telemetry rules
+      description: Returns an array of telemetry rules defined in the system
+      operationId: ruleList
+      tags: [ rule ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Rule'
+        500:
+          $ref: '#/responses/ServerError'
+  /tasks:
+    get:
+      summary: Get a list of tasks
+      description: Returns an array of tasks
+      operationId: taskList
+      tags: [ task ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Task'
+        500:
+          $ref: '#/responses/ServerError'
+definitions:
+  Collector:
+    description: |
+      A collector pulls data from a telemetry source, parses, 
+      and reformats the data to be consumed by the autopilot engine.
+    properties:
+      name:
+        description: The collector name
+        type: string
+      type:
+        description: The collector client to use
+        type: string
+        enum: [ prometheus ]
+      url:
+        description: The collector url
+        type: string
+      params:
+        type: object
+        description: json data object
+        additionalProperties:
+          type: object
+          properties: {}
+      interval:
+        description: The interval the collector will run at
+        type: string
+      emitters:
+        description: The emitters to use after processing the samples
+        type: array
+        items:
+          type: string
+  Emitter:
+    description: |
+      An emitter emits recommendations to a system
+    properties:
+      name:
+        description: The emitter name
+        type: string
+      type:
+        description: The emitter type
+        type: string
+        enum: [ mqtt ]
+      params:
+        type: object
+        description: json data object
+        additionalProperties:
+          type: object
+          properties: {}
+  Task:
+    description: |
+      A task is a scheduled operation in the engine
+    properties:
+      id:
+        description: The task id
+        type: string
+        format: uuid
+      type:
+        description: The task type
+        type: string
+        enum: [ collector ]
+      params:
+        description: The parameters to pass to the source
+        type: object
+        additionalProperties:
+          type: object
+          properties: {}
+      run_at:
+        description: The timestamp the next execution of the task
+        type: string
+        format: date-time
+      status:
+        description: The task status
+        type: string
+        enum: [ pending, running, succeeded, failed ]
+  Rule:
+    description: |
+      An proposal is a recommended solution that matches a certain constraint
+    properties:
+      name:
+        description: the rule description
+        type: string
+      expr:
+        description: The expression to match
+        type: string
+        example: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80
+      for:
+        description: The duration/interval the expression must be valid for in seconds
+        type: integer
+        format: int64
+        example: 3600
+      issue:
+        description: The issue template
+        type: string
+        example: Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.
+      severity: 
+        type: string
+        enum: [ warning, error, critical ]
+      proposal: 
+        description: The proposal template
+        type: string
+        example: Add additional storage node to {{$labels.cluster}}
+  Proposal:
+    description: |
+      A proposal is a formatted propsal object
+    properties:
+      rule:
+        description: The rule that triggered the proposal
+        type: string
+      cluster_id:
+        description: The cluster id
+        type: string
+      node_id:
+        description: The node id
+        type: string
+      volume_id:
+        description: the volume id
+        type: string
+      value:
+        description: The proposal value
+        type: string
+  Recommendation:
+    description: |
+      A recommendation is a list of recommended arbitrations to be emitted by the system
+    properties:
+      timestamp:
+        description: The recommendation timestamp
+        type: string
+        format: date-time
+      proposals:
+        description: The recommendation values mapping rule.name -> formatted proposal
+        type: array
+        items:
+          $ref: '#/definitions/Proposal'
+  Error:
+    description: Common Error Model
+    type: object
+    properties:
+      code:
+        type: string
+        description: The error code
+        x-nullable: true
+      message:
+        type: string
+        description: The error message
+      detail:
+        type: object
+        description: The error details
+        additionalProperties:
+          type: string
+        x-omitempty: true
+        x-nullable: true
+    
+responses:
+  NotFound:
+    description: NotFound
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "object not found"
+        }
+  Unauthorized:
+    description: Unauthorized
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "access denied"
+        }
+  BadRequest:
+    description: BadRequest
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "invalid parameter"
+        }
+  ServerError:
+    description: ServerError
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "internal server error"
+        }
