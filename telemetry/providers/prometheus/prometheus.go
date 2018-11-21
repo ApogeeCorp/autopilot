@@ -18,17 +18,17 @@ import (
 
 const (
 	// Cluster stats
-	Cluster = "Cluster"
+	Cluster = "cluster"
 	// Node stats
-	Node = "Node"
+	Node = "node"
 	// Disk stats
-	Disk = "Disk"
+	Disk = "disk"
 	// Volume stats
-	Volume = "Volume"
+	Volume = "volume"
 	// Pool stats
-	Pool = "Pool"
+	Pool = "pool"
 	// Proc stats - on the PX processes
-	Proc = "Proc"
+	Proc = "proc"
 	// Alerts metrics are a special case for outputs
 	Alerts = "ALERTS"
 	// Instance field in the CSV
@@ -265,7 +265,7 @@ func (p *Prometheus) CreateCSVRows(br CSVRow, m map[string]map[string]string, la
 	for rowKey, rowValue := range m {
 		var row = []string{strconv.FormatUint(uint64(br.Timestamp), 10), br.Cluster, br.Instance, br.Node}
 		var rowHeader = []string{Timestamp, Cluster, Instance, Node}
-		if label != "Cluster" && label != "Node" {
+		if label != Cluster && label != Node {
 			row = append(row, rowKey)
 			rowHeader = append(rowHeader, label)
 		}
@@ -325,7 +325,7 @@ func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name stri
 
 // WriteAlertCSV for the alerts csv
 func (p *Prometheus) WriteAlertCSV(base string, alerts []*AlertRow) error {
-	base = path.Join(base, "Alerts.csv")
+	base = path.Join(base, "alert.csv")
 	f, err := os.Create(base)
 	if err != nil {
 		p.Log.Errorln("Error Creating Alerts File", err)
