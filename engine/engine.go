@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +29,7 @@ type Engine struct {
 
 func getFields(rule *types.Rule, samplePath string) (fieldStr string, fileStr string) {
 	var files []string
-	fields := regexp.MustCompile(`\bpx_(\w)*`).FindAllString(rule.Expr, -1)
+	fields := regexp.MustCompile(`\bpx_(\w)*`).FindAllString(rule.Expr+" "+rule.Proposal+" "+rule.Issue, -1)
 	fieldStr = strings.Join(fields, ",")
 	if strings.Contains(fieldStr, "px_volume") {
 		files = append(files, "`"+samplePath+"/volume.csv`")
@@ -50,10 +51,23 @@ func getFields(rule *types.Rule, samplePath string) (fieldStr string, fileStr st
 	return fieldStr, fileStr
 }
 
+func formatAsDate(timestamp string) string {
+	i, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	unixTimeUTC := time.Unix(i, 0)          //gives unix time stamp in utc
+	return unixTimeUTC.Format(time.RFC3339) // converts utc time to RFC3339 format
+}
+
 // Recommend returns a recommendation from the engine based on the rules and sample
 func (e *Engine) Recommend(rules []*types.Rule, samplePath string) (recommendations []*types.Recommendation, error error) {
 	flags := cmd.GetFlags()
 	flags.SetFormat("", "out.json")
+	fmap := template.FuncMap{
+		"formatAsDate": formatAsDate,
+	}
+
 	for _, rule := range rules {
 
 		e.Log.Debugf("Processing Rule here %s, %v", samplePath, rule.Expr)
@@ -85,12 +99,10 @@ func (e *Engine) Recommend(rules []*types.Rule, samplePath string) (recommendati
 				if result["volume"] != nil {
 					proposal.VolumeID = result["volume"].(string)
 				}
-				t := template.Must(template.New("Issue").Parse(rule.Issue + "\n" + rule.Proposal))
-				e.Log.Debugf("Created Template %v", result)
+				t := template.Must(template.New("Issue").Funcs(fmap).Parse("{{.timestamp | formatAsDate}}: " + rule.Issue + ` ` + rule.Proposal))
 				//prop := template.Must(template.New("Proposal").Parse(rule.Proposal)
 				var proposalValue bytes.Buffer
 				err := t.Execute(&proposalValue, result)
-				e.Log.Debugf("Executed Template %v", proposalValue)
 				if err != nil {
 					e.Log.Debugf("Could not parse issue with result %v", result)
 				}
