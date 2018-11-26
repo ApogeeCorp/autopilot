@@ -192,9 +192,9 @@ definitions:
         description: The collector url
         type: string
       schedule_interval:
-        description: The interval the collector will run at
-        type: integer
-        format: int64
+        description: The interval the collector will
+        type: string
+        default: 7d
       emitters:
         description: The emitters to use after processing the samples
         type: array

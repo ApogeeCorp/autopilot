@@ -297,9 +297,9 @@ func init() {
           "type": "string"
         },
         "schedule_interval": {
-          "description": "The interval the collector will run at",
-          "type": "integer",
-          "format": "int64"
+          "description": "The interval the collector will",
+          "type": "string",
+          "default": "7d"
         },
         "type": {
           "$ref": "#/definitions/CollectorType"
@@ -954,9 +954,9 @@ func init() {
           "type": "string"
         },
         "schedule_interval": {
-          "description": "The interval the collector will run at",
-          "type": "integer",
-          "format": "int64"
+          "description": "The interval the collector will",
+          "type": "string",
+          "default": "7d"
         },
         "type": {
           "$ref": "#/definitions/CollectorType"

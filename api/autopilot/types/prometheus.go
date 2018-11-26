@@ -27,7 +27,7 @@ type Prometheus struct {
 
 	nameField string
 
-	scheduleIntervalField int64
+	scheduleIntervalField *string
 
 	urlField string
 
@@ -59,12 +59,12 @@ func (m *Prometheus) SetName(val string) {
 }
 
 // ScheduleInterval gets the schedule interval of this subtype
-func (m *Prometheus) ScheduleInterval() int64 {
+func (m *Prometheus) ScheduleInterval() *string {
 	return m.scheduleIntervalField
 }
 
 // SetScheduleInterval sets the schedule interval of this subtype
-func (m *Prometheus) SetScheduleInterval(val int64) {
+func (m *Prometheus) SetScheduleInterval(val *string) {
 	m.scheduleIntervalField = val
 }
 
@@ -117,7 +117,7 @@ func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 
 		Name string `json:"name,omitempty"`
 
-		ScheduleInterval int64 `json:"schedule_interval,omitempty"`
+		ScheduleInterval *string `json:"schedule_interval,omitempty"`
 
 		Type CollectorType `json:"type,omitempty"`
 
@@ -181,7 +181,7 @@ func (m Prometheus) MarshalJSON() ([]byte, error) {
 
 		Name string `json:"name,omitempty"`
 
-		ScheduleInterval int64 `json:"schedule_interval,omitempty"`
+		ScheduleInterval *string `json:"schedule_interval,omitempty"`
 
 		Type CollectorType `json:"type,omitempty"`
 

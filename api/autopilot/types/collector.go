@@ -38,9 +38,9 @@ type Collector interface {
 	Name() string
 	SetName(string)
 
-	// The interval the collector will run at
-	ScheduleInterval() int64
-	SetScheduleInterval(int64)
+	// The interval the collector will
+	ScheduleInterval() *string
+	SetScheduleInterval(*string)
 
 	// type
 	Type() CollectorType
@@ -56,7 +56,7 @@ type collector struct {
 
 	nameField string
 
-	scheduleIntervalField int64
+	scheduleIntervalField *string
 
 	typeField CollectorType
 
@@ -84,12 +84,12 @@ func (m *collector) SetName(val string) {
 }
 
 // ScheduleInterval gets the schedule interval of this polymorphic type
-func (m *collector) ScheduleInterval() int64 {
+func (m *collector) ScheduleInterval() *string {
 	return m.scheduleIntervalField
 }
 
 // SetScheduleInterval sets the schedule interval of this polymorphic type
-func (m *collector) SetScheduleInterval(val int64) {
+func (m *collector) SetScheduleInterval(val *string) {
 	m.scheduleIntervalField = val
 }
 
