@@ -106,7 +106,7 @@ func (e *Engine) Recommend(rules []*types.Rule, samplePath string) (recommendati
 				if err != nil {
 					e.Log.Debugf("Could not parse issue with result %v", result)
 				}
-				proposal.Value = proposalValue.String()
+				proposal.Action = proposalValue.String()
 				recommendation.Proposals = append(recommendation.Proposals, &proposal)
 			}
 			recommendations = append(recommendations, &recommendation)
