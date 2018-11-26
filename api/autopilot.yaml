@@ -120,29 +120,57 @@ paths:
               $ref: '#/definitions/Task'
         500:
           $ref: '#/responses/ServerError'
+  /samples:
+    get:
+      summary: Get a list of samples stored on disk
+      description: Returns an array of samples
+      operationId: sampleList
+      tags: [ sample ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Sample'
+        500:
+          $ref: '#/responses/ServerError'
+  /samples/{sample_id}:
+    parameters:
+      - name: sample_id
+        description: The sample id
+        type: string
+        format: uuid
+        in: path
+        required: true
+    delete:
+      summary: Delete a sample
+      description: Delete a sample from the disk
+      operationId: sampleDelete
+      tags: [ sample ]
+      responses:
+        204:
+          description: No content
+        404:
+          $ref: '#/responses/NotFound'
+        500:
+          $ref: '#/responses/ServerError'
 definitions:
   Collector:
     description: |
       A collector pulls data from a telemetry source, parses, 
       and reformats the data to be consumed by the autopilot engine.
+    discriminator: type
     properties:
       name:
         description: The collector name
         type: string
       type:
-        description: The collector client to use
-        type: string
-        enum: [ prometheus ]
+        $ref: '#/definitions/CollectorType'
       url:
         description: The collector url
         type: string
-      params:
-        type: object
-        description: json data object
-        additionalProperties:
-          type: object
-          properties: {}
-      interval:
+      schedule_interval:
         description: The interval the collector will run at
         type: string
       emitters:
@@ -150,6 +178,23 @@ definitions:
         type: array
         items:
           type: string
+  CollectorType:
+    description: Collector types
+    type: string
+    enum: [ PrometheusCollector ]
+  PrometheusCollector:
+    description: Prometheus collector type
+    allOf:
+      - $ref: "#/definitions/Collector"
+      - properties:
+          query:
+            description: The query to run against the prometheus host
+            type: string
+            example: '{cluster="greatdane-1914e166dc7"}'
+          sample_interval:
+            description: The sample size for the interval
+            type: string
+            default: '24h'
   Emitter:
     description: |
       An emitter emits recommendations to a system
@@ -200,8 +245,12 @@ definitions:
       name:
         description: the rule description
         type: string
+      type:
+        description: the type of rule this is
+        type: string
+        enum: [ prometheus, sql, anomaly]
       expr:
-        description: The expression to match
+        description: The expression to match or query to make
         type: string
         example: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80
       for:
@@ -212,7 +261,7 @@ definitions:
       issue:
         description: The issue template
         type: string
-        example: Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.
+        example: Portworx volume {{$labels.volume}} usage on {{$labels.host}} is high.
       severity: 
         type: string
         enum: [ warning, error, critical ]
@@ -234,10 +283,13 @@ definitions:
         description: The node id
         type: string
       volume_id:
-        description: the volume id
+        description: The volume id
         type: string
-      value:
-        description: The proposal value
+      issue:
+        description: Issue from the rule that describes the reason for this proposal
+        type: string
+      action:
+        description: The proposed action to take to resolve the issue
         type: string
   Recommendation:
     description: |
@@ -252,6 +304,21 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Proposal'
+  Sample:
+    description: |
+      A sample is a collected data sample
+    properties:
+      id:
+        description: The sample id
+        type: string
+        format: uuid
+      path:
+        description: The sample path on disk
+        type: string
+      time:
+        description: The sample timestamp
+        type: string
+        format: date-time
   Error:
     description: Common Error Model
     type: object
@@ -270,7 +337,6 @@ definitions:
           type: string
         x-omitempty: true
         x-nullable: true
-    
 responses:
   NotFound:
     description: NotFound

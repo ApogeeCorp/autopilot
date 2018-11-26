@@ -21,8 +21,14 @@ import (
 // swagger:model Proposal
 type Proposal struct {
 
+	// The proposed action to take to resolve the issue
+	Action string `json:"action,omitempty"`
+
 	// The cluster id
 	ClusterID string `json:"cluster_id,omitempty"`
+
+	// Issue from the rule that describes the reason for this proposal
+	Issue string `json:"issue,omitempty"`
 
 	// The node id
 	NodeID string `json:"node_id,omitempty"`
@@ -30,10 +36,7 @@ type Proposal struct {
 	// The rule that triggered the proposal
 	Rule string `json:"rule,omitempty"`
 
-	// The proposal value
-	Value string `json:"value,omitempty"`
-
-	// the volume id
+	// The volume id
 	VolumeID string `json:"volume_id,omitempty"`
 }
 
