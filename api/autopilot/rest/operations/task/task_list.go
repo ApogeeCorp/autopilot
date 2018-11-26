@@ -14,19 +14,20 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // TaskListHandlerFunc turns a function with the right signature into a task list handler
-type TaskListHandlerFunc func(TaskListParams, interface{}) middleware.Responder
+type TaskListHandlerFunc func(TaskListParams, provider.AuthToken) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn TaskListHandlerFunc) Handle(params TaskListParams, principal interface{}) middleware.Responder {
+func (fn TaskListHandlerFunc) Handle(params TaskListParams, principal provider.AuthToken) middleware.Responder {
 	return fn(params, principal)
 }
 
 // TaskListHandler interface for that can handle valid task list params
 type TaskListHandler interface {
-	Handle(TaskListParams, interface{}) middleware.Responder
+	Handle(TaskListParams, provider.AuthToken) middleware.Responder
 }
 
 // NewTaskList creates a new http.Handler for the task list operation
@@ -61,9 +62,9 @@ func (o *TaskList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal provider.AuthToken
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

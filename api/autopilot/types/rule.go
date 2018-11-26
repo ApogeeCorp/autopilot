@@ -44,9 +44,8 @@ type Rule struct {
 	// Enum: [warning error critical]
 	Severity string `json:"severity,omitempty"`
 
-	// the type of rule this is
-	// Enum: [prometheus sql anomaly]
-	Type string `json:"type,omitempty"`
+	// type
+	Type RuleType `json:"type,omitempty"`
 }
 
 // Validate validates this rule
@@ -113,46 +112,16 @@ func (m *Rule) validateSeverity(formats strfmt.Registry) error {
 	return nil
 }
 
-var ruleTypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["prometheus","sql","anomaly"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		ruleTypeTypePropEnum = append(ruleTypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// RuleTypePrometheus captures enum value "prometheus"
-	RuleTypePrometheus string = "prometheus"
-
-	// RuleTypeSQL captures enum value "sql"
-	RuleTypeSQL string = "sql"
-
-	// RuleTypeAnomaly captures enum value "anomaly"
-	RuleTypeAnomaly string = "anomaly"
-)
-
-// prop value enum
-func (m *Rule) validateTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, ruleTypeTypePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *Rule) validateType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateTypeEnum("type", "body", m.Type); err != nil {
+	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		}
 		return err
 	}
 

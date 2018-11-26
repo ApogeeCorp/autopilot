@@ -14,19 +14,20 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // EmitterListHandlerFunc turns a function with the right signature into a emitter list handler
-type EmitterListHandlerFunc func(EmitterListParams, interface{}) middleware.Responder
+type EmitterListHandlerFunc func(EmitterListParams, provider.AuthToken) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn EmitterListHandlerFunc) Handle(params EmitterListParams, principal interface{}) middleware.Responder {
+func (fn EmitterListHandlerFunc) Handle(params EmitterListParams, principal provider.AuthToken) middleware.Responder {
 	return fn(params, principal)
 }
 
 // EmitterListHandler interface for that can handle valid emitter list params
 type EmitterListHandler interface {
-	Handle(EmitterListParams, interface{}) middleware.Responder
+	Handle(EmitterListParams, provider.AuthToken) middleware.Responder
 }
 
 // NewEmitterList creates a new http.Handler for the emitter list operation
@@ -61,9 +62,9 @@ func (o *EmitterList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal provider.AuthToken
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

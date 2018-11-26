@@ -11,109 +11,179 @@ package types
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/validate"
 )
 
 // Collector A collector pulls data from a telemetry source, parses,
 // and reformats the data to be consumed by the autopilot engine.
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:discriminator Collector type
+type Collector interface {
+	runtime.Validatable
 
 	// The emitters to use after processing the samples
-	Emitters []string `json:"emitters"`
-
-	// The interval the collector will run at
-	Interval string `json:"interval,omitempty"`
+	Emitters() []string
+	SetEmitters([]string)
 
 	// The collector name
-	Name string `json:"name,omitempty"`
+	Name() string
+	SetName(string)
 
-	// json data object
-	Params map[string]interface{} `json:"params,omitempty"`
+	// The interval the collector will run at
+	ScheduleInterval() string
+	SetScheduleInterval(string)
 
-	// The collector client to use
-	// Enum: [prometheus]
-	Type string `json:"type,omitempty"`
+	// type
+	Type() CollectorType
+	SetType(CollectorType)
 
 	// The collector url
-	URL string `json:"url,omitempty"`
+	URL() string
+	SetURL(string)
+}
+
+type collector struct {
+	emittersField []string
+
+	nameField string
+
+	scheduleIntervalField string
+
+	typeField CollectorType
+
+	urlField string
+}
+
+// Emitters gets the emitters of this polymorphic type
+func (m *collector) Emitters() []string {
+	return m.emittersField
+}
+
+// SetEmitters sets the emitters of this polymorphic type
+func (m *collector) SetEmitters(val []string) {
+	m.emittersField = val
+}
+
+// Name gets the name of this polymorphic type
+func (m *collector) Name() string {
+	return m.nameField
+}
+
+// SetName sets the name of this polymorphic type
+func (m *collector) SetName(val string) {
+	m.nameField = val
+}
+
+// ScheduleInterval gets the schedule interval of this polymorphic type
+func (m *collector) ScheduleInterval() string {
+	return m.scheduleIntervalField
+}
+
+// SetScheduleInterval sets the schedule interval of this polymorphic type
+func (m *collector) SetScheduleInterval(val string) {
+	m.scheduleIntervalField = val
+}
+
+// Type gets the type of this polymorphic type
+func (m *collector) Type() CollectorType {
+	return "Collector"
+}
+
+// SetType sets the type of this polymorphic type
+func (m *collector) SetType(val CollectorType) {
+
+}
+
+// URL gets the url of this polymorphic type
+func (m *collector) URL() string {
+	return m.urlField
+}
+
+// SetURL sets the url of this polymorphic type
+func (m *collector) SetURL(val string) {
+	m.urlField = val
+}
+
+// UnmarshalCollectorSlice unmarshals polymorphic slices of Collector
+func UnmarshalCollectorSlice(reader io.Reader, consumer runtime.Consumer) ([]Collector, error) {
+	var elements []json.RawMessage
+	if err := consumer.Consume(reader, &elements); err != nil {
+		return nil, err
+	}
+
+	var result []Collector
+	for _, element := range elements {
+		obj, err := unmarshalCollector(element, consumer)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, obj)
+	}
+	return result, nil
+}
+
+// UnmarshalCollector unmarshals polymorphic Collector
+func UnmarshalCollector(reader io.Reader, consumer runtime.Consumer) (Collector, error) {
+	// we need to read this twice, so first into a buffer
+	data, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshalCollector(data, consumer)
+}
+
+func unmarshalCollector(data []byte, consumer runtime.Consumer) (Collector, error) {
+	buf := bytes.NewBuffer(data)
+	buf2 := bytes.NewBuffer(data)
+
+	// the first time this is read is to fetch the value of the type property.
+	var getType struct {
+		Type string `json:"type"`
+	}
+	if err := consumer.Consume(buf, &getType); err != nil {
+		return nil, err
+	}
+
+	if err := validate.RequiredString("type", "body", getType.Type); err != nil {
+		return nil, err
+	}
+
+	// The value of type is used to determine which type to create and unmarshal the data into
+	switch getType.Type {
+	case "Collector":
+		var result collector
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "PrometheusCollector":
+		var result PrometheusCollector
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	}
+	return nil, errors.New(422, "invalid type value: %q", getType.Type)
+
 }
 
 // Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+func (m *collector) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateType(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var collectorTypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["prometheus"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		collectorTypeTypePropEnum = append(collectorTypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// CollectorTypePrometheus captures enum value "prometheus"
-	CollectorTypePrometheus string = "prometheus"
-)
-
-// prop value enum
-func (m *Collector) validateTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, collectorTypeTypePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Collector) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateTypeEnum("type", "body", m.Type); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

@@ -30,7 +30,7 @@ type CollectorListOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*types.Collector `json:"body,omitempty"`
+	Payload []types.Collector `json:"body,omitempty"`
 }
 
 // NewCollectorListOK creates CollectorListOK with default headers values
@@ -40,13 +40,13 @@ func NewCollectorListOK() *CollectorListOK {
 }
 
 // WithPayload adds the payload to the collector list o k response
-func (o *CollectorListOK) WithPayload(payload []*types.Collector) *CollectorListOK {
+func (o *CollectorListOK) WithPayload(payload []types.Collector) *CollectorListOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the collector list o k response
-func (o *CollectorListOK) SetPayload(payload []*types.Collector) {
+func (o *CollectorListOK) SetPayload(payload []types.Collector) {
 	o.Payload = payload
 }
 
@@ -56,7 +56,7 @@ func (o *CollectorListOK) WriteResponse(rw http.ResponseWriter, producer runtime
 	rw.WriteHeader(200)
 	payload := o.Payload
 	if payload == nil {
-		payload = make([]*types.Collector, 0, 50)
+		payload = make([]types.Collector, 0, 50)
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

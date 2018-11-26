@@ -168,6 +168,61 @@ func init() {
         }
       }
     },
+    "/samples": {
+      "get": {
+        "description": "Returns an array of samples",
+        "tags": [
+          "sample"
+        ],
+        "summary": "Get a list of samples stored on disk",
+        "operationId": "sampleList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sample"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/samples/{sample_id}": {
+      "delete": {
+        "description": "Delete a sample from the disk",
+        "tags": [
+          "sample"
+        ],
+        "summary": "Delete a sample",
+        "operationId": "sampleDelete",
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "The sample id",
+          "name": "sample_id",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
@@ -204,33 +259,30 @@ func init() {
             "type": "string"
           }
         },
-        "interval": {
-          "description": "The interval the collector will run at",
-          "type": "string"
-        },
         "name": {
           "description": "The collector name",
           "type": "string"
         },
-        "params": {
-          "description": "json data object",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+        "schedule_interval": {
+          "description": "The interval the collector will run at",
+          "type": "string"
         },
         "type": {
-          "description": "The collector client to use",
-          "type": "string",
-          "enum": [
-            "prometheus"
-          ]
+          "$ref": "#/definitions/CollectorType"
         },
         "url": {
           "description": "The collector url",
           "type": "string"
         }
-      }
+      },
+      "discriminator": "type"
+    },
+    "CollectorType": {
+      "description": "Collector types",
+      "type": "string",
+      "enum": [
+        "PrometheusCollector"
+      ]
     },
     "Emitter": {
       "description": "An emitter emits recommendations to a system\n",
@@ -278,6 +330,28 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "PrometheusCollector": {
+      "description": "Prometheus collector type",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Collector"
+        },
+        {
+          "properties": {
+            "query": {
+              "description": "The query to run against the prometheus host",
+              "type": "string",
+              "example": "{cluster=\"greatdane-1914e166dc7\"}"
+            },
+            "sample_interval": {
+              "description": "The sample size for the interval",
+              "type": "string",
+              "default": "24h"
+            }
+          }
+        }
+      ]
     },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
@@ -362,13 +436,35 @@ func init() {
           ]
         },
         "type": {
-          "description": "the type of rule this is",
+          "$ref": "#/definitions/RuleType"
+        }
+      }
+    },
+    "RuleType": {
+      "description": "Types of rules",
+      "type": "string",
+      "enum": [
+        "prometheus",
+        "sql",
+        "anomaly"
+      ]
+    },
+    "Sample": {
+      "description": "A sample is a collected data sample\n",
+      "properties": {
+        "id": {
+          "description": "The sample id",
           "type": "string",
-          "enum": [
-            "prometheus",
-            "sql",
-            "anomaly"
-          ]
+          "format": "uuid"
+        },
+        "path": {
+          "description": "The sample path on disk",
+          "type": "string"
+        },
+        "time": {
+          "description": "The sample timestamp",
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -655,6 +751,85 @@ func init() {
         }
       }
     },
+    "/samples": {
+      "get": {
+        "description": "Returns an array of samples",
+        "tags": [
+          "sample"
+        ],
+        "summary": "Get a list of samples stored on disk",
+        "operationId": "sampleList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sample"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/samples/{sample_id}": {
+      "delete": {
+        "description": "Delete a sample from the disk",
+        "tags": [
+          "sample"
+        ],
+        "summary": "Delete a sample",
+        "operationId": "sampleDelete",
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "object not found"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "The sample id",
+          "name": "sample_id",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
@@ -699,33 +874,30 @@ func init() {
             "type": "string"
           }
         },
-        "interval": {
-          "description": "The interval the collector will run at",
-          "type": "string"
-        },
         "name": {
           "description": "The collector name",
           "type": "string"
         },
-        "params": {
-          "description": "json data object",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
+        "schedule_interval": {
+          "description": "The interval the collector will run at",
+          "type": "string"
         },
         "type": {
-          "description": "The collector client to use",
-          "type": "string",
-          "enum": [
-            "prometheus"
-          ]
+          "$ref": "#/definitions/CollectorType"
         },
         "url": {
           "description": "The collector url",
           "type": "string"
         }
-      }
+      },
+      "discriminator": "type"
+    },
+    "CollectorType": {
+      "description": "Collector types",
+      "type": "string",
+      "enum": [
+        "PrometheusCollector"
+      ]
     },
     "Emitter": {
       "description": "An emitter emits recommendations to a system\n",
@@ -773,6 +945,28 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "PrometheusCollector": {
+      "description": "Prometheus collector type",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Collector"
+        },
+        {
+          "properties": {
+            "query": {
+              "description": "The query to run against the prometheus host",
+              "type": "string",
+              "example": "{cluster=\"greatdane-1914e166dc7\"}"
+            },
+            "sample_interval": {
+              "description": "The sample size for the interval",
+              "type": "string",
+              "default": "24h"
+            }
+          }
+        }
+      ]
     },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
@@ -857,13 +1051,35 @@ func init() {
           ]
         },
         "type": {
-          "description": "the type of rule this is",
+          "$ref": "#/definitions/RuleType"
+        }
+      }
+    },
+    "RuleType": {
+      "description": "Types of rules",
+      "type": "string",
+      "enum": [
+        "prometheus",
+        "sql",
+        "anomaly"
+      ]
+    },
+    "Sample": {
+      "description": "A sample is a collected data sample\n",
+      "properties": {
+        "id": {
+          "description": "The sample id",
           "type": "string",
-          "enum": [
-            "prometheus",
-            "sql",
-            "anomaly"
-          ]
+          "format": "uuid"
+        },
+        "path": {
+          "description": "The sample path on disk",
+          "type": "string"
+        },
+        "time": {
+          "description": "The sample timestamp",
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
