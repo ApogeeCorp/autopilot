@@ -11,7 +11,6 @@
 	],
 	"rules": [
 		{
-			"rule": "PortworxVolumeUsageCritical",
 			"name": "PortworxVolumeUsageCritical",
 			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80",
 			"for": 3600,
@@ -20,7 +19,6 @@
 			"proposal": "Add additional storage node to {{.cluster}}"
 		},
 		{
-			"rule": "PortworxVolumeUsage",
 			"name": "PortworxVolumeUsage",
 			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 70",
 			"for": 7200,
@@ -29,7 +27,6 @@
 			"proposal": "Add additional storage node to {{.cluster}}"
 		},
 		{
-			"rule": "PortworxStorageUsageCritical",
 			"name": "PortworxStorageUsageCritical",
 			"expr": "100 * (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes) > 10",
 			"for": 7200,
@@ -38,7 +35,6 @@
 			"proposal": "Add additional disks to {{.cluster}}"
 		},
 		{
-			"rule": "PortworxStorageNodeDown",
 			"name": "PortworxStorageNodeDown",
 			"expr": "px_cluster_status_nodes_storage_down > 0",
 			"for": 7200,
@@ -47,7 +43,6 @@
 			"proposal": "Restart node with verbose debugging {{.node}}"
 		},
 		{
-			"rule": "PortworxQuorumUnhealthy",
 			"name": "PortworxQuorumUnhealthy",
 			"expr": "px_cluster_status_cluster_quorum > 1",
 			"for": 7200,
@@ -56,7 +51,6 @@
 			"proposal": "Restart node with verbose debugging {{.node}}"
 		},
 		{
-			"rule": "PortworxMemberDown",
 			"name": "PortworxMemberDown",
 			"expr": "px_cluster_status_nodes_offline > 0",
 			"for": 18000,
