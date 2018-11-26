@@ -25,7 +25,7 @@ import (
 // swagger:model Rule
 type Rule struct {
 
-	// The expression to match
+	// The expression to match or query to make
 	Expr string `json:"expr,omitempty"`
 
 	// The duration/interval the expression must be valid for in seconds
@@ -43,6 +43,10 @@ type Rule struct {
 	// severity
 	// Enum: [warning error critical]
 	Severity string `json:"severity,omitempty"`
+
+	// the type of rule this is
+	// Enum: [prometheus sql anomaly]
+	Type string `json:"type,omitempty"`
 }
 
 // Validate validates this rule
@@ -50,6 +54,10 @@ func (m *Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +107,52 @@ func (m *Rule) validateSeverity(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateSeverityEnum("severity", "body", m.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var ruleTypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["prometheus","sql","anomaly"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		ruleTypeTypePropEnum = append(ruleTypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// RuleTypePrometheus captures enum value "prometheus"
+	RuleTypePrometheus string = "prometheus"
+
+	// RuleTypeSQL captures enum value "sql"
+	RuleTypeSQL string = "sql"
+
+	// RuleTypeAnomaly captures enum value "anomaly"
+	RuleTypeAnomaly string = "anomaly"
+)
+
+// prop value enum
+func (m *Rule) validateTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, ruleTypeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Rule) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateTypeEnum("type", "body", m.Type); err != nil {
 		return err
 	}
 

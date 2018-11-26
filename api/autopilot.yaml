@@ -200,8 +200,12 @@ definitions:
       name:
         description: the rule description
         type: string
+      type:
+        description: the type of rule this is
+        type: string
+        enum: [ prometheus, sql, anomaly]
       expr:
-        description: The expression to match
+        description: The expression to match or query to make
         type: string
         example: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80
       for:
@@ -212,7 +216,7 @@ definitions:
       issue:
         description: The issue template
         type: string
-        example: Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.
+        example: Portworx volume {{$labels.volume}} usage on {{$labels.host}} is high.
       severity: 
         type: string
         enum: [ warning, error, critical ]
@@ -234,10 +238,13 @@ definitions:
         description: The node id
         type: string
       volume_id:
-        description: the volume id
+        description: The volume id
         type: string
-      value:
-        description: The proposal value
+      issue:
+        description: Issue from the rule that describes the reason for this proposal
+        type: string
+      action:
+        description: The proposed action to take to resolve the issue
         type: string
   Recommendation:
     description: |

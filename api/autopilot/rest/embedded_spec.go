@@ -63,15 +63,7 @@ func init() {
             }
           },
           "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -95,15 +87,7 @@ func init() {
             }
           },
           "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -152,26 +136,10 @@ func init() {
             }
           },
           "400": {
-            "description": "BadRequest",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "invalid parameter"
-              }
-            }
+            "$ref": "#/responses/BadRequest"
           },
           "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -195,15 +163,7 @@ func init() {
             }
           },
           "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -227,15 +187,7 @@ func init() {
             }
           },
           "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -278,19 +230,6 @@ func init() {
           "description": "The collector url",
           "type": "string"
         }
-      },
-      "example": {
-        "emitters": [
-          "emitters",
-          "emitters"
-        ],
-        "interval": "interval",
-        "name": "name",
-        "params": {
-          "key": "{}"
-        },
-        "type": "prometheus",
-        "url": "url"
       }
     },
     "Emitter": {
@@ -314,13 +253,6 @@ func init() {
             "mqtt"
           ]
         }
-      },
-      "example": {
-        "name": "name",
-        "params": {
-          "key": "{}"
-        },
-        "type": "mqtt"
       }
     },
     "Error": {
@@ -350,8 +282,16 @@ func init() {
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
       "properties": {
+        "action": {
+          "description": "The proposed action to take to resolve the issue",
+          "type": "string"
+        },
         "cluster_id": {
           "description": "The cluster id",
+          "type": "string"
+        },
+        "issue": {
+          "description": "Issue from the rule that describes the reason for this proposal",
           "type": "string"
         },
         "node_id": {
@@ -362,21 +302,10 @@ func init() {
           "description": "The rule that triggered the proposal",
           "type": "string"
         },
-        "value": {
-          "description": "The proposal value",
-          "type": "string"
-        },
         "volume_id": {
-          "description": "the volume id",
+          "description": "The volume id",
           "type": "string"
         }
-      },
-      "example": {
-        "cluster_id": "cluster_id",
-        "node_id": "node_id",
-        "rule": "rule",
-        "value": "value",
-        "volume_id": "volume_id"
       }
     },
     "Recommendation": {
@@ -394,32 +323,13 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
-      },
-      "example": {
-        "proposals": [
-          {
-            "cluster_id": "cluster_id",
-            "node_id": "node_id",
-            "rule": "rule",
-            "value": "value",
-            "volume_id": "volume_id"
-          },
-          {
-            "cluster_id": "cluster_id",
-            "node_id": "node_id",
-            "rule": "rule",
-            "value": "value",
-            "volume_id": "volume_id"
-          }
-        ],
-        "timestamp": "2000-01-23T04:56:07.000+00:00"
       }
     },
     "Rule": {
       "description": "An proposal is a recommended solution that matches a certain constraint\n",
       "properties": {
         "expr": {
-          "description": "The expression to match",
+          "description": "The expression to match or query to make",
           "type": "string",
           "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
         },
@@ -432,7 +342,7 @@ func init() {
         "issue": {
           "description": "The issue template",
           "type": "string",
-          "example": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
+          "example": "Portworx volume {{$labels.volume}} usage on {{$labels.host}} is high."
         },
         "name": {
           "description": "the rule description",
@@ -450,15 +360,16 @@ func init() {
             "error",
             "critical"
           ]
+        },
+        "type": {
+          "description": "the type of rule this is",
+          "type": "string",
+          "enum": [
+            "prometheus",
+            "sql",
+            "anomaly"
+          ]
         }
-      },
-      "example": {
-        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-        "for": 3600,
-        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-        "name": "name",
-        "proposal": "Add additional storage node to {{$labels.cluster}}",
-        "severity": "warning"
       }
     },
     "Task": {
@@ -498,15 +409,6 @@ func init() {
             "collector"
           ]
         }
-      },
-      "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "params": {
-          "key": "{}"
-        },
-        "run_at": "2000-01-23T04:56:07.000+00:00",
-        "status": "pending",
-        "type": "collector"
       }
     }
   },
@@ -823,19 +725,6 @@ func init() {
           "description": "The collector url",
           "type": "string"
         }
-      },
-      "example": {
-        "emitters": [
-          "emitters",
-          "emitters"
-        ],
-        "interval": "interval",
-        "name": "name",
-        "params": {
-          "key": "{}"
-        },
-        "type": "prometheus",
-        "url": "url"
       }
     },
     "Emitter": {
@@ -859,13 +748,6 @@ func init() {
             "mqtt"
           ]
         }
-      },
-      "example": {
-        "name": "name",
-        "params": {
-          "key": "{}"
-        },
-        "type": "mqtt"
       }
     },
     "Error": {
@@ -895,8 +777,16 @@ func init() {
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
       "properties": {
+        "action": {
+          "description": "The proposed action to take to resolve the issue",
+          "type": "string"
+        },
         "cluster_id": {
           "description": "The cluster id",
+          "type": "string"
+        },
+        "issue": {
+          "description": "Issue from the rule that describes the reason for this proposal",
           "type": "string"
         },
         "node_id": {
@@ -907,21 +797,10 @@ func init() {
           "description": "The rule that triggered the proposal",
           "type": "string"
         },
-        "value": {
-          "description": "The proposal value",
-          "type": "string"
-        },
         "volume_id": {
-          "description": "the volume id",
+          "description": "The volume id",
           "type": "string"
         }
-      },
-      "example": {
-        "cluster_id": "cluster_id",
-        "node_id": "node_id",
-        "rule": "rule",
-        "value": "value",
-        "volume_id": "volume_id"
       }
     },
     "Recommendation": {
@@ -939,32 +818,13 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
-      },
-      "example": {
-        "proposals": [
-          {
-            "cluster_id": "cluster_id",
-            "node_id": "node_id",
-            "rule": "rule",
-            "value": "value",
-            "volume_id": "volume_id"
-          },
-          {
-            "cluster_id": "cluster_id",
-            "node_id": "node_id",
-            "rule": "rule",
-            "value": "value",
-            "volume_id": "volume_id"
-          }
-        ],
-        "timestamp": "2000-01-23T04:56:07.000+00:00"
       }
     },
     "Rule": {
       "description": "An proposal is a recommended solution that matches a certain constraint\n",
       "properties": {
         "expr": {
-          "description": "The expression to match",
+          "description": "The expression to match or query to make",
           "type": "string",
           "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
         },
@@ -977,7 +837,7 @@ func init() {
         "issue": {
           "description": "The issue template",
           "type": "string",
-          "example": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high."
+          "example": "Portworx volume {{$labels.volume}} usage on {{$labels.host}} is high."
         },
         "name": {
           "description": "the rule description",
@@ -995,15 +855,16 @@ func init() {
             "error",
             "critical"
           ]
+        },
+        "type": {
+          "description": "the type of rule this is",
+          "type": "string",
+          "enum": [
+            "prometheus",
+            "sql",
+            "anomaly"
+          ]
         }
-      },
-      "example": {
-        "expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80",
-        "for": 3600,
-        "issue": "Portworx volume {{$labels.volumeid}} usage on {{$labels.host}} is high.",
-        "name": "name",
-        "proposal": "Add additional storage node to {{$labels.cluster}}",
-        "severity": "warning"
       }
     },
     "Task": {
@@ -1043,15 +904,6 @@ func init() {
             "collector"
           ]
         }
-      },
-      "example": {
-        "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
-        "params": {
-          "key": "{}"
-        },
-        "run_at": "2000-01-23T04:56:07.000+00:00",
-        "status": "pending",
-        "type": "collector"
       }
     }
   },
