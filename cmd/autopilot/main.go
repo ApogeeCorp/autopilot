@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 	"github.com/libopenstorage/autopilot/config"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	yaml "gopkg.in/yaml.v1"
 )
 
 var (
@@ -56,7 +56,7 @@ func main() {
 			Name:   "config,f",
 			Usage:  "set the configuration file path",
 			EnvVar: "CONFIG_FILE",
-			Value:  "./etc/config.yaml",
+			Value:  "./etc/config.json",
 		},
 		cli.StringFlag{
 			Name:   "data-dir",
@@ -82,7 +82,7 @@ func main() {
 			return err
 		}
 
-		if err := yaml.Unmarshal(data, config); err != nil {
+		if err := json.Unmarshal(data, config); err != nil {
 			return err
 		}
 

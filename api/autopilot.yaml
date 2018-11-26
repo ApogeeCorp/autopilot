@@ -41,6 +41,27 @@ paths:
               $ref: '#/definitions/Collector'
         500:
           $ref: '#/responses/ServerError'
+  /collectors/{collector}/poll:
+    parameters:
+      - name: collector
+        description: the collector name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Poll a collector
+      description: Polls a collector for the current data period
+      operationId: collectorPoll
+      tags: [ collector ]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Collector'
+        500:
+          $ref: '#/responses/ServerError'
   /emitters:
     get:
       summary: Get a list of telemetry emitters
@@ -172,7 +193,8 @@ definitions:
         type: string
       schedule_interval:
         description: The interval the collector will run at
-        type: string
+        type: integer
+        format: int64
       emitters:
         description: The emitters to use after processing the samples
         type: array
@@ -181,8 +203,8 @@ definitions:
   CollectorType:
     description: Collector types
     type: string
-    enum: [ PrometheusCollector ]
-  PrometheusCollector:
+    enum: [ prometheus ]
+  Prometheus:
     description: Prometheus collector type
     allOf:
       - $ref: "#/definitions/Collector"
@@ -192,9 +214,9 @@ definitions:
             type: string
             example: '{cluster="greatdane-1914e166dc7"}'
           sample_interval:
-            description: The sample size for the interval
+            description: The sample size for the interval, default '7' days
             type: string
-            default: '24h'
+            default: '7d'
   Emitter:
     description: |
       An emitter emits recommendations to a system

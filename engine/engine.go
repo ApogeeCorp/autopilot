@@ -79,7 +79,7 @@ func (e *Engine) Recommend(rules []*types.Rule, samplePath string) (recommendati
 
 		err := action.Run(proc, queryStr, samplePath, outFileStr)
 		if err != nil {
-			cmd.WriteToStdErr(err.Error() + "\n")
+			e.Log.Debugf("Could not run actions %v", err)
 		}
 		b, err := ioutil.ReadFile(outFileStr)
 		if err != nil {

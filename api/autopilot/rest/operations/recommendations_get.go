@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // RecommendationsGetHandlerFunc turns a function with the right signature into a recommendations get handler
-type RecommendationsGetHandlerFunc func(RecommendationsGetParams, provider.AuthToken) middleware.Responder
+type RecommendationsGetHandlerFunc func(RecommendationsGetParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn RecommendationsGetHandlerFunc) Handle(params RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+func (fn RecommendationsGetHandlerFunc) Handle(params RecommendationsGetParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // RecommendationsGetHandler interface for that can handle valid recommendations get params
 type RecommendationsGetHandler interface {
-	Handle(RecommendationsGetParams, provider.AuthToken) middleware.Responder
+	Handle(RecommendationsGetParams, interface{}) middleware.Responder
 }
 
 // NewRecommendationsGet creates a new http.Handler for the recommendations get operation
@@ -62,9 +61,9 @@ func (o *RecommendationsGet) ServeHTTP(rw http.ResponseWriter, r *http.Request) 
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

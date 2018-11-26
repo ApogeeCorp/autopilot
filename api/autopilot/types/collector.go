@@ -39,8 +39,8 @@ type Collector interface {
 	SetName(string)
 
 	// The interval the collector will run at
-	ScheduleInterval() string
-	SetScheduleInterval(string)
+	ScheduleInterval() int64
+	SetScheduleInterval(int64)
 
 	// type
 	Type() CollectorType
@@ -56,7 +56,7 @@ type collector struct {
 
 	nameField string
 
-	scheduleIntervalField string
+	scheduleIntervalField int64
 
 	typeField CollectorType
 
@@ -84,12 +84,12 @@ func (m *collector) SetName(val string) {
 }
 
 // ScheduleInterval gets the schedule interval of this polymorphic type
-func (m *collector) ScheduleInterval() string {
+func (m *collector) ScheduleInterval() int64 {
 	return m.scheduleIntervalField
 }
 
 // SetScheduleInterval sets the schedule interval of this polymorphic type
-func (m *collector) SetScheduleInterval(val string) {
+func (m *collector) SetScheduleInterval(val int64) {
 	m.scheduleIntervalField = val
 }
 
@@ -166,8 +166,8 @@ func unmarshalCollector(data []byte, consumer runtime.Consumer) (Collector, erro
 		}
 		return &result, nil
 
-	case "PrometheusCollector":
-		var result PrometheusCollector
+	case "Prometheus":
+		var result Prometheus
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}

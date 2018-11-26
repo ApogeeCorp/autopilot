@@ -1,0 +1,68 @@
+{
+	"collectors": [
+		{
+			"name": "Portworx",
+			"type": "Prometheus",
+			"url": "http://70.0.69.141:9090/api/v1/query",
+            "query": "{\"cluster\": \"greatdane-1914e166dc7\"}",
+			"sample_interval": "7d",
+			"schedule_interval": 3600
+		}
+	],
+	"rules": [
+		{
+			"rule": "PortworxVolumeUsageCritical",
+			"name": "PortworxVolumeUsageCritical",
+			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80",
+			"for": 3600,
+			"issue": "Portworx volume {{.volume}} usage on {{.instance}} is high.",
+			"severity": "critical",
+			"proposal": "Add additional storage node to {{.cluster}}"
+		},
+		{
+			"rule": "PortworxVolumeUsage",
+			"name": "PortworxVolumeUsage",
+			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 70",
+			"for": 7200,
+			"issue": "Portworx volume {{.volume}} usage on {{.instance}} is critical.",
+			"severity": "warning",
+			"proposal": "Add additional storage node to {{.cluster}}"
+		},
+		{
+			"rule": "PortworxStorageUsageCritical",
+			"name": "PortworxStorageUsageCritical",
+			"expr": "100 * (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes) > 10",
+			"for": 7200,
+			"issue": "Portworx storage {{.cluster}} usage on {{.instance}} is high.",
+			"severity": "critical",
+			"proposal": "Add additional disks to {{.cluster}}"
+		},
+		{
+			"rule": "PortworxStorageNodeDown",
+			"name": "PortworxStorageNodeDown",
+			"expr": "px_cluster_status_nodes_storage_down > 0",
+			"for": 7200,
+			"issue": "Portworx Storage Node is Offline.",
+			"severity": "critical",
+			"proposal": "Restart node with verbose debugging {{.node}}"
+		},
+		{
+			"rule": "PortworxQuorumUnhealthy",
+			"name": "PortworxQuorumUnhealthy",
+			"expr": "px_cluster_status_cluster_quorum > 1",
+			"for": 7200,
+			"issue": "Portworx Quorum Unhealthy.",
+			"severity": "critical",
+			"proposal": "Restart node with verbose debugging {{.node}}"
+		},
+		{
+			"rule": "PortworxMemberDown",
+			"name": "PortworxMemberDown",
+			"expr": "px_cluster_status_nodes_offline > 0",
+			"for": 18000,
+			"issue": "Portworx cluster member(s) is(are) down {{.cluster}}.",
+			"severity": "critical",
+			"proposal": "Restart cluster with verbose debugging {{.cluster}}"
+		}
+	]
+}

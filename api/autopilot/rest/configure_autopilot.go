@@ -19,7 +19,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 
 	interpose "github.com/carbocation/interpose/middleware"
 	sparks "gitlab.com/ModelRocket/sparks/types"
@@ -41,6 +40,8 @@ const AuthKey contextKey = "Auth"
 type CollectorAPI interface {
 	// CollectorList is Returns an array of telemetry collectors defined in the system
 	CollectorList(ctx *autopilot.Context, params collector.CollectorListParams) middleware.Responder
+	// CollectorPoll is Polls a collector for the current data period
+	CollectorPoll(ctx *autopilot.Context, params collector.CollectorPollParams) middleware.Responder
 }
 
 // EmitterAPI
@@ -86,7 +87,7 @@ type AutopilotAPI interface {
 	Initialize() error
 
 	// InitializeContext is call before the api methods are executed
-	InitializeContext(principal provider.AuthToken, r *http.Request) (*autopilot.Context, error)
+	InitializeContext(principal interface{}, r *http.Request) (*autopilot.Context, error)
 }
 
 // Config is configuration for Handler
@@ -98,7 +99,7 @@ type Config struct {
 	InnerMiddleware func(http.Handler) http.Handler
 
 	// AuthBasicAuth for basic authentication
-	AuthBasicAuth func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error)
+	AuthBasicAuth func(ctx context.Context, user string, pass string) (context.Context, interface{}, error)
 }
 
 // Handler returns an http.Handler given the handler configuration
@@ -115,56 +116,63 @@ func Handler(c Config) (http.Handler, error) {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 	api.JSONProducer = runtime.JSONProducer()
-	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error) {
+	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
 		if c.AuthBasicAuth == nil {
 			return ctx, nil, sparks.ErrNotAuthorized
 		}
 		return c.AuthBasicAuth(ctx, user, pass)
 	}
 
-	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorList(ctx, params)
 	})
-	api.EmitterEmitterListHandler = emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal provider.AuthToken) middleware.Responder {
+	api.CollectorCollectorPollHandler = collector.CollectorPollHandlerFunc(func(params collector.CollectorPollParams, principal interface{}) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.CollectorPoll(ctx, params)
+	})
+	api.EmitterEmitterListHandler = emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.EmitterList(ctx, params)
 	})
-	api.RecommendationsGetHandler = operations.RecommendationsGetHandlerFunc(func(params operations.RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+	api.RecommendationsGetHandler = operations.RecommendationsGetHandlerFunc(func(params operations.RecommendationsGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RecommendationsGet(ctx, params)
 	})
-	api.RuleRuleListHandler = rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal provider.AuthToken) middleware.Responder {
+	api.RuleRuleListHandler = rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleList(ctx, params)
 	})
-	api.SampleSampleDeleteHandler = sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleDeleteHandler = sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleDelete(ctx, params)
 	})
-	api.SampleSampleListHandler = sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal provider.AuthToken) middleware.Responder {
+	api.SampleSampleListHandler = sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.SampleList(ctx, params)
 	})
-	api.TaskTaskListHandler = task.TaskListHandlerFunc(func(params task.TaskListParams, principal provider.AuthToken) middleware.Responder {
+	api.TaskTaskListHandler = task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)

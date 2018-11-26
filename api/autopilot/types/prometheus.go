@@ -20,71 +20,71 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// PrometheusCollector Prometheus collector type
-// swagger:model PrometheusCollector
-type PrometheusCollector struct {
+// Prometheus Prometheus collector type
+// swagger:model Prometheus
+type Prometheus struct {
 	emittersField []string
 
 	nameField string
 
-	scheduleIntervalField string
+	scheduleIntervalField int64
 
 	urlField string
 
 	// The query to run against the prometheus host
 	Query string `json:"query,omitempty"`
 
-	// The sample size for the interval
+	// The sample size for the interval, default '7' days
 	SampleInterval *string `json:"sample_interval,omitempty"`
 }
 
 // Emitters gets the emitters of this subtype
-func (m *PrometheusCollector) Emitters() []string {
+func (m *Prometheus) Emitters() []string {
 	return m.emittersField
 }
 
 // SetEmitters sets the emitters of this subtype
-func (m *PrometheusCollector) SetEmitters(val []string) {
+func (m *Prometheus) SetEmitters(val []string) {
 	m.emittersField = val
 }
 
 // Name gets the name of this subtype
-func (m *PrometheusCollector) Name() string {
+func (m *Prometheus) Name() string {
 	return m.nameField
 }
 
 // SetName sets the name of this subtype
-func (m *PrometheusCollector) SetName(val string) {
+func (m *Prometheus) SetName(val string) {
 	m.nameField = val
 }
 
 // ScheduleInterval gets the schedule interval of this subtype
-func (m *PrometheusCollector) ScheduleInterval() string {
+func (m *Prometheus) ScheduleInterval() int64 {
 	return m.scheduleIntervalField
 }
 
 // SetScheduleInterval sets the schedule interval of this subtype
-func (m *PrometheusCollector) SetScheduleInterval(val string) {
+func (m *Prometheus) SetScheduleInterval(val int64) {
 	m.scheduleIntervalField = val
 }
 
 // Type gets the type of this subtype
-func (m *PrometheusCollector) Type() CollectorType {
-	return "PrometheusCollector"
+func (m *Prometheus) Type() CollectorType {
+	return "Prometheus"
 }
 
 // SetType sets the type of this subtype
-func (m *PrometheusCollector) SetType(val CollectorType) {
+func (m *Prometheus) SetType(val CollectorType) {
 
 }
 
 // URL gets the url of this subtype
-func (m *PrometheusCollector) URL() string {
+func (m *Prometheus) URL() string {
 	return m.urlField
 }
 
 // SetURL sets the url of this subtype
-func (m *PrometheusCollector) SetURL(val string) {
+func (m *Prometheus) SetURL(val string) {
 	m.urlField = val
 }
 
@@ -93,13 +93,13 @@ func (m *PrometheusCollector) SetURL(val string) {
 // SampleInterval gets the sample interval of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *PrometheusCollector) UnmarshalJSON(raw []byte) error {
+func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// The query to run against the prometheus host
 		Query string `json:"query,omitempty"`
 
-		// The sample size for the interval
+		// The sample size for the interval, default '7' days
 		SampleInterval *string `json:"sample_interval,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -117,7 +117,7 @@ func (m *PrometheusCollector) UnmarshalJSON(raw []byte) error {
 
 		Name string `json:"name,omitempty"`
 
-		ScheduleInterval string `json:"schedule_interval,omitempty"`
+		ScheduleInterval int64 `json:"schedule_interval,omitempty"`
 
 		Type CollectorType `json:"type,omitempty"`
 
@@ -131,7 +131,7 @@ func (m *PrometheusCollector) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result PrometheusCollector
+	var result Prometheus
 
 	result.emittersField = base.Emitters
 
@@ -156,7 +156,7 @@ func (m *PrometheusCollector) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m PrometheusCollector) MarshalJSON() ([]byte, error) {
+func (m Prometheus) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
@@ -164,7 +164,7 @@ func (m PrometheusCollector) MarshalJSON() ([]byte, error) {
 		// The query to run against the prometheus host
 		Query string `json:"query,omitempty"`
 
-		// The sample size for the interval
+		// The sample size for the interval, default '7' days
 		SampleInterval *string `json:"sample_interval,omitempty"`
 	}{
 
@@ -181,7 +181,7 @@ func (m PrometheusCollector) MarshalJSON() ([]byte, error) {
 
 		Name string `json:"name,omitempty"`
 
-		ScheduleInterval string `json:"schedule_interval,omitempty"`
+		ScheduleInterval int64 `json:"schedule_interval,omitempty"`
 
 		Type CollectorType `json:"type,omitempty"`
 
@@ -206,8 +206,8 @@ func (m PrometheusCollector) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this prometheus collector
-func (m *PrometheusCollector) Validate(formats strfmt.Registry) error {
+// Validate validates this prometheus
+func (m *Prometheus) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if len(res) > 0 {
@@ -217,7 +217,7 @@ func (m *PrometheusCollector) Validate(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *PrometheusCollector) MarshalBinary() ([]byte, error) {
+func (m *Prometheus) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -225,8 +225,8 @@ func (m *PrometheusCollector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *PrometheusCollector) UnmarshalBinary(b []byte) error {
-	var res PrometheusCollector
+func (m *Prometheus) UnmarshalBinary(b []byte) error {
+	var res Prometheus
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

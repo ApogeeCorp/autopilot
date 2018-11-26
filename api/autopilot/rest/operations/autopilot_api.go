@@ -23,7 +23,6 @@ import (
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 	context "golang.org/x/net/context"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
@@ -51,30 +50,33 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 		JSONProducer:          runtime.JSONProducer(),
-		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation CollectorCollectorList has not yet been implemented")
 		}),
-		EmitterEmitterListHandler: emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal provider.AuthToken) middleware.Responder {
+		CollectorCollectorPollHandler: collector.CollectorPollHandlerFunc(func(params collector.CollectorPollParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorCollectorPoll has not yet been implemented")
+		}),
+		EmitterEmitterListHandler: emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation EmitterEmitterList has not yet been implemented")
 		}),
-		RecommendationsGetHandler: RecommendationsGetHandlerFunc(func(params RecommendationsGetParams, principal provider.AuthToken) middleware.Responder {
+		RecommendationsGetHandler: RecommendationsGetHandlerFunc(func(params RecommendationsGetParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RecommendationsGet has not yet been implemented")
 		}),
-		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal provider.AuthToken) middleware.Responder {
+		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
 		}),
-		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleDelete has not yet been implemented")
 		}),
-		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal provider.AuthToken) middleware.Responder {
+		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
 		}),
-		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal provider.AuthToken) middleware.Responder {
+		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation TaskTaskList has not yet been implemented")
 		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
-		BasicAuthAuth: func(ctx context.Context, user string, pass string) (context.Context, provider.AuthToken, error) {
+		BasicAuthAuth: func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
 			return ctx, nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
 		},
 
@@ -115,13 +117,15 @@ type AutopilotAPI struct {
 
 	// BasicAuthAuth registers a function that takes username and password and returns a principal
 	// it performs authentication with basic auth
-	BasicAuthAuth func(context.Context, string, string) (context.Context, provider.AuthToken, error)
+	BasicAuthAuth func(context.Context, string, string) (context.Context, interface{}, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
 	// CollectorCollectorListHandler sets the operation handler for the collector list operation
 	CollectorCollectorListHandler collector.CollectorListHandler
+	// CollectorCollectorPollHandler sets the operation handler for the collector poll operation
+	CollectorCollectorPollHandler collector.CollectorPollHandler
 	// EmitterEmitterListHandler sets the operation handler for the emitter list operation
 	EmitterEmitterListHandler emitter.EmitterListHandler
 	// RecommendationsGetHandler sets the operation handler for the recommendations get operation
@@ -209,6 +213,10 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "collector.CollectorListHandler")
 	}
 
+	if o.CollectorCollectorPollHandler == nil {
+		unregistered = append(unregistered, "collector.CollectorPollHandler")
+	}
+
 	if o.EmitterEmitterListHandler == nil {
 		unregistered = append(unregistered, "emitter.EmitterListHandler")
 	}
@@ -254,9 +262,7 @@ func (o *AutopilotAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme)
 
 		case "basicAuth":
 			_ = scheme
-			result[name] = o.BasicAuthenticator(func(ctx context.Context, username, password string) (context.Context, interface{}, error) {
-				return o.BasicAuthAuth(ctx, username, password)
-			})
+			result[name] = o.BasicAuthenticator(o.BasicAuthAuth)
 
 		}
 	}
@@ -350,6 +356,11 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/collectors"] = collector.NewCollectorList(o.context, o.CollectorCollectorListHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/collectors/{collector}/poll"] = collector.NewCollectorPoll(o.context, o.CollectorCollectorPollHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

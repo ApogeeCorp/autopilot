@@ -68,6 +68,39 @@ func init() {
         }
       }
     },
+    "/collectors/{collector}/poll": {
+      "get": {
+        "description": "Polls a collector for the current data period",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Poll a collector",
+        "operationId": "collectorPoll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Collector"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the collector name",
+          "name": "collector",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/emitters": {
       "get": {
         "description": "Returns an array of telemetry emitters defined in the system",
@@ -265,7 +298,8 @@ func init() {
         },
         "schedule_interval": {
           "description": "The interval the collector will run at",
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "type": {
           "$ref": "#/definitions/CollectorType"
@@ -281,7 +315,7 @@ func init() {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "PrometheusCollector"
+        "prometheus"
       ]
     },
     "Emitter": {
@@ -331,7 +365,7 @@ func init() {
         }
       }
     },
-    "PrometheusCollector": {
+    "Prometheus": {
       "description": "Prometheus collector type",
       "allOf": [
         {
@@ -345,9 +379,9 @@ func init() {
               "example": "{cluster=\"greatdane-1914e166dc7\"}"
             },
             "sample_interval": {
-              "description": "The sample size for the interval",
+              "description": "The sample size for the interval, default '7' days",
               "type": "string",
-              "default": "24h"
+              "default": "7d"
             }
           }
         }
@@ -619,6 +653,47 @@ func init() {
         }
       }
     },
+    "/collectors/{collector}/poll": {
+      "get": {
+        "description": "Polls a collector for the current data period",
+        "tags": [
+          "collector"
+        ],
+        "summary": "Poll a collector",
+        "operationId": "collectorPoll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Collector"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the collector name",
+          "name": "collector",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/emitters": {
       "get": {
         "description": "Returns an array of telemetry emitters defined in the system",
@@ -880,7 +955,8 @@ func init() {
         },
         "schedule_interval": {
           "description": "The interval the collector will run at",
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "type": {
           "$ref": "#/definitions/CollectorType"
@@ -896,7 +972,7 @@ func init() {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "PrometheusCollector"
+        "prometheus"
       ]
     },
     "Emitter": {
@@ -946,7 +1022,7 @@ func init() {
         }
       }
     },
-    "PrometheusCollector": {
+    "Prometheus": {
       "description": "Prometheus collector type",
       "allOf": [
         {
@@ -960,9 +1036,9 @@ func init() {
               "example": "{cluster=\"greatdane-1914e166dc7\"}"
             },
             "sample_interval": {
-              "description": "The sample size for the interval",
+              "description": "The sample size for the interval, default '7' days",
               "type": "string",
-              "default": "24h"
+              "default": "7d"
             }
           }
         }

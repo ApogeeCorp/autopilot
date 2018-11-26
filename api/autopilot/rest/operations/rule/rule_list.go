@@ -14,20 +14,19 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"gitlab.com/ModelRocket/sparks/cloud/provider"
 )
 
 // RuleListHandlerFunc turns a function with the right signature into a rule list handler
-type RuleListHandlerFunc func(RuleListParams, provider.AuthToken) middleware.Responder
+type RuleListHandlerFunc func(RuleListParams, interface{}) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn RuleListHandlerFunc) Handle(params RuleListParams, principal provider.AuthToken) middleware.Responder {
+func (fn RuleListHandlerFunc) Handle(params RuleListParams, principal interface{}) middleware.Responder {
 	return fn(params, principal)
 }
 
 // RuleListHandler interface for that can handle valid rule list params
 type RuleListHandler interface {
-	Handle(RuleListParams, provider.AuthToken) middleware.Responder
+	Handle(RuleListParams, interface{}) middleware.Responder
 }
 
 // NewRuleList creates a new http.Handler for the rule list operation
@@ -62,9 +61,9 @@ func (o *RuleList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal provider.AuthToken
+	var principal interface{}
 	if uprinc != nil {
-		principal = uprinc.(provider.AuthToken) // this is really a provider.AuthToken, I promise
+		principal = uprinc
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
