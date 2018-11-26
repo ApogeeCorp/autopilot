@@ -203,7 +203,7 @@ definitions:
   CollectorType:
     description: Collector types
     type: string
-    enum: [ prometheus ]
+    enum: [ Prometheus ]
   Prometheus:
     description: Prometheus collector type
     allOf:

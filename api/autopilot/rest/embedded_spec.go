@@ -315,7 +315,7 @@ func init() {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "prometheus"
+        "Prometheus"
       ]
     },
     "Emitter": {
@@ -972,7 +972,7 @@ func init() {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "prometheus"
+        "Prometheus"
       ]
     },
     "Emitter": {

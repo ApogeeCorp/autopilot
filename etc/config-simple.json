@@ -2,7 +2,7 @@
 	"collectors": [
 		{
 			"name": "Portworx",
-			"type": "prometheus",
+			"type": "Prometheus",
 			"url": "http://70.0.69.141:9090/api/v1/query",
 			"query": "{cluster=\"greatdane-1914e166dc7\"}",
 			"sample_interval": "7d",
