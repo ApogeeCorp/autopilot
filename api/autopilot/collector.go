@@ -10,6 +10,7 @@ import (
 	sparks "gitlab.com/ModelRocket/sparks/types"
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
+	"github.com/libopenstorage/autopilot/api/autopilot/types"
 )
 
 // CollectorList Returns an array of telemetry collectors defined in the system
@@ -19,5 +20,24 @@ func (a *API) CollectorList(ctx *Context, params collector.CollectorListParams) 
 
 // CollectorPoll Polls a collector for the current data period
 func (a *API) CollectorPoll(ctx *Context, params collector.CollectorPollParams) middleware.Responder {
-	return sparks.ErrNotImplemented("collectorPoll")
+	var col *types.Collector
+
+	for _, c := range a.Config.Collectors {
+		if c.Name == params.Collector {
+			col = c
+			break
+		}
+	}
+
+	if col == nil {
+		return sparks.ErrNotFound("collector")
+	}
+
+	switch col.Type {
+	case types.CollectorTypePrometheus:
+	default:
+		return sparks.ErrInvalidParameter
+	}
+
+	return nil
 }

@@ -6,7 +6,8 @@
             "url": "http://70.0.69.141:9090/api/v1/query",
             "params": {
                 "query": "{\"cluster\": \"greatdane-1914e166dc7\"}",
-                "sample_interval": "7d"
+                "sample_interval": "7d",
+                "step": "15m"
             },
 			"schedule_interval": "7d"
 		}
