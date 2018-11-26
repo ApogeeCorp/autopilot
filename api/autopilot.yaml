@@ -181,7 +181,6 @@ definitions:
     description: |
       A collector pulls data from a telemetry source, parses, 
       and reformats the data to be consumed by the autopilot engine.
-    discriminator: type
     properties:
       name:
         description: The collector name
@@ -200,23 +199,16 @@ definitions:
         type: array
         items:
           type: string
+      params:
+        type: object
+        description: json data object
+        additionalProperties:
+          type: object
+          properties: {}
   CollectorType:
     description: Collector types
     type: string
-    enum: [ Prometheus ]
-  Prometheus:
-    description: Prometheus collector type
-    allOf:
-      - $ref: "#/definitions/Collector"
-      - properties:
-          query:
-            description: The query to run against the prometheus host
-            type: string
-            example: '{cluster="greatdane-1914e166dc7"}'
-          sample_interval:
-            description: The sample size for the interval, default '7' days
-            type: string
-            default: '7d'
+    enum: [ prometheus ]
   Emitter:
     description: |
       An emitter emits recommendations to a system

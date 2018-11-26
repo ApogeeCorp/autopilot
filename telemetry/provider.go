@@ -4,12 +4,18 @@
 
 package telemetry
 
+import (
+	sparks "gitlab.com/ModelRocket/sparks/types"
+)
+
 type (
 	// Provider defines a simple interface for telemetry providers to collect and extract data
 	Provider interface {
 		// Collect executes a query on the provider and collects the data to the staging path
-		Collect(host string, params map[string]string, outPath string) error
+		Collect(host string, params Params, outPath string) error
 		// Parse parses the source data into autopilot csv sample format
-		Parse(source []byte, params map[string]string, outPath string) error
+		Parse(source []byte, params Params, outPath string) error
 	}
+
+	Params sparks.Params
 )

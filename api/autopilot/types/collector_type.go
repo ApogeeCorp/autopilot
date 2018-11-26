@@ -27,8 +27,8 @@ type CollectorTypeScalar int
 
 var (
 
-	// CollectorTypePrometheus captures enum value "Prometheus"
-	CollectorTypePrometheus CollectorType = "Prometheus"
+	// CollectorTypePrometheus captures enum value "prometheus"
+	CollectorTypePrometheus CollectorType = "prometheus"
 
 	CollectorTypeScalarLookup = map[CollectorType]CollectorTypeScalar{
 
@@ -49,7 +49,7 @@ var collectorTypeEnum []interface{}
 
 func init() {
 	var res []CollectorType
-	if err := json.Unmarshal([]byte(`["Prometheus"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["prometheus"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -14,7 +14,7 @@ import (
 
 // CollectorList Returns an array of telemetry collectors defined in the system
 func (a *API) CollectorList(ctx *Context, params collector.CollectorListParams) middleware.Responder {
-	return collector.NewCollectorListOK().WithPayload(a.Config.Collectors())
+	return collector.NewCollectorListOK().WithPayload(a.Config.Collectors)
 }
 
 // CollectorPoll Polls a collector for the current data period

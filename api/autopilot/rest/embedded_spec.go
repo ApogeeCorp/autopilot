@@ -296,6 +296,13 @@ func init() {
           "description": "The collector name",
           "type": "string"
         },
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "schedule_interval": {
           "description": "The interval the collector will",
           "type": "string",
@@ -308,14 +315,13 @@ func init() {
           "description": "The collector url",
           "type": "string"
         }
-      },
-      "discriminator": "type"
+      }
     },
     "CollectorType": {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "Prometheus"
+        "prometheus"
       ]
     },
     "Emitter": {
@@ -364,28 +370,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "Prometheus": {
-      "description": "Prometheus collector type",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Collector"
-        },
-        {
-          "properties": {
-            "query": {
-              "description": "The query to run against the prometheus host",
-              "type": "string",
-              "example": "{cluster=\"greatdane-1914e166dc7\"}"
-            },
-            "sample_interval": {
-              "description": "The sample size for the interval, default '7' days",
-              "type": "string",
-              "default": "7d"
-            }
-          }
-        }
-      ]
     },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
@@ -953,6 +937,13 @@ func init() {
           "description": "The collector name",
           "type": "string"
         },
+        "params": {
+          "description": "json data object",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "schedule_interval": {
           "description": "The interval the collector will",
           "type": "string",
@@ -965,14 +956,13 @@ func init() {
           "description": "The collector url",
           "type": "string"
         }
-      },
-      "discriminator": "type"
+      }
     },
     "CollectorType": {
       "description": "Collector types",
       "type": "string",
       "enum": [
-        "Prometheus"
+        "prometheus"
       ]
     },
     "Emitter": {
@@ -1021,28 +1011,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "Prometheus": {
-      "description": "Prometheus collector type",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Collector"
-        },
-        {
-          "properties": {
-            "query": {
-              "description": "The query to run against the prometheus host",
-              "type": "string",
-              "example": "{cluster=\"greatdane-1914e166dc7\"}"
-            },
-            "sample_interval": {
-              "description": "The sample size for the interval, default '7' days",
-              "type": "string",
-              "default": "7d"
-            }
-          }
-        }
-      ]
     },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
