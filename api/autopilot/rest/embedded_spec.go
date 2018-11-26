@@ -436,15 +436,18 @@ func init() {
           ]
         },
         "type": {
-          "description": "the type of rule this is",
-          "type": "string",
-          "enum": [
-            "prometheus",
-            "sql",
-            "anomaly"
-          ]
+          "$ref": "#/definitions/RuleType"
         }
       }
+    },
+    "RuleType": {
+      "description": "Types of rules",
+      "type": "string",
+      "enum": [
+        "prometheus",
+        "sql",
+        "anomaly"
+      ]
     },
     "Sample": {
       "description": "A sample is a collected data sample\n",
@@ -1048,15 +1051,18 @@ func init() {
           ]
         },
         "type": {
-          "description": "the type of rule this is",
-          "type": "string",
-          "enum": [
-            "prometheus",
-            "sql",
-            "anomaly"
-          ]
+          "$ref": "#/definitions/RuleType"
         }
       }
+    },
+    "RuleType": {
+      "description": "Types of rules",
+      "type": "string",
+      "enum": [
+        "prometheus",
+        "sql",
+        "anomaly"
+      ]
     },
     "Sample": {
       "description": "A sample is a collected data sample\n",

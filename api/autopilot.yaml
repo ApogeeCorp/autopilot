@@ -246,9 +246,7 @@ definitions:
         description: the rule description
         type: string
       type:
-        description: the type of rule this is
-        type: string
-        enum: [ prometheus, sql, anomaly]
+        $ref: '#/definitions/RuleType'
       expr:
         description: The expression to match or query to make
         type: string
@@ -269,6 +267,10 @@ definitions:
         description: The proposal template
         type: string
         example: Add additional storage node to {{$labels.cluster}}
+  RuleType:
+    description: Types of rules
+    type: string
+    enum: [ prometheus, sql, anomaly]
   Proposal:
     description: |
       A proposal is a formatted propsal object
