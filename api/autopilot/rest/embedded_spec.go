@@ -131,6 +131,9 @@ func init() {
         "consumes": [
           "multipart/form-data"
         ],
+        "tags": [
+          "engine"
+        ],
         "summary": "Post a telemetry sample and get recommendations",
         "operationId": "recommendationsGet",
         "parameters": [
@@ -715,6 +718,9 @@ func init() {
         "description": "Create a new telemetry sample from the provided definition and get recommendations",
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "engine"
         ],
         "summary": "Post a telemetry sample and get recommendations",
         "operationId": "recommendationsGet",

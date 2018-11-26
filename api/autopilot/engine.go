@@ -16,13 +16,13 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/engine"
 	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 )
 
 // RecommendationsGet Create a new telemetry sample from the provided definition
-func (a *API) RecommendationsGet(ctx *Context, params operations.RecommendationsGetParams) middleware.Responder {
+func (a *API) RecommendationsGet(ctx *Context, params engine.RecommendationsGetParams) middleware.Responder {
 	rules := a.Config.Rules
 
 	// read in the rules
@@ -69,5 +69,5 @@ func (a *API) RecommendationsGet(ctx *Context, params operations.Recommendations
 		return sparks.NewError(err)
 	}
 
-	return operations.NewRecommendationsGetOK().WithPayload(recs)
+	return engine.NewRecommendationsGetOK().WithPayload(recs)
 }

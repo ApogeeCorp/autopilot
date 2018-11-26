@@ -82,6 +82,7 @@ paths:
       summary: Post a telemetry sample and get recommendations
       description: Create a new telemetry sample from the provided definition and get recommendations
       operationId: recommendationsGet
+      tags: [ engine ]
       consumes:
          - multipart/form-data
       parameters:

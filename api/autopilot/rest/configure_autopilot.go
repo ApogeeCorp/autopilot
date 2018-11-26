@@ -27,6 +27,7 @@ import (
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/emitter"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/engine"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
@@ -50,10 +51,10 @@ type EmitterAPI interface {
 	EmitterList(ctx *autopilot.Context, params emitter.EmitterListParams) middleware.Responder
 }
 
-// OperationsAPI
-type OperationsAPI interface {
+// EngineAPI
+type EngineAPI interface {
 	// RecommendationsGet is Create a new telemetry sample from the provided definition and get recommendations
-	RecommendationsGet(ctx *autopilot.Context, params operations.RecommendationsGetParams) middleware.Responder
+	RecommendationsGet(ctx *autopilot.Context, params engine.RecommendationsGetParams) middleware.Responder
 }
 
 // RuleAPI
@@ -79,7 +80,7 @@ type TaskAPI interface {
 type AutopilotAPI interface {
 	CollectorAPI
 	EmitterAPI
-	OperationsAPI
+	EngineAPI
 	RuleAPI
 	SampleAPI
 	TaskAPI
@@ -144,7 +145,7 @@ func Handler(c Config) (http.Handler, error) {
 		}
 		return c.AutopilotAPI.EmitterList(ctx, params)
 	})
-	api.RecommendationsGetHandler = operations.RecommendationsGetHandlerFunc(func(params operations.RecommendationsGetParams, principal interface{}) middleware.Responder {
+	api.EngineRecommendationsGetHandler = engine.RecommendationsGetHandlerFunc(func(params engine.RecommendationsGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)

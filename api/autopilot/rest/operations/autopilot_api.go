@@ -27,6 +27,7 @@ import (
 
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/emitter"
+	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/engine"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
@@ -59,8 +60,8 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		EmitterEmitterListHandler: emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation EmitterEmitterList has not yet been implemented")
 		}),
-		RecommendationsGetHandler: RecommendationsGetHandlerFunc(func(params RecommendationsGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RecommendationsGet has not yet been implemented")
+		EngineRecommendationsGetHandler: engine.RecommendationsGetHandlerFunc(func(params engine.RecommendationsGetParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation EngineRecommendationsGet has not yet been implemented")
 		}),
 		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
@@ -128,8 +129,8 @@ type AutopilotAPI struct {
 	CollectorCollectorPollHandler collector.CollectorPollHandler
 	// EmitterEmitterListHandler sets the operation handler for the emitter list operation
 	EmitterEmitterListHandler emitter.EmitterListHandler
-	// RecommendationsGetHandler sets the operation handler for the recommendations get operation
-	RecommendationsGetHandler RecommendationsGetHandler
+	// EngineRecommendationsGetHandler sets the operation handler for the recommendations get operation
+	EngineRecommendationsGetHandler engine.RecommendationsGetHandler
 	// RuleRuleListHandler sets the operation handler for the rule list operation
 	RuleRuleListHandler rule.RuleListHandler
 	// SampleSampleDeleteHandler sets the operation handler for the sample delete operation
@@ -221,8 +222,8 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "emitter.EmitterListHandler")
 	}
 
-	if o.RecommendationsGetHandler == nil {
-		unregistered = append(unregistered, "RecommendationsGetHandler")
+	if o.EngineRecommendationsGetHandler == nil {
+		unregistered = append(unregistered, "engine.RecommendationsGetHandler")
 	}
 
 	if o.RuleRuleListHandler == nil {
@@ -370,7 +371,7 @@ func (o *AutopilotAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/recommend"] = NewRecommendationsGet(o.context, o.RecommendationsGetHandler)
+	o.handlers["POST"]["/recommend"] = engine.NewRecommendationsGet(o.context, o.EngineRecommendationsGetHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
