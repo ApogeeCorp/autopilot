@@ -277,6 +277,7 @@ func (p *Prometheus) CreateCSVRows(br CSVRow, m map[string]map[string]string, la
 		rows = append(rows, row)
 		rowHeaders = rowHeader
 	}
+
 	return rows, rowHeaders
 }
 
@@ -293,8 +294,19 @@ func (p *Prometheus) WriteCSV(timeSeries map[CSVRow]*CSVMetrics, base, name stri
 	w := csv.NewWriter(f)
 	var wroteHeader = false
 
-	for br, bm := range timeSeries {
-		// This is a bit of a hack to avoid reflection. If the CSVMetrics had a map instead of fields, we could avoid this.
+	// We want to make sure the CSV files are in order of timestamp, so we need to sort the keys here
+	keys := make([]CSVRow, len(timeSeries))
+	i := 0
+	for k := range timeSeries {
+		keys[i] = k
+		i++
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].Timestamp < keys[j].Timestamp
+	})
+
+	for _, br := range keys {
+		bm := timeSeries[br]
 		var m map[string]map[string]string
 		if name == Volume {
 			m = bm.Volume
