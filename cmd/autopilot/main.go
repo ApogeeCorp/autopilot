@@ -62,7 +62,7 @@ func main() {
 			Name:   "data-dir",
 			Usage:  "set the data directory for the process",
 			EnvVar: "DATA_DIR",
-			Value:  "/var/run/autopilot",
+			Value:  "./var/run/autopilot",
 		},
 	}
 
@@ -88,7 +88,7 @@ func main() {
 
 		log.Debugf("DataDir=%s", api.DataDir)
 
-		if _, err := os.Stat(api.DataDir); err != nil {
+		if err := os.MkdirAll(api.DataDir, 0770); err != nil {
 			return err
 		}
 

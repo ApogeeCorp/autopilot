@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/sirupsen/logrus"
 )
 
@@ -162,42 +164,42 @@ func Keys(m map[string]string) (keys []string) {
 }
 
 // Collect implements the provider interface
-func (p *Prometheus) Collect(host string, params map[string]string, stagingPath string) error {
-	endDate := time.Now()
-	startDate := endDate.Add(time.Hour * -24)
+func (p *Prometheus) Collect(host string, params telemetry.Params, stagingPath string) error {
+	endDate := time.Now().UTC()
+	startDate := time.Now().UTC().Truncate(time.Hour * 12)
 	step := "15m"
 	query := ""
 
-	if endParam, ok := params["end"]; ok {
-		tmp, err := time.Parse(time.RFC3339, endParam)
+	if v, ok := params.IsSetV("end"); ok {
+		tmp, err := time.Parse(time.RFC3339, v.String())
 		if err != nil {
 			return err
 		}
-		endDate = tmp
+		endDate = tmp.UTC()
 	}
-	if startParam, ok := params["start"]; ok {
-		tmp, err := time.Parse(time.RFC3339, startParam)
+	if v, ok := params.IsSetV("start"); ok {
+		tmp, err := time.Parse(time.RFC3339, v.String())
 		if err != nil {
 			return err
 		}
-		startDate = tmp
+		startDate = tmp.Truncate(time.Hour).UTC()
 	}
-	if stepParam, ok := params["step"]; ok {
-		step = stepParam
+	if stepParam, ok := params.IsSetV("step"); ok {
+		step = stepParam.String()
 	}
-	if queryParam, ok := params["query"]; ok {
-		query = queryParam
+	if queryParam, ok := params.IsSetV("query"); ok {
+		query = queryParam.String()
 	}
 
 	client := &http.Client{}
 
-	req, _ := http.NewRequest("GET", host+"/query_range", nil)
+	req, _ := http.NewRequest("GET", host, nil)
 
 	q := req.URL.Query()
 
 	q.Add("query", query)
-	q.Add("start", startDate.Format(time.RFC3339))
-	q.Add("end", endDate.Format(time.RFC3339))
+	q.Add("start", fmt.Sprint(startDate.UTC().Unix()))
+	q.Add("end", fmt.Sprint(endDate.UTC().Unix()))
 	q.Add("step", step)
 
 	req.URL.RawQuery = q.Encode()
@@ -205,6 +207,9 @@ func (p *Prometheus) Collect(host string, params map[string]string, stagingPath 
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to get data: %s", resp.Status)
 	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -218,9 +223,11 @@ func (p *Prometheus) Collect(host string, params map[string]string, stagingPath 
 	}
 
 	timeseries, alerts := p.TransformToRows(&results)
-	//fmt.Printf("TimeSeries Length %# v", pretty.Formatter(timeseries))
 
-	base := fmt.Sprintf("%s/prometheus", stagingPath)
+	base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))
+	if err := os.MkdirAll(base, 0770); err != nil {
+		return err
+	}
 
 	p.WriteCSV(timeseries, base, Volume)
 	p.WriteCSV(timeseries, base, Disk)

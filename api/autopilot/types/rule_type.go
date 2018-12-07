@@ -27,31 +27,31 @@ type RuleTypeScalar int
 
 var (
 
-	// RuleTypePrometheus captures enum value "prometheus"
-	RuleTypePrometheus RuleType = "prometheus"
+	// RuleTypePromql captures enum value "promql"
+	RuleTypePromql RuleType = "promql"
 
-	// RuleTypeSQL captures enum value "sql"
-	RuleTypeSQL RuleType = "sql"
+	// RuleTypeApql captures enum value "apql"
+	RuleTypeApql RuleType = "apql"
 
-	// RuleTypeAnomaly captures enum value "anomaly"
-	RuleTypeAnomaly RuleType = "anomaly"
+	// RuleTypeAplearn captures enum value "aplearn"
+	RuleTypeAplearn RuleType = "aplearn"
 
 	RuleTypeScalarLookup = map[RuleType]RuleTypeScalar{
 
-		RuleTypePrometheus: RuleTypePrometheusScalar,
+		RuleTypePromql: RuleTypePromqlScalar,
 
-		RuleTypeSQL: RuleTypeSQLScalar,
+		RuleTypeApql: RuleTypeApqlScalar,
 
-		RuleTypeAnomaly: RuleTypeAnomalyScalar,
+		RuleTypeAplearn: RuleTypeAplearnScalar,
 	}
 )
 
 const (
-	RuleTypePrometheusScalar RuleTypeScalar = 0
+	RuleTypePromqlScalar RuleTypeScalar = 0
 
-	RuleTypeSQLScalar RuleTypeScalar = 1
+	RuleTypeApqlScalar RuleTypeScalar = 1
 
-	RuleTypeAnomalyScalar RuleTypeScalar = 2
+	RuleTypeAplearnScalar RuleTypeScalar = 2
 )
 
 func (m RuleType) ScalarValue() RuleTypeScalar {
@@ -63,7 +63,7 @@ var ruleTypeEnum []interface{}
 
 func init() {
 	var res []RuleType
-	if err := json.Unmarshal([]byte(`["prometheus","sql","anomaly"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["promql","apql","aplearn"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -50,7 +50,7 @@ func (a *API) RecommendationsGet(ctx *Context, params engine.RecommendationsGetP
 	}
 
 	// check for the sample files
-	samplePath := path.Join(a.DataDir, sampleID.String())
+	samplePath := path.Join(a.DataDir, "samples", sampleID.String())
 	if err := os.MkdirAll(samplePath, 0770); err != nil {
 		return sparks.NewError(err)
 	}

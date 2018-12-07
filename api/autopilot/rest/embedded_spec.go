@@ -43,6 +43,7 @@ func init() {
     "version": "1.0.0"
   },
   "host": "localhost:9000",
+  "basePath": "/api/v1",
   "paths": {
     "/collectors": {
       "get": {
@@ -307,7 +308,7 @@ func init() {
           }
         },
         "schedule_interval": {
-          "description": "The interval the collector will",
+          "description": "The interval the collector will run at",
           "type": "string",
           "default": "7d"
         },
@@ -465,9 +466,9 @@ func init() {
       "description": "Types of rules",
       "type": "string",
       "enum": [
-        "prometheus",
-        "sql",
-        "anomaly"
+        "promql",
+        "apql",
+        "aplearn"
       ]
     },
     "Sample": {
@@ -607,6 +608,7 @@ func init() {
     "version": "1.0.0"
   },
   "host": "localhost:9000",
+  "basePath": "/api/v1",
   "paths": {
     "/collectors": {
       "get": {
@@ -951,7 +953,7 @@ func init() {
           }
         },
         "schedule_interval": {
-          "description": "The interval the collector will",
+          "description": "The interval the collector will run at",
           "type": "string",
           "default": "7d"
         },
@@ -1109,9 +1111,9 @@ func init() {
       "description": "Types of rules",
       "type": "string",
       "enum": [
-        "prometheus",
-        "sql",
-        "anomaly"
+        "promql",
+        "apql",
+        "aplearn"
       ]
     },
     "Sample": {

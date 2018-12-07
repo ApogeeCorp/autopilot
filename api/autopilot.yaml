@@ -12,6 +12,8 @@ host: localhost:9000
 schemes:
   - http
   
+basePath: /api/v1
+  
 securityDefinitions:
   basicAuth:
     type: basic
@@ -192,7 +194,7 @@ definitions:
         description: The collector url
         type: string
       schedule_interval:
-        description: The interval the collector will
+        description: The interval the collector will run at
         type: string
         default: 7d
       emitters:
@@ -285,7 +287,7 @@ definitions:
   RuleType:
     description: Types of rules
     type: string
-    enum: [ prometheus, sql, anomaly]
+    enum: [ promql, apql, aplearn]
   Proposal:
     description: |
       A proposal is a formatted propsal object

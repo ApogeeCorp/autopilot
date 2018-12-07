@@ -32,7 +32,7 @@ type Collector struct {
 	// json data object
 	Params map[string]interface{} `json:"params,omitempty"`
 
-	// The interval the collector will
+	// The interval the collector will run at
 	ScheduleInterval *string `json:"schedule_interval,omitempty"`
 
 	// type
