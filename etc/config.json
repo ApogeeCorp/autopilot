@@ -14,10 +14,19 @@
 	],
 	"rules": [
 		{
+			"name": "PromPortworxVolumeUsageCritical",
+			"expr": "100 * (px_volume_usage_bytes{cluster=\"greatdane-1914e166dc7\"}/ px_volume_capacity_bytes) > 10",
+			"for": 3600,
+			"type": "promql",
+			"issue": "Critical: Portworx volume {{.Metric.Volume}} usage on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}% ",
+			"severity": "critical",
+			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
+		},
+		{
 			"name": "PortworxVolumeUsageCritical",
 			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80",
 			"for": 3600,
-			"issue": "Portworx volume {{.volume}} usage on {{.instance}} is high.",
+			"issue": "Critical: Portworx volume {{.volume}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
 			"severity": "critical",
 			"proposal": "Add additional storage node to {{.cluster}}"
 		},
@@ -25,7 +34,7 @@
 			"name": "PortworxVolumeUsage",
 			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 70",
 			"for": 7200,
-			"issue": "Portworx volume {{.volume}} usage on {{.instance}} is critical.",
+			"issue": "Warning: Portworx volume {{.volume}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
 			"severity": "warning",
 			"proposal": "Add additional storage node to {{.cluster}}"
 		},
@@ -33,7 +42,7 @@
 			"name": "PortworxStorageUsageCritical",
 			"expr": "100 * (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes) > 10",
 			"for": 7200,
-			"issue": "Portworx storage {{.cluster}} usage on {{.instance}} is high.",
+			"issue": "Critical: Portworx storage {{.cluster}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
 			"severity": "critical",
 			"proposal": "Add additional disks to {{.cluster}}"
 		},
@@ -41,9 +50,9 @@
 			"name": "PortworxStorageNodeDown",
 			"expr": "px_cluster_status_nodes_storage_down > 0",
 			"for": 7200,
-			"issue": "Portworx Storage Node is Offline.",
+			"issue": "Portworx Storage Node {{.node}} is Offline.",
 			"severity": "critical",
-			"proposal": "Restart node with verbose debugging {{.node}}"
+			"proposal": "Critical: Restart node with verbose debugging {{.node}}"
 		},
 		{
 			"name": "PortworxQuorumUnhealthy",

@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alecthomas/template"
+	"github.com/go-openapi/strfmt"
+	"github.com/kr/pretty"
+	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/sirupsen/logrus"
 )
@@ -50,7 +55,8 @@ type (
 		Job           *string `json:"job,omitempty"`
 		Volume        *string `json:"volumeid,omitempty"`
 		VolumeName    *string `json:"volumename,omitempty"`
-		VolumePVC     *string `json:"volumepvc,omitempty"`
+		VolumePVC     *string `json:"pvc,omitempty"`
+		Namespace     *string `json:"namespace,omitempty"`
 		Disk          *string `json:"disk,omitempty"`
 		Pool          *string `json:"pool,omitempty"`
 		AlertName     *string `json:"alertname,omitempty"`
@@ -236,6 +242,80 @@ func (p *Prometheus) Collect(host string, params telemetry.Params, stagingPath s
 	p.WriteAlertCSV(base, alerts)
 
 	return nil
+}
+func formatAsDate(timestamp float64) string {
+	unixTimeUTC := time.Unix(int64(timestamp), 0) //gives unix time stamp in utc
+	return unixTimeUTC.Format(time.RFC3339)       // converts utc time to RFC3339 format
+}
+func formatFloat(value string) string {
+	floatVal, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%.1f", floatVal)
+}
+
+// Query - Perform a direct query on the prometheus host and get recommendations from the result
+func (p *Prometheus) Query(host string, rule *types.Rule) (*types.Recommendation, error) {
+	fmt.Printf(" Prometheus Query Executing %# v\n", pretty.Formatter(rule))
+
+	client := &http.Client{}
+
+	req, _ := http.NewRequest("GET", host, nil)
+
+	q := req.URL.Query()
+
+	q.Add("query", rule.Expr)
+
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to get data: %s", resp.Status)
+	}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	results := ClusterResults{}
+	err = json.Unmarshal(data, &results)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("\n\nCLUSTER RESULT ....  %# v \n\n", pretty.Formatter(results))
+
+	if data != nil && results.Status == "success" {
+		var recommendation types.Recommendation
+		recommendation.Timestamp = strfmt.DateTime(time.Now())
+		for _, result := range results.Data.Results {
+			fmt.Printf("\n\nRespond RESULT ....  %# v \n\n", pretty.Formatter(result))
+			fmap := template.FuncMap{
+				"formatAsDate": formatAsDate,
+				"formatFloat":  formatFloat,
+			}
+			var proposal types.Proposal
+			proposal.Rule = rule.Name
+			proposal.ClusterID = result.Metric.Cluster
+			proposal.NodeID = result.Metric.Node
+			proposal.VolumeID = *result.Metric.Volume
+			t := template.Must(template.New("Issue").Funcs(fmap).Parse("{{index .Value 0 | formatAsDate}}: " + rule.Issue + ` ` + rule.Proposal))
+			//prop := template.Must(template.New("Proposal").Parse(rule.Proposal)
+			var proposalValue bytes.Buffer
+			err := t.Execute(&proposalValue, result)
+			if err != nil {
+				fmt.Printf("\n\nTEMPLATE FAILED ....%# v  %# v \n\n", err, pretty.Formatter(proposal))
+				return nil, err //e.Log.Debugf("Could not parse issue with result %v", result)
+			}
+			proposal.Action = proposalValue.String()
+			fmt.Printf("\n\nRespond RESULT PROPOSAL ....  %# v \n\n", pretty.Formatter(proposal))
+			recommendation.Proposals = append(recommendation.Proposals, &proposal)
+		}
+		return &recommendation, nil
+	}
+	return nil, nil
 }
 
 // Parse parses prometheus data and creates the csv
