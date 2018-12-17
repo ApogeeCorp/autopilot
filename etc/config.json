@@ -3,6 +3,10 @@
 		"type": "Prometheus",
 		"name": "portworx",
 		"url": "http://70.0.69.141:9090/api/v1"
+	},{
+		"type": "OpenStorage",
+		"name": "openstorage",
+		"url": "http://70.0.0.139:9021/v1"
 	}],
 	"collectors": [{
 		"name": "portworx",
@@ -28,6 +32,13 @@
 			"name": "PromPortworxVolumeUsageCritical",
 			"expr": "100 * (px_volume_usage_bytes{cluster=\"greatdane-1914e166dc7\"}/ px_volume_capacity_bytes) > 10",
 			"issue": "Critical: Portworx volume {{.Metric.Volume}} usage on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}% ",
+			"severity": "critical",
+			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
+		},
+		{
+			"name": "PromPortworxStorageUsageCritical",
+			"expr": "100 * (1 - (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes)) < 95",
+			"issue": "Critical: Portworx storage {{.Metric.Cluster}} on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}%",
 			"severity": "critical",
 			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
 		}
