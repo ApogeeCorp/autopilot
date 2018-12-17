@@ -119,7 +119,12 @@ func (e *Engine) startCollectors() error {
 			return fmt.Errorf("invalid provider %s", c.Provider)
 		}
 
-		dur, err := time.ParseDuration(*c.Interval)
+		interval, err := time.ParseDuration(*c.Interval)
+		if err != nil {
+			e.Stop()
+			return err
+		}
+		sample, err := time.ParseDuration(*c.SampleSize)
 		if err != nil {
 			e.Stop()
 			return err
@@ -128,7 +133,7 @@ func (e *Engine) startCollectors() error {
 
 		log.Debugf("starting collector %s:%s", c.Name, c.Provider)
 
-		go func(prov telemetry.Provider, params telemetry.Params, interval time.Duration) {
+		go func(prov telemetry.Provider, params telemetry.Params, interval, sample time.Duration) {
 			defer e.wg.Done()
 
 			ticker := time.NewTicker(interval)
@@ -136,7 +141,7 @@ func (e *Engine) startCollectors() error {
 			for {
 				select {
 				case <-ticker.C:
-					start := time.Now().Add(-interval).Truncate(interval).UTC().Format(time.RFC3339)
+					start := time.Now().Add(-sample).Truncate(sample).UTC().Format(time.RFC3339)
 					end := time.Now().UTC().Format(time.RFC3339)
 
 					params["start"] = start
@@ -152,7 +157,7 @@ func (e *Engine) startCollectors() error {
 					break
 				}
 			}
-		}(prov, c.Params, dur)
+		}(prov, c.Params, interval, sample)
 	}
 	return nil
 }
