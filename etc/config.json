@@ -37,7 +37,7 @@
 		},
 		{
 			"name": "PromPortworxStorageUsageCritical",
-			"expr": "100 * (1 - (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes)) < 95",
+			"expr": "100 * (1 - (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes)) < 65",
 			"issue": "Critical: Portworx storage {{.Metric.Cluster}} on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}%",
 			"severity": "critical",
 			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
