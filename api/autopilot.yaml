@@ -28,12 +28,87 @@ produces:
   - application/json
   
 paths:
+  /providers:
+    get:
+      summary: Get a list of telemetry providers
+      description: Returns an array of telemetry providers defined in the system
+      operationId: providerList
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Provider'
+        500:
+          $ref: '#/responses/ServerError'
+  /providers/{provider}/query:
+    parameters:
+      - name: provider
+        description: the provider name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Query a collector
+      description: Query a provider directly
+      operationId: providerQuery
+      parameters:
+        - name: start_date
+          in: query
+          type: string
+          format: date-time
+        - name: end_date
+          in: query
+          type: string
+          format: date-time
+        - name: query
+          in: query
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Collector'
+        500:
+          $ref: '#/responses/ServerError'
+  /providers/{provider}/recommend:
+    parameters:
+      - name: provider
+        description: the provider name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Post a telemetry sample and get recommendations
+      description: Create a new telemetry sample from the provided definition and get recommendations
+      operationId: recommendationsGet
+      parameters:
+        - name: rules
+          description: The pre-defined rules to apply
+          in: query
+          type: array
+          items:
+            type: string
+          collectionFormat: csv
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recommendation'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
   /collectors:
     get:
       summary: Get a list of telemetry collectors
       description: Returns an array of telemetry collectors defined in the system
       operationId: collectorList
-      tags: [ collector ]
       responses:
         200:
           description: OK
@@ -52,16 +127,11 @@ paths:
         required: true
     get:
       summary: Poll a collector
-      description: Polls a collector for the current data period
+      description: Poll a collector for the given period directly
       operationId: collectorPoll
-      tags: [ collector ]
       responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Collector'
+        201:
+          description: No Content
         500:
           $ref: '#/responses/ServerError'
   /emitters:
@@ -69,7 +139,6 @@ paths:
       summary: Get a list of telemetry emitters
       description: Returns an array of telemetry emitters defined in the system
       operationId: emitterList
-      tags: [ emitter ]
       responses:
         200:
           description: OK
@@ -79,47 +148,11 @@ paths:
               $ref: '#/definitions/Emitter'
         500:
           $ref: '#/responses/ServerError'
-  /recommend:
-    post:
-      summary: Post a telemetry sample and get recommendations
-      description: Create a new telemetry sample from the provided definition and get recommendations
-      operationId: recommendationsGet
-      tags: [ engine ]
-      consumes:
-         - multipart/form-data
-      parameters:
-        - name: sample
-          description: The sample to create
-          type: file
-          in: formData
-          required: true
-        - name: rules
-          description: The rules to apply
-          type: file
-          in: formData
-        - name: type
-          description: The provider type to process the sample with
-          type: string
-          enum: [ prometheus ] 
-          in: query
-          default: prometheus
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Recommendation'
-        400:
-          $ref: '#/responses/BadRequest'
-        500:
-          $ref: '#/responses/ServerError'
   /rules:
     get:
       summary: Get a list of telemetry rules
       description: Returns an array of telemetry rules defined in the system
       operationId: ruleList
-      tags: [ rule ]
       responses:
         200:
           description: OK
@@ -134,7 +167,6 @@ paths:
       summary: Get a list of tasks
       description: Returns an array of tasks
       operationId: taskList
-      tags: [ task ]
       responses:
         200:
           description: OK
@@ -144,77 +176,77 @@ paths:
               $ref: '#/definitions/Task'
         500:
           $ref: '#/responses/ServerError'
-  /samples:
-    get:
-      summary: Get a list of samples stored on disk
-      description: Returns an array of samples
-      operationId: sampleList
-      tags: [ sample ]
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Sample'
-        500:
-          $ref: '#/responses/ServerError'
-  /samples/{sample_id}:
-    parameters:
-      - name: sample_id
-        description: The sample id
-        type: string
-        format: uuid
-        in: path
-        required: true
-    delete:
-      summary: Delete a sample
-      description: Delete a sample from the disk
-      operationId: sampleDelete
-      tags: [ sample ]
-      responses:
-        204:
-          description: No content
-        404:
-          $ref: '#/responses/NotFound'
-        500:
-          $ref: '#/responses/ServerError'
 definitions:
+  Provider:
+    description: |
+      A provider defines a provider configuration
+    discriminator: type
+    properties:
+      type:
+        $ref: '#/definitions/ProviderType'
+      name:
+        description: The provider instance name
+        type: string
+  ProviderType:
+    description: Provider types
+    type: string
+    enum: [ Prometheus ]
+  Prometheus:
+    description:  Prometheus provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          url:
+            description: The prometheus host url
+            type: string
   Collector:
     description: |
-      A collector pulls data from a telemetry source, parses, 
-      and reformats the data to be consumed by the autopilot engine.
+      A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.
     properties:
       name:
         description: The collector name
         type: string
-      type:
-        $ref: '#/definitions/CollectorType'
-      url:
-        description: The collector url
+      provider:
+        description: The provider name
         type: string
-      schedule_interval:
-        description: The interval the collector will run at
-        type: string
-        default: 7d
-      emitters:
-        description: The emitters to use after processing the samples
-        type: array
-        items:
-          type: string
       params:
         type: object
-        description: json data object
+        description: The collector provider params
         additionalProperties:
           type: object
           properties: {}
-  CollectorType:
-    description: Collector types
-    type: string
-    enum: [ prometheus ]
+      interval:
+        description: The interval for the collecto to run and collect
+        type: string
+        default: '24h'
+  Monitor:
+    description: |
+      A monitor executes and analyzes rules at the specified interval, emmiting alerts
+    properties:
+      name:
+        description: The monitor name
+        type: string
+      provider:
+        description: The provider to monitor
+        type: string
+      params:
+        type: object
+        description: the monitor provider additional params
+        additionalProperties:
+          type: object
+          properties: {}
+      interval:
+        description: The interval to monitor
+        type: string
+        default: '15m'
+      rules:
+        description: The rules to execute on the provider
+        type: array
+        items:
+          type: string
   Emitter:
     description: |
-      An emitter emits recommendations to a system
+      An emitter emits recommendations to a target
     properties:
       name:
         description: The emitter name
@@ -257,7 +289,7 @@ definitions:
         enum: [ pending, running, succeeded, failed ]
   Rule:
     description: |
-      An proposal is a recommended solution that matches a certain constraint
+      An rule is a contraint expression that checked in the system against
     properties:
       name:
         description: the rule description
@@ -295,13 +327,13 @@ definitions:
       rule:
         description: The rule that triggered the proposal
         type: string
-      cluster_id:
+      cluster:
         description: The cluster id
         type: string
-      node_id:
+      node:
         description: The node id
         type: string
-      volume_id:
+      volume:
         description: The volume id
         type: string
       issue:
@@ -323,21 +355,6 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Proposal'
-  Sample:
-    description: |
-      A sample is a collected data sample
-    properties:
-      id:
-        description: The sample id
-        type: string
-        format: uuid
-      path:
-        description: The sample path on disk
-        type: string
-      time:
-        description: The sample timestamp
-        type: string
-        format: date-time
   Error:
     description: Common Error Model
     type: object

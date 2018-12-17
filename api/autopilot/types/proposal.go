@@ -25,19 +25,19 @@ type Proposal struct {
 	Action string `json:"action,omitempty"`
 
 	// The cluster id
-	ClusterID string `json:"cluster_id,omitempty"`
+	Cluster string `json:"cluster,omitempty"`
 
 	// Issue from the rule that describes the reason for this proposal
 	Issue string `json:"issue,omitempty"`
 
 	// The node id
-	NodeID string `json:"node_id,omitempty"`
+	Node string `json:"node,omitempty"`
 
 	// The rule that triggered the proposal
 	Rule string `json:"rule,omitempty"`
 
 	// The volume id
-	VolumeID string `json:"volume_id,omitempty"`
+	Volume string `json:"volume,omitempty"`
 }
 
 // Validate validates this proposal

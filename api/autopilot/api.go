@@ -11,22 +11,16 @@ import (
 
 	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/engine"
-	"github.com/sirupsen/logrus"
 )
 
 // API is the acme API interface implementation
 type API struct {
-	Log     *logrus.Logger
-	Config  *config.Config
-	DataDir string
-	engine  *engine.Engine
+	Config *config.Config
+	Engine *engine.Engine
 }
 
 // Initialize initializes the API before the server starts handling request
 func (a *API) Initialize() error {
-	a.engine = &engine.Engine{
-		Log: a.Log,
-	}
 	return nil
 }
 

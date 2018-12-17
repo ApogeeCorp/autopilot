@@ -16,31 +16,34 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Collector A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.
+// Monitor A monitor executes and analyzes rules at the specified interval, emmiting alerts
 //
-// swagger:model Collector
-type Collector struct {
+// swagger:model Monitor
+type Monitor struct {
 
-	// The interval for the collecto to run and collect
+	// The interval to monitor
 	Interval *string `json:"interval,omitempty"`
 
-	// The collector name
+	// The monitor name
 	Name string `json:"name,omitempty"`
 
-	// The collector provider params
+	// the monitor provider additional params
 	Params map[string]interface{} `json:"params,omitempty"`
 
-	// The provider name
+	// The provider to monitor
 	Provider string `json:"provider,omitempty"`
+
+	// The rules to execute on the provider
+	Rules []string `json:"rules"`
 }
 
-// Validate validates this collector
-func (m *Collector) Validate(formats strfmt.Registry) error {
+// Validate validates this monitor
+func (m *Monitor) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Collector) MarshalBinary() ([]byte, error) {
+func (m *Monitor) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -48,8 +51,8 @@ func (m *Collector) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Collector) UnmarshalBinary(b []byte) error {
-	var res Collector
+func (m *Monitor) UnmarshalBinary(b []byte) error {
+	var res Monitor
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

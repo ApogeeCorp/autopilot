@@ -20,7 +20,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Rule An proposal is a recommended solution that matches a certain constraint
+// Rule An rule is a contraint expression that checked in the system against
 //
 // swagger:model Rule
 type Rule struct {

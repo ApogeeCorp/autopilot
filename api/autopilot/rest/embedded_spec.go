@@ -48,9 +48,6 @@ func init() {
     "/collectors": {
       "get": {
         "description": "Returns an array of telemetry collectors defined in the system",
-        "tags": [
-          "collector"
-        ],
         "summary": "Get a list of telemetry collectors",
         "operationId": "collectorList",
         "responses": {
@@ -71,21 +68,12 @@ func init() {
     },
     "/collectors/{collector}/poll": {
       "get": {
-        "description": "Polls a collector for the current data period",
-        "tags": [
-          "collector"
-        ],
+        "description": "Poll a collector for the given period directly",
         "summary": "Poll a collector",
         "operationId": "collectorPoll",
         "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Collector"
-              }
-            }
+          "201": {
+            "description": "No Content"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -105,9 +93,6 @@ func init() {
     "/emitters": {
       "get": {
         "description": "Returns an array of telemetry emitters defined in the system",
-        "tags": [
-          "emitter"
-        ],
         "summary": "Get a list of telemetry emitters",
         "operationId": "emitterList",
         "responses": {
@@ -126,39 +111,90 @@ func init() {
         }
       }
     },
-    "/recommend": {
-      "post": {
+    "/providers": {
+      "get": {
+        "description": "Returns an array of telemetry providers defined in the system",
+        "summary": "Get a list of telemetry providers",
+        "operationId": "providerList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Provider"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/providers/{provider}/query": {
+      "get": {
+        "description": "Query a provider directly",
+        "summary": "Query a collector",
+        "operationId": "providerQuery",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "query",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Collector"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the provider name",
+          "name": "provider",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/providers/{provider}/recommend": {
+      "get": {
         "description": "Create a new telemetry sample from the provided definition and get recommendations",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "tags": [
-          "engine"
-        ],
         "summary": "Post a telemetry sample and get recommendations",
         "operationId": "recommendationsGet",
         "parameters": [
           {
-            "type": "file",
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "file",
-            "description": "The rules to apply",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "csv",
+            "description": "The pre-defined rules to apply",
             "name": "rules",
-            "in": "formData"
-          },
-          {
-            "enum": [
-              "prometheus"
-            ],
-            "type": "string",
-            "default": "prometheus",
-            "description": "The provider type to process the sample with",
-            "name": "type",
             "in": "query"
           }
         ],
@@ -179,14 +215,20 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the provider name",
+          "name": "provider",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/rules": {
       "get": {
         "description": "Returns an array of telemetry rules defined in the system",
-        "tags": [
-          "rule"
-        ],
         "summary": "Get a list of telemetry rules",
         "operationId": "ruleList",
         "responses": {
@@ -205,67 +247,9 @@ func init() {
         }
       }
     },
-    "/samples": {
-      "get": {
-        "description": "Returns an array of samples",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of samples stored on disk",
-        "operationId": "sampleList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Sample"
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}": {
-      "delete": {
-        "description": "Delete a sample from the disk",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Delete a sample",
-        "operationId": "sampleDelete",
-        "responses": {
-          "204": {
-            "description": "No content"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "The sample id",
-          "name": "sample_id",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
-        "tags": [
-          "task"
-        ],
         "summary": "Get a list of tasks",
         "operationId": "taskList",
         "responses": {
@@ -287,49 +271,32 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
-        "emitters": {
-          "description": "The emitters to use after processing the samples",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "interval": {
+          "description": "The interval for the collecto to run and collect",
+          "type": "string",
+          "default": "24h"
         },
         "name": {
           "description": "The collector name",
           "type": "string"
         },
         "params": {
-          "description": "json data object",
+          "description": "The collector provider params",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "schedule_interval": {
-          "description": "The interval the collector will run at",
-          "type": "string",
-          "default": "7d"
-        },
-        "type": {
-          "$ref": "#/definitions/CollectorType"
-        },
-        "url": {
-          "description": "The collector url",
+        "provider": {
+          "description": "The provider name",
           "type": "string"
         }
       }
     },
-    "CollectorType": {
-      "description": "Collector types",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
-    },
     "Emitter": {
-      "description": "An emitter emits recommendations to a system\n",
+      "description": "An emitter emits recommendations to a target\n",
       "properties": {
         "name": {
           "description": "The emitter name",
@@ -375,6 +342,54 @@ func init() {
         }
       }
     },
+    "Monitor": {
+      "description": "A monitor executes and analyzes rules at the specified interval, emmiting alerts\n",
+      "properties": {
+        "interval": {
+          "description": "The interval to monitor",
+          "type": "string",
+          "default": "15m"
+        },
+        "name": {
+          "description": "The monitor name",
+          "type": "string"
+        },
+        "params": {
+          "description": "the monitor provider additional params",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "provider": {
+          "description": "The provider to monitor",
+          "type": "string"
+        },
+        "rules": {
+          "description": "The rules to execute on the provider",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Prometheus": {
+      "description": "Prometheus provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "url": {
+              "description": "The prometheus host url",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
       "properties": {
@@ -382,7 +397,7 @@ func init() {
           "description": "The proposed action to take to resolve the issue",
           "type": "string"
         },
-        "cluster_id": {
+        "cluster": {
           "description": "The cluster id",
           "type": "string"
         },
@@ -390,7 +405,7 @@ func init() {
           "description": "Issue from the rule that describes the reason for this proposal",
           "type": "string"
         },
-        "node_id": {
+        "node": {
           "description": "The node id",
           "type": "string"
         },
@@ -398,11 +413,31 @@ func init() {
           "description": "The rule that triggered the proposal",
           "type": "string"
         },
-        "volume_id": {
+        "volume": {
           "description": "The volume id",
           "type": "string"
         }
       }
+    },
+    "Provider": {
+      "description": "A provider defines a provider configuration\n",
+      "properties": {
+        "name": {
+          "description": "The provider instance name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ProviderType"
+        }
+      },
+      "discriminator": "type"
+    },
+    "ProviderType": {
+      "description": "Provider types",
+      "type": "string",
+      "enum": [
+        "Prometheus"
+      ]
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations to be emitted by the system\n",
@@ -422,7 +457,7 @@ func init() {
       }
     },
     "Rule": {
-      "description": "An proposal is a recommended solution that matches a certain constraint\n",
+      "description": "An rule is a contraint expression that checked in the system against\n",
       "properties": {
         "expr": {
           "description": "The expression to match or query to make",
@@ -470,25 +505,6 @@ func init() {
         "apql",
         "aplearn"
       ]
-    },
-    "Sample": {
-      "description": "A sample is a collected data sample\n",
-      "properties": {
-        "id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "path": {
-          "description": "The sample path on disk",
-          "type": "string"
-        },
-        "time": {
-          "description": "The sample timestamp",
-          "type": "string",
-          "format": "date-time"
-        }
-      }
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",
@@ -613,9 +629,6 @@ func init() {
     "/collectors": {
       "get": {
         "description": "Returns an array of telemetry collectors defined in the system",
-        "tags": [
-          "collector"
-        ],
         "summary": "Get a list of telemetry collectors",
         "operationId": "collectorList",
         "responses": {
@@ -644,21 +657,12 @@ func init() {
     },
     "/collectors/{collector}/poll": {
       "get": {
-        "description": "Polls a collector for the current data period",
-        "tags": [
-          "collector"
-        ],
+        "description": "Poll a collector for the given period directly",
         "summary": "Poll a collector",
         "operationId": "collectorPoll",
         "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Collector"
-              }
-            }
+          "201": {
+            "description": "No Content"
           },
           "500": {
             "description": "ServerError",
@@ -686,9 +690,6 @@ func init() {
     "/emitters": {
       "get": {
         "description": "Returns an array of telemetry emitters defined in the system",
-        "tags": [
-          "emitter"
-        ],
         "summary": "Get a list of telemetry emitters",
         "operationId": "emitterList",
         "responses": {
@@ -715,39 +716,106 @@ func init() {
         }
       }
     },
-    "/recommend": {
-      "post": {
+    "/providers": {
+      "get": {
+        "description": "Returns an array of telemetry providers defined in the system",
+        "summary": "Get a list of telemetry providers",
+        "operationId": "providerList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Provider"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers/{provider}/query": {
+      "get": {
+        "description": "Query a provider directly",
+        "summary": "Query a collector",
+        "operationId": "providerQuery",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "query",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Collector"
+              }
+            }
+          },
+          "500": {
+            "description": "ServerError",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "message": "internal server error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the provider name",
+          "name": "provider",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/providers/{provider}/recommend": {
+      "get": {
         "description": "Create a new telemetry sample from the provided definition and get recommendations",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "tags": [
-          "engine"
-        ],
         "summary": "Post a telemetry sample and get recommendations",
         "operationId": "recommendationsGet",
         "parameters": [
           {
-            "type": "file",
-            "description": "The sample to create",
-            "name": "sample",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "file",
-            "description": "The rules to apply",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "csv",
+            "description": "The pre-defined rules to apply",
             "name": "rules",
-            "in": "formData"
-          },
-          {
-            "enum": [
-              "prometheus"
-            ],
-            "type": "string",
-            "default": "prometheus",
-            "description": "The provider type to process the sample with",
-            "name": "type",
             "in": "query"
           }
         ],
@@ -784,14 +852,20 @@ func init() {
             }
           }
         }
-      }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the provider name",
+          "name": "provider",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/rules": {
       "get": {
         "description": "Returns an array of telemetry rules defined in the system",
-        "tags": [
-          "rule"
-        ],
         "summary": "Get a list of telemetry rules",
         "operationId": "ruleList",
         "responses": {
@@ -818,91 +892,9 @@ func init() {
         }
       }
     },
-    "/samples": {
-      "get": {
-        "description": "Returns an array of samples",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Get a list of samples stored on disk",
-        "operationId": "sampleList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Sample"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/samples/{sample_id}": {
-      "delete": {
-        "description": "Delete a sample from the disk",
-        "tags": [
-          "sample"
-        ],
-        "summary": "Delete a sample",
-        "operationId": "sampleDelete",
-        "responses": {
-          "204": {
-            "description": "No content"
-          },
-          "404": {
-            "description": "NotFound",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "object not found"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "The sample id",
-          "name": "sample_id",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/tasks": {
       "get": {
         "description": "Returns an array of tasks",
-        "tags": [
-          "task"
-        ],
         "summary": "Get a list of tasks",
         "operationId": "taskList",
         "responses": {
@@ -932,49 +924,32 @@ func init() {
   },
   "definitions": {
     "Collector": {
-      "description": "A collector pulls data from a telemetry source, parses, \nand reformats the data to be consumed by the autopilot engine.\n",
+      "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
-        "emitters": {
-          "description": "The emitters to use after processing the samples",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "interval": {
+          "description": "The interval for the collecto to run and collect",
+          "type": "string",
+          "default": "24h"
         },
         "name": {
           "description": "The collector name",
           "type": "string"
         },
         "params": {
-          "description": "json data object",
+          "description": "The collector provider params",
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "schedule_interval": {
-          "description": "The interval the collector will run at",
-          "type": "string",
-          "default": "7d"
-        },
-        "type": {
-          "$ref": "#/definitions/CollectorType"
-        },
-        "url": {
-          "description": "The collector url",
+        "provider": {
+          "description": "The provider name",
           "type": "string"
         }
       }
     },
-    "CollectorType": {
-      "description": "Collector types",
-      "type": "string",
-      "enum": [
-        "prometheus"
-      ]
-    },
     "Emitter": {
-      "description": "An emitter emits recommendations to a system\n",
+      "description": "An emitter emits recommendations to a target\n",
       "properties": {
         "name": {
           "description": "The emitter name",
@@ -1020,6 +995,54 @@ func init() {
         }
       }
     },
+    "Monitor": {
+      "description": "A monitor executes and analyzes rules at the specified interval, emmiting alerts\n",
+      "properties": {
+        "interval": {
+          "description": "The interval to monitor",
+          "type": "string",
+          "default": "15m"
+        },
+        "name": {
+          "description": "The monitor name",
+          "type": "string"
+        },
+        "params": {
+          "description": "the monitor provider additional params",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "provider": {
+          "description": "The provider to monitor",
+          "type": "string"
+        },
+        "rules": {
+          "description": "The rules to execute on the provider",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Prometheus": {
+      "description": "Prometheus provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "url": {
+              "description": "The prometheus host url",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "Proposal": {
       "description": "A proposal is a formatted propsal object\n",
       "properties": {
@@ -1027,7 +1050,7 @@ func init() {
           "description": "The proposed action to take to resolve the issue",
           "type": "string"
         },
-        "cluster_id": {
+        "cluster": {
           "description": "The cluster id",
           "type": "string"
         },
@@ -1035,7 +1058,7 @@ func init() {
           "description": "Issue from the rule that describes the reason for this proposal",
           "type": "string"
         },
-        "node_id": {
+        "node": {
           "description": "The node id",
           "type": "string"
         },
@@ -1043,11 +1066,31 @@ func init() {
           "description": "The rule that triggered the proposal",
           "type": "string"
         },
-        "volume_id": {
+        "volume": {
           "description": "The volume id",
           "type": "string"
         }
       }
+    },
+    "Provider": {
+      "description": "A provider defines a provider configuration\n",
+      "properties": {
+        "name": {
+          "description": "The provider instance name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ProviderType"
+        }
+      },
+      "discriminator": "type"
+    },
+    "ProviderType": {
+      "description": "Provider types",
+      "type": "string",
+      "enum": [
+        "Prometheus"
+      ]
     },
     "Recommendation": {
       "description": "A recommendation is a list of recommended arbitrations to be emitted by the system\n",
@@ -1067,7 +1110,7 @@ func init() {
       }
     },
     "Rule": {
-      "description": "An proposal is a recommended solution that matches a certain constraint\n",
+      "description": "An rule is a contraint expression that checked in the system against\n",
       "properties": {
         "expr": {
           "description": "The expression to match or query to make",
@@ -1115,25 +1158,6 @@ func init() {
         "apql",
         "aplearn"
       ]
-    },
-    "Sample": {
-      "description": "A sample is a collected data sample\n",
-      "properties": {
-        "id": {
-          "description": "The sample id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "path": {
-          "description": "The sample path on disk",
-          "type": "string"
-        },
-        "time": {
-          "description": "The sample timestamp",
-          "type": "string",
-          "format": "date-time"
-        }
-      }
     },
     "Task": {
       "description": "A task is a scheduled operation in the engine\n",

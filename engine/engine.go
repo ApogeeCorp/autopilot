@@ -6,61 +6,157 @@ package engine
 
 import (
 	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"regexp"
 	"strconv"
-	"strings"
+	"sync"
 	"time"
 
 	"github.com/alecthomas/template"
 	"github.com/go-openapi/strfmt"
 	"github.com/libopenstorage/autopilot/api/autopilot/types"
-	"github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
-	"github.com/mithrandie/csvq/lib/action"
-	"github.com/mithrandie/csvq/lib/cmd"
-	"github.com/mithrandie/csvq/lib/query"
-	"github.com/sirupsen/logrus"
+	"github.com/libopenstorage/autopilot/config"
+	"github.com/libopenstorage/autopilot/telemetry"
+	log "github.com/sirupsen/logrus"
 )
 
 // Engine is the autopilot recommendation engine
 type Engine struct {
-	Log        *logrus.Logger
-	Prometheus *prometheus.Prometheus
+	config    *config.Config
+	providers map[string]telemetry.Provider
+	stop      chan bool
+	wg        sync.WaitGroup
 }
 
-func getFields(rule *types.Rule, samplePath string) (fieldStr string, fileStr string) {
-	var files []string
-	fields := regexp.MustCompile(`\bpx_(\w)*`).FindAllString(rule.Expr+" "+rule.Proposal+" "+rule.Issue, -1)
-	fieldStr = strings.Join(fields, ",")
-	if strings.Contains(fieldStr, "px_volume") {
-		files = append(files, "`"+samplePath+"/volume.csv`")
-		fields = append(fields, "volume")
+// NewEngine returns a new engine
+func NewEngine(c *config.Config) (*Engine, error) {
+	// initialize the provider instances
+	provs := make(map[string]telemetry.Provider)
+	for _, p := range c.Providers {
+		prov, err := telemetry.Get(p)
+		if err != nil {
+			return nil, err
+		}
+		provs[p.Name()] = prov
 	}
-	if strings.Contains(fieldStr, "px_node") || strings.Contains(fieldStr, "px_network") || strings.Contains(fieldStr, "px_cluster") || strings.Contains(fieldStr, "px_proc") {
-		files = append(files, "`"+samplePath+"/node.csv`")
-	}
-	if strings.Contains(fieldStr, "px_pool") {
-		files = append(files, "`"+samplePath+"/pool.csv`")
-		fields = append(fields, "pool")
-	}
-	if strings.Contains(fieldStr, "px_disk") {
-		files = append(files, "`"+samplePath+"/disk.csv`")
-		fields = append(fields, "disk")
-	}
-	fileStr = strings.Join(files, ",")
-	fieldStr = strings.Join(fields, ",")
-	return fieldStr, fileStr
+
+	return &Engine{
+		providers: provs,
+		config:    c,
+		stop:      make(chan bool),
+	}, nil
 }
 
-func formatAsDate(timestamp string) string {
-	i, err := strconv.ParseInt(timestamp, 10, 64)
-	if err != nil {
-		panic(err)
+// Start starts the engine monitors and the collector scheduler
+func (e *Engine) Start() error {
+	log.Debug("staring engine...")
+
+	// start the monitors
+	for _, m := range e.config.Monitors {
+		_, ok := e.providers[m.Provider]
+		if !ok {
+			e.Stop()
+			return fmt.Errorf("invalid provider %s", m.Provider)
+		}
+		rules := make([]*types.Rule, 0)
+		for _, r := range m.Rules {
+			if rule, ok := e.config.GetRule(r); ok {
+				rules = append(rules, rule)
+			}
+		}
+
+		dur, err := time.ParseDuration(*m.Interval)
+		if err != nil {
+			e.Stop()
+			return err
+		}
+		e.wg.Add(1)
+
+		go func(prov string, interval time.Duration, rules []*types.Rule) {
+			defer e.wg.Done()
+
+			ticker := time.NewTicker(interval)
+
+			for {
+				select {
+				case <-ticker.C:
+					rec, err := e.Recommend(prov, rules)
+					if err != nil {
+						log.Errorln(err)
+					} else {
+						// TODO: emit recommendations
+					}
+				case <-e.stop:
+					break
+				}
+			}
+		}(m.Provider, dur, rules)
 	}
-	unixTimeUTC := time.Unix(i, 0)          //gives unix time stamp in utc
-	return unixTimeUTC.Format(time.RFC3339) // converts utc time to RFC3339 format
+
+	return nil
+}
+
+// Stop stops the engine
+func (e *Engine) Stop() {
+	close(e.stop)
+	e.wg.Wait()
+}
+
+// Recommend returns recommendations from the provider by name with the rules request
+func (e *Engine) Recommend(name string, rules []*types.Rule) ([]*types.Recommendation, error) {
+	rval := make([]*types.Recommendation, 0)
+
+	prov, ok := e.providers[name]
+	if !ok {
+		return nil, errors.New("unknown provider")
+	}
+
+	for _, rule := range rules {
+		vectors, err := prov.Query(telemetry.Params{"query": rule.Expr})
+		if err != nil {
+			return nil, err
+		}
+
+		recommendation := &types.Recommendation{
+			Timestamp: strfmt.DateTime(time.Now()),
+		}
+
+		for _, v := range vectors {
+			var proposalValue bytes.Buffer
+
+			fmap := template.FuncMap{
+				"formatAsDate": formatAsDate,
+				"formatFloat":  formatFloat,
+			}
+			proposal := &types.Proposal{
+				Rule:    rule.Name,
+				Cluster: v.Metric.Cluster,
+				Node:    v.Metric.Node,
+				Volume:  *v.Metric.Volume,
+			}
+
+			t := template.Must(template.New("Issue").
+				Funcs(fmap).
+				Parse("{{index .Value 0 | formatAsDate}}: " + rule.Issue + ` ` + rule.Proposal))
+
+			err := t.Execute(&proposalValue, v)
+			if err != nil {
+				return nil, err
+			}
+
+			proposal.Action = proposalValue.String()
+
+			recommendation.Proposals = append(recommendation.Proposals, proposal)
+		}
+		rval = append(rval, recommendation)
+	}
+
+	return rval, nil
+}
+
+func formatAsDate(timestamp float64) string {
+	unixTimeUTC := time.Unix(int64(timestamp), 0) //gives unix time stamp in utc
+	return unixTimeUTC.Format(time.RFC3339)       // converts utc time to RFC3339 format
 }
 
 func formatFloat(value string) string {
@@ -69,76 +165,4 @@ func formatFloat(value string) string {
 		panic(err)
 	}
 	return fmt.Sprintf("%.1f", floatVal)
-}
-
-func (e *Engine) executePromQLRule(rule *types.Rule) (*types.Recommendation, error) {
-	e.Log.Debugf("Executing PromQL Rule %v", rule)
-	return e.Prometheus.Query("http://70.0.69.141:9090/api/v1/query", rule)
-}
-
-// Recommend returns a recommendation from the engine based on the rules and sample
-func (e *Engine) Recommend(rules []*types.Rule, samplePath string) (recommendations []*types.Recommendation, error error) {
-	flags := cmd.GetFlags()
-	flags.SetFormat("", "out.json")
-	fmap := template.FuncMap{
-		"formatAsDate": formatAsDate,
-		"formatFloat":  formatFloat,
-	}
-
-	for _, rule := range rules {
-
-		if rule.Type == "promql" {
-			recommendation, err := e.executePromQLRule(rule)
-			if err == nil {
-				recommendations = append(recommendations, recommendation)
-			} else {
-			}
-		} else {
-			e.Log.Debugf("Processing Rule %s, %v", samplePath, rule.Expr)
-			proc := query.NewProcedure()
-			fieldStr, fileStr := getFields(rule, samplePath)
-			outFileStr := samplePath + "/" + rule.Name + ".json"
-			queryStr := "select timestamp, cluster, instance, node, (" + rule.Expr[0:len(rule.Expr)-4] + ") as result, " + fieldStr + " FROM " + fileStr + " WHERE " + rule.Expr
-			//e.Log.Debugf("Query String %s", queryStr)
-
-			err := action.Run(proc, queryStr, samplePath, outFileStr)
-			if err != nil {
-				e.Log.Debugf("Could not run actions %v", err)
-			}
-			b, err := ioutil.ReadFile(outFileStr)
-			if err != nil {
-				e.Log.Debugf("Could not read Recommendations %v", err)
-			}
-			if len(b) > 5 {
-				var recommendation types.Recommendation
-				recommendation.Timestamp = strfmt.DateTime(time.Now())
-				var results []map[string]interface{}
-				json.Unmarshal([]byte(b), &results)
-				//e.Log.Debugf("Executed Procedure %v", results)
-				for _, result := range results {
-					var proposal types.Proposal
-					proposal.Rule = rule.Name
-					proposal.ClusterID = result["cluster"].(string)
-					proposal.NodeID = result["node"].(string)
-					if result["volume"] != nil {
-						proposal.VolumeID = result["volume"].(string)
-					}
-					t := template.Must(template.New("Issue").Funcs(fmap).Parse("{{.timestamp | formatAsDate}}: " + rule.Issue + ` ` + rule.Proposal))
-					//prop := template.Must(template.New("Proposal").Parse(rule.Proposal)
-					var proposalValue bytes.Buffer
-					err := t.Execute(&proposalValue, result)
-					if err != nil {
-						e.Log.Debugf("Could not parse issue with result %v", result)
-					}
-					proposal.Action = proposalValue.String()
-					recommendation.Proposals = append(recommendation.Proposals, &proposal)
-				}
-				recommendations = append(recommendations, &recommendation)
-			}
-		}
-
-	}
-	e.Log.Debugf("Finished With Recommendation \n\n")
-
-	return recommendations, nil
 }

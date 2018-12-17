@@ -20,7 +20,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Emitter An emitter emits recommendations to a system
+// Emitter An emitter emits recommendations to a target
 //
 // swagger:model Emitter
 type Emitter struct {

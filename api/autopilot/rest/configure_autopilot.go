@@ -25,65 +25,34 @@ import (
 
 	"github.com/libopenstorage/autopilot/api/autopilot"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/emitter"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/engine"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
 type contextKey string
 
 const AuthKey contextKey = "Auth"
 
-// CollectorAPI
-type CollectorAPI interface {
+// OperationsAPI
+type OperationsAPI interface {
 	// CollectorList is Returns an array of telemetry collectors defined in the system
-	CollectorList(ctx *autopilot.Context, params collector.CollectorListParams) middleware.Responder
-	// CollectorPoll is Polls a collector for the current data period
-	CollectorPoll(ctx *autopilot.Context, params collector.CollectorPollParams) middleware.Responder
-}
-
-// EmitterAPI
-type EmitterAPI interface {
+	CollectorList(ctx *autopilot.Context, params operations.CollectorListParams) middleware.Responder
+	// CollectorPoll is Poll a collector for the given period directly
+	CollectorPoll(ctx *autopilot.Context, params operations.CollectorPollParams) middleware.Responder
 	// EmitterList is Returns an array of telemetry emitters defined in the system
-	EmitterList(ctx *autopilot.Context, params emitter.EmitterListParams) middleware.Responder
-}
-
-// EngineAPI
-type EngineAPI interface {
+	EmitterList(ctx *autopilot.Context, params operations.EmitterListParams) middleware.Responder
+	// ProviderList is Returns an array of telemetry providers defined in the system
+	ProviderList(ctx *autopilot.Context, params operations.ProviderListParams) middleware.Responder
+	// ProviderQuery is Query a provider directly
+	ProviderQuery(ctx *autopilot.Context, params operations.ProviderQueryParams) middleware.Responder
 	// RecommendationsGet is Create a new telemetry sample from the provided definition and get recommendations
-	RecommendationsGet(ctx *autopilot.Context, params engine.RecommendationsGetParams) middleware.Responder
-}
-
-// RuleAPI
-type RuleAPI interface {
+	RecommendationsGet(ctx *autopilot.Context, params operations.RecommendationsGetParams) middleware.Responder
 	// RuleList is Returns an array of telemetry rules defined in the system
-	RuleList(ctx *autopilot.Context, params rule.RuleListParams) middleware.Responder
-}
-
-// SampleAPI
-type SampleAPI interface {
-	// SampleDelete is Delete a sample from the disk
-	SampleDelete(ctx *autopilot.Context, params sample.SampleDeleteParams) middleware.Responder
-	// SampleList is Returns an array of samples
-	SampleList(ctx *autopilot.Context, params sample.SampleListParams) middleware.Responder
-}
-
-// TaskAPI
-type TaskAPI interface {
+	RuleList(ctx *autopilot.Context, params operations.RuleListParams) middleware.Responder
 	// TaskList is Returns an array of tasks
-	TaskList(ctx *autopilot.Context, params task.TaskListParams) middleware.Responder
+	TaskList(ctx *autopilot.Context, params operations.TaskListParams) middleware.Responder
 }
 
 type AutopilotAPI interface {
-	CollectorAPI
-	EmitterAPI
-	EngineAPI
-	RuleAPI
-	SampleAPI
-	TaskAPI
+	OperationsAPI
 	// Initialize is called during handler creation to perform and changes during startup
 	Initialize() error
 
@@ -115,7 +84,6 @@ func Handler(c Config) (http.Handler, error) {
 	api.Logger = c.Logger.Printf
 
 	api.JSONConsumer = runtime.JSONConsumer()
-	api.MultipartformConsumer = runtime.DiscardConsumer
 	api.JSONProducer = runtime.JSONProducer()
 	api.BasicAuthAuth = func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
 		if c.AuthBasicAuth == nil {
@@ -124,56 +92,56 @@ func Handler(c Config) (http.Handler, error) {
 		return c.AuthBasicAuth(ctx, user, pass)
 	}
 
-	api.CollectorCollectorListHandler = collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
+	api.CollectorListHandler = operations.CollectorListHandlerFunc(func(params operations.CollectorListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorList(ctx, params)
 	})
-	api.CollectorCollectorPollHandler = collector.CollectorPollHandlerFunc(func(params collector.CollectorPollParams, principal interface{}) middleware.Responder {
+	api.CollectorPollHandler = operations.CollectorPollHandlerFunc(func(params operations.CollectorPollParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.CollectorPoll(ctx, params)
 	})
-	api.EmitterEmitterListHandler = emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
+	api.EmitterListHandler = operations.EmitterListHandlerFunc(func(params operations.EmitterListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.EmitterList(ctx, params)
 	})
-	api.EngineRecommendationsGetHandler = engine.RecommendationsGetHandlerFunc(func(params engine.RecommendationsGetParams, principal interface{}) middleware.Responder {
+	api.ProviderListHandler = operations.ProviderListHandlerFunc(func(params operations.ProviderListParams, principal interface{}) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.ProviderList(ctx, params)
+	})
+	api.ProviderQueryHandler = operations.ProviderQueryHandlerFunc(func(params operations.ProviderQueryParams, principal interface{}) middleware.Responder {
+		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
+		if err != nil {
+			return sparks.NewError(err)
+		}
+		return c.AutopilotAPI.ProviderQuery(ctx, params)
+	})
+	api.RecommendationsGetHandler = operations.RecommendationsGetHandlerFunc(func(params operations.RecommendationsGetParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RecommendationsGet(ctx, params)
 	})
-	api.RuleRuleListHandler = rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
+	api.RuleListHandler = operations.RuleListHandlerFunc(func(params operations.RuleListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleList(ctx, params)
 	})
-	api.SampleSampleDeleteHandler = sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.SampleDelete(ctx, params)
-	})
-	api.SampleSampleListHandler = sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.SampleList(ctx, params)
-	})
-	api.TaskTaskListHandler = task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
+	api.TaskListHandler = operations.TaskListHandlerFunc(func(params operations.TaskListParams, principal interface{}) middleware.Responder {
 		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
 		if err != nil {
 			return sparks.NewError(err)

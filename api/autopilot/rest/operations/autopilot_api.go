@@ -24,56 +24,48 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	context "golang.org/x/net/context"
-
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/collector"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/emitter"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/engine"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/rule"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/sample"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest/operations/task"
 )
 
 // NewAutopilotAPI creates a new Autopilot instance
 func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 	return &AutopilotAPI{
-		handlers:              make(map[string]map[string]http.Handler),
-		formats:               strfmt.Default,
-		defaultConsumes:       "application/json",
-		defaultProduces:       "application/json",
-		customConsumers:       make(map[string]runtime.Consumer),
-		customProducers:       make(map[string]runtime.Producer),
-		ServerShutdown:        func() {},
-		spec:                  spec,
-		ServeError:            errors.ServeError,
-		BasicAuthenticator:    security.BasicAuthCtx,
-		APIKeyAuthenticator:   security.APIKeyAuthCtx,
-		BearerAuthenticator:   security.BearerAuthCtx,
-		JSONConsumer:          runtime.JSONConsumer(),
-		MultipartformConsumer: runtime.DiscardConsumer,
-		JSONProducer:          runtime.JSONProducer(),
-		CollectorCollectorListHandler: collector.CollectorListHandlerFunc(func(params collector.CollectorListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorList has not yet been implemented")
+		handlers:            make(map[string]map[string]http.Handler),
+		formats:             strfmt.Default,
+		defaultConsumes:     "application/json",
+		defaultProduces:     "application/json",
+		customConsumers:     make(map[string]runtime.Consumer),
+		customProducers:     make(map[string]runtime.Producer),
+		ServerShutdown:      func() {},
+		spec:                spec,
+		ServeError:          errors.ServeError,
+		BasicAuthenticator:  security.BasicAuthCtx,
+		APIKeyAuthenticator: security.APIKeyAuthCtx,
+		BearerAuthenticator: security.BearerAuthCtx,
+		JSONConsumer:        runtime.JSONConsumer(),
+		JSONProducer:        runtime.JSONProducer(),
+		CollectorListHandler: CollectorListHandlerFunc(func(params CollectorListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorList has not yet been implemented")
 		}),
-		CollectorCollectorPollHandler: collector.CollectorPollHandlerFunc(func(params collector.CollectorPollParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation CollectorCollectorPoll has not yet been implemented")
+		CollectorPollHandler: CollectorPollHandlerFunc(func(params CollectorPollParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation CollectorPoll has not yet been implemented")
 		}),
-		EmitterEmitterListHandler: emitter.EmitterListHandlerFunc(func(params emitter.EmitterListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation EmitterEmitterList has not yet been implemented")
+		EmitterListHandler: EmitterListHandlerFunc(func(params EmitterListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation EmitterList has not yet been implemented")
 		}),
-		EngineRecommendationsGetHandler: engine.RecommendationsGetHandlerFunc(func(params engine.RecommendationsGetParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation EngineRecommendationsGet has not yet been implemented")
+		ProviderListHandler: ProviderListHandlerFunc(func(params ProviderListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderList has not yet been implemented")
 		}),
-		RuleRuleListHandler: rule.RuleListHandlerFunc(func(params rule.RuleListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation RuleRuleList has not yet been implemented")
+		ProviderQueryHandler: ProviderQueryHandlerFunc(func(params ProviderQueryParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation ProviderQuery has not yet been implemented")
 		}),
-		SampleSampleDeleteHandler: sample.SampleDeleteHandlerFunc(func(params sample.SampleDeleteParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleDelete has not yet been implemented")
+		RecommendationsGetHandler: RecommendationsGetHandlerFunc(func(params RecommendationsGetParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation RecommendationsGet has not yet been implemented")
 		}),
-		SampleSampleListHandler: sample.SampleListHandlerFunc(func(params sample.SampleListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation SampleSampleList has not yet been implemented")
+		RuleListHandler: RuleListHandlerFunc(func(params RuleListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation RuleList has not yet been implemented")
 		}),
-		TaskTaskListHandler: task.TaskListHandlerFunc(func(params task.TaskListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation TaskTaskList has not yet been implemented")
+		TaskListHandler: TaskListHandlerFunc(func(params TaskListParams, principal interface{}) middleware.Responder {
+			return middleware.NotImplemented("operation TaskList has not yet been implemented")
 		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
@@ -110,8 +102,6 @@ type AutopilotAPI struct {
 
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
-	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
-	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
@@ -123,22 +113,22 @@ type AutopilotAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// CollectorCollectorListHandler sets the operation handler for the collector list operation
-	CollectorCollectorListHandler collector.CollectorListHandler
-	// CollectorCollectorPollHandler sets the operation handler for the collector poll operation
-	CollectorCollectorPollHandler collector.CollectorPollHandler
-	// EmitterEmitterListHandler sets the operation handler for the emitter list operation
-	EmitterEmitterListHandler emitter.EmitterListHandler
-	// EngineRecommendationsGetHandler sets the operation handler for the recommendations get operation
-	EngineRecommendationsGetHandler engine.RecommendationsGetHandler
-	// RuleRuleListHandler sets the operation handler for the rule list operation
-	RuleRuleListHandler rule.RuleListHandler
-	// SampleSampleDeleteHandler sets the operation handler for the sample delete operation
-	SampleSampleDeleteHandler sample.SampleDeleteHandler
-	// SampleSampleListHandler sets the operation handler for the sample list operation
-	SampleSampleListHandler sample.SampleListHandler
-	// TaskTaskListHandler sets the operation handler for the task list operation
-	TaskTaskListHandler task.TaskListHandler
+	// CollectorListHandler sets the operation handler for the collector list operation
+	CollectorListHandler CollectorListHandler
+	// CollectorPollHandler sets the operation handler for the collector poll operation
+	CollectorPollHandler CollectorPollHandler
+	// EmitterListHandler sets the operation handler for the emitter list operation
+	EmitterListHandler EmitterListHandler
+	// ProviderListHandler sets the operation handler for the provider list operation
+	ProviderListHandler ProviderListHandler
+	// ProviderQueryHandler sets the operation handler for the provider query operation
+	ProviderQueryHandler ProviderQueryHandler
+	// RecommendationsGetHandler sets the operation handler for the recommendations get operation
+	RecommendationsGetHandler RecommendationsGetHandler
+	// RuleListHandler sets the operation handler for the rule list operation
+	RuleListHandler RuleListHandler
+	// TaskListHandler sets the operation handler for the task list operation
+	TaskListHandler TaskListHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -198,10 +188,6 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
-	if o.MultipartformConsumer == nil {
-		unregistered = append(unregistered, "MultipartformConsumer")
-	}
-
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
@@ -210,36 +196,36 @@ func (o *AutopilotAPI) Validate() error {
 		unregistered = append(unregistered, "BasicAuthAuth")
 	}
 
-	if o.CollectorCollectorListHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorListHandler")
+	if o.CollectorListHandler == nil {
+		unregistered = append(unregistered, "CollectorListHandler")
 	}
 
-	if o.CollectorCollectorPollHandler == nil {
-		unregistered = append(unregistered, "collector.CollectorPollHandler")
+	if o.CollectorPollHandler == nil {
+		unregistered = append(unregistered, "CollectorPollHandler")
 	}
 
-	if o.EmitterEmitterListHandler == nil {
-		unregistered = append(unregistered, "emitter.EmitterListHandler")
+	if o.EmitterListHandler == nil {
+		unregistered = append(unregistered, "EmitterListHandler")
 	}
 
-	if o.EngineRecommendationsGetHandler == nil {
-		unregistered = append(unregistered, "engine.RecommendationsGetHandler")
+	if o.ProviderListHandler == nil {
+		unregistered = append(unregistered, "ProviderListHandler")
 	}
 
-	if o.RuleRuleListHandler == nil {
-		unregistered = append(unregistered, "rule.RuleListHandler")
+	if o.ProviderQueryHandler == nil {
+		unregistered = append(unregistered, "ProviderQueryHandler")
 	}
 
-	if o.SampleSampleDeleteHandler == nil {
-		unregistered = append(unregistered, "sample.SampleDeleteHandler")
+	if o.RecommendationsGetHandler == nil {
+		unregistered = append(unregistered, "RecommendationsGetHandler")
 	}
 
-	if o.SampleSampleListHandler == nil {
-		unregistered = append(unregistered, "sample.SampleListHandler")
+	if o.RuleListHandler == nil {
+		unregistered = append(unregistered, "RuleListHandler")
 	}
 
-	if o.TaskTaskListHandler == nil {
-		unregistered = append(unregistered, "task.TaskListHandler")
+	if o.TaskListHandler == nil {
+		unregistered = append(unregistered, "TaskListHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -287,9 +273,6 @@ func (o *AutopilotAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Cons
 
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
-		case "multipart/form-data":
-			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
 
@@ -356,42 +339,42 @@ func (o *AutopilotAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/collectors"] = collector.NewCollectorList(o.context, o.CollectorCollectorListHandler)
+	o.handlers["GET"]["/collectors"] = NewCollectorList(o.context, o.CollectorListHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/collectors/{collector}/poll"] = collector.NewCollectorPoll(o.context, o.CollectorCollectorPollHandler)
+	o.handlers["GET"]["/collectors/{collector}/poll"] = NewCollectorPoll(o.context, o.CollectorPollHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/emitters"] = emitter.NewEmitterList(o.context, o.EmitterEmitterListHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/recommend"] = engine.NewRecommendationsGet(o.context, o.EngineRecommendationsGetHandler)
+	o.handlers["GET"]["/emitters"] = NewEmitterList(o.context, o.EmitterListHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/rules"] = rule.NewRuleList(o.context, o.RuleRuleListHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/samples/{sample_id}"] = sample.NewSampleDelete(o.context, o.SampleSampleDeleteHandler)
+	o.handlers["GET"]["/providers"] = NewProviderList(o.context, o.ProviderListHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/samples"] = sample.NewSampleList(o.context, o.SampleSampleListHandler)
+	o.handlers["GET"]["/providers/{provider}/query"] = NewProviderQuery(o.context, o.ProviderQueryHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/tasks"] = task.NewTaskList(o.context, o.TaskTaskListHandler)
+	o.handlers["GET"]["/providers/{provider}/recommend"] = NewRecommendationsGet(o.context, o.RecommendationsGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rules"] = NewRuleList(o.context, o.RuleListHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/tasks"] = NewTaskList(o.context, o.TaskListHandler)
 
 }
 

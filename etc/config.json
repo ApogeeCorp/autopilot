@@ -1,74 +1,36 @@
 {
-	"collectors": [
-		{
-			"name": "Portworx",
-			"type": "prometheus",
-			"url": "http://70.0.69.141:9090/api/v1/query_range",
-            "params": {
-                "query": "{cluster=\"greatdane-1914e166dc7\"}",
-                "sample_interval": "12h",
-                "step": "15m"
-            },
-			"schedule_interval": "12h"
-		}
-	],
+	"providers": [{
+		"type": "Prometheus",
+		"name": "portworx",
+		"url": "http://70.0.69.141:9090/api/v1"
+	}],
+	"collectors": [{
+		"name": "default",
+		"provider": "portworx",
+		"params": {
+			"path": "/query_range",
+			"query": "{cluster=\"greatdane-1914e166dc7\"}",
+			"step": "15m"
+		},
+		"interval": "1h"
+	}],
+	"monitors": [{
+		"name": "default", 
+		"provider": "portworx",
+		"params": {
+			"path": "/query"
+		},
+		"interval": "15s",
+		"rules": ["PromPortworxVolumeUsageCritical"]
+	}],
 	"rules": [
 		{
 			"name": "PromPortworxVolumeUsageCritical",
 			"expr": "100 * (px_volume_usage_bytes{cluster=\"greatdane-1914e166dc7\"}/ px_volume_capacity_bytes) > 10",
 			"for": 3600,
-			"type": "promql",
 			"issue": "Critical: Portworx volume {{.Metric.Volume}} usage on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}% ",
 			"severity": "critical",
 			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
-		},
-		{
-			"name": "PortworxVolumeUsageCritical",
-			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80",
-			"for": 3600,
-			"issue": "Critical: Portworx volume {{.volume}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
-			"severity": "critical",
-			"proposal": "Add additional storage node to {{.cluster}}"
-		},
-		{
-			"name": "PortworxVolumeUsage",
-			"expr": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 70",
-			"for": 7200,
-			"issue": "Warning: Portworx volume {{.volume}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
-			"severity": "warning",
-			"proposal": "Add additional storage node to {{.cluster}}"
-		},
-		{
-			"name": "PortworxStorageUsageCritical",
-			"expr": "100 * (px_cluster_disk_utilized_bytes / px_cluster_disk_total_bytes) > 10",
-			"for": 7200,
-			"issue": "Critical: Portworx storage {{.cluster}} usage on {{.instance}} is {{printf \"%.1f\" .result}}%.",
-			"severity": "critical",
-			"proposal": "Add additional disks to {{.cluster}}"
-		},
-		{
-			"name": "PortworxStorageNodeDown",
-			"expr": "px_cluster_status_nodes_storage_down > 0",
-			"for": 7200,
-			"issue": "Portworx Storage Node {{.node}} is Offline.",
-			"severity": "critical",
-			"proposal": "Critical: Restart node with verbose debugging {{.node}}"
-		},
-		{
-			"name": "PortworxQuorumUnhealthy",
-			"expr": "px_cluster_status_cluster_quorum > 1",
-			"for": 7200,
-			"issue": "Portworx Quorum Unhealthy.",
-			"severity": "critical",
-			"proposal": "Restart node with verbose debugging {{.node}}"
-		},
-		{
-			"name": "PortworxMemberDown",
-			"expr": "px_cluster_status_nodes_offline > 0",
-			"for": 18000,
-			"issue": "Portworx cluster member(s) is(are) down {{.cluster}}.",
-			"severity": "critical",
-			"proposal": "Restart cluster with verbose debugging {{.cluster}}"
 		}
 	]
 }

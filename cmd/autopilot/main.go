@@ -17,30 +17,28 @@ import (
 	"github.com/libopenstorage/autopilot/api/autopilot"
 	"github.com/libopenstorage/autopilot/api/autopilot/rest"
 	"github.com/libopenstorage/autopilot/config"
-	"github.com/sirupsen/logrus"
+	"github.com/libopenstorage/autopilot/engine"
+	_ "github.com/libopenstorage/autopilot/telemetry/providers"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-)
-
-var (
-	log = logrus.New()
 )
 
 func main() {
 	switch os.Getenv("LOG_FORMAT") {
 	case "text":
-		log.Formatter = &logrus.TextFormatter{
+		log.SetFormatter(&log.TextFormatter{
 			FullTimestamp: true,
-		}
+		})
 	case "json":
 		fallthrough
 	default:
-		log.Formatter = &logrus.JSONFormatter{
+		log.SetFormatter(&log.JSONFormatter{
 			TimestampFormat: time.RFC3339,
-		}
+		})
 	}
 
 	if lvl, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		if level, err := logrus.ParseLevel(lvl); err == nil {
+		if level, err := log.ParseLevel(lvl); err == nil {
 			log.SetLevel(level)
 		}
 	}
@@ -69,13 +67,7 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		config := &config.Config{}
 
-		log.SetLevel(logrus.DebugLevel)
-
-		api := &autopilot.API{
-			Log:     log,
-			DataDir: c.GlobalString("data-dir"),
-			Config:  config,
-		}
+		log.SetLevel(log.DebugLevel)
 
 		data, err := ioutil.ReadFile(c.GlobalString("config"))
 		if err != nil {
@@ -86,15 +78,30 @@ func main() {
 			return err
 		}
 
-		log.Debugf("DataDir=%s", api.DataDir)
+		if config.DataDir == "" {
+			config.DataDir = c.GlobalString("data-dir")
+		}
 
-		if err := os.MkdirAll(api.DataDir, 0770); err != nil {
+		if err := os.MkdirAll(config.DataDir, 0770); err != nil {
 			return err
+		}
+
+		eng, err := engine.NewEngine(config)
+		if err != nil {
+			return err
+		}
+
+		if err := eng.Start(); err != nil {
+			return err
+		}
+
+		api := &autopilot.API{
+			Config: config,
+			Engine: eng,
 		}
 
 		handler, err := rest.Handler(rest.Config{
 			AutopilotAPI: api,
-			Logger:       log,
 			AuthBasicAuth: func(ctx context.Context, username string, pass string) (context.Context, interface{}, error) {
 				return ctx, username, nil
 			},
@@ -109,7 +116,9 @@ func main() {
 			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		}
+
 		log.Infof("starting server %s", s.Addr)
+
 		log.Fatal(s.ListenAndServe())
 
 		return nil
