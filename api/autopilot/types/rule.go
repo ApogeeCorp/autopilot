@@ -43,9 +43,6 @@ type Rule struct {
 	// severity
 	// Enum: [warning error critical]
 	Severity string `json:"severity,omitempty"`
-
-	// type
-	Type RuleType `json:"type,omitempty"`
 }
 
 // Validate validates this rule
@@ -53,10 +50,6 @@ func (m *Rule) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateSeverity(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -106,22 +99,6 @@ func (m *Rule) validateSeverity(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateSeverityEnum("severity", "body", m.Severity); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Rule) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
-		}
 		return err
 	}
 

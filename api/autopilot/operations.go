@@ -63,8 +63,3 @@ func (a *API) RecommendationsGet(ctx *Context, params operations.Recommendations
 func (a *API) RuleList(ctx *Context, params operations.RuleListParams) middleware.Responder {
 	return operations.NewRuleListOK().WithPayload(a.Config.Rules)
 }
-
-// TaskList Returns an array of tasks
-func (a *API) TaskList(ctx *Context, params operations.TaskListParams) middleware.Responder {
-	return sparks.ErrNotImplemented("taskList")
-}

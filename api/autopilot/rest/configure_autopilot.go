@@ -47,8 +47,6 @@ type OperationsAPI interface {
 	RecommendationsGet(ctx *autopilot.Context, params operations.RecommendationsGetParams) middleware.Responder
 	// RuleList is Returns an array of telemetry rules defined in the system
 	RuleList(ctx *autopilot.Context, params operations.RuleListParams) middleware.Responder
-	// TaskList is Returns an array of tasks
-	TaskList(ctx *autopilot.Context, params operations.TaskListParams) middleware.Responder
 }
 
 type AutopilotAPI interface {
@@ -140,13 +138,6 @@ func Handler(c Config) (http.Handler, error) {
 			return sparks.NewError(err)
 		}
 		return c.AutopilotAPI.RuleList(ctx, params)
-	})
-	api.TaskListHandler = operations.TaskListHandlerFunc(func(params operations.TaskListParams, principal interface{}) middleware.Responder {
-		ctx, err := c.InitializeContext(principal, params.HTTPRequest)
-		if err != nil {
-			return sparks.NewError(err)
-		}
-		return c.AutopilotAPI.TaskList(ctx, params)
 	})
 	api.ServerShutdown = func() {}
 

@@ -246,27 +246,6 @@ func init() {
           }
         }
       }
-    },
-    "/tasks": {
-      "get": {
-        "description": "Returns an array of tasks",
-        "summary": "Get a list of tasks",
-        "operationId": "taskList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Task"
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -490,57 +469,6 @@ func init() {
             "warning",
             "error",
             "critical"
-          ]
-        },
-        "type": {
-          "$ref": "#/definitions/RuleType"
-        }
-      }
-    },
-    "RuleType": {
-      "description": "Types of rules",
-      "type": "string",
-      "enum": [
-        "promql",
-        "apql",
-        "aplearn"
-      ]
-    },
-    "Task": {
-      "description": "A task is a scheduled operation in the engine\n",
-      "properties": {
-        "id": {
-          "description": "The task id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "params": {
-          "description": "The parameters to pass to the source",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "run_at": {
-          "description": "The timestamp the next execution of the task",
-          "type": "string",
-          "format": "date-time"
-        },
-        "status": {
-          "description": "The task status",
-          "type": "string",
-          "enum": [
-            "pending",
-            "running",
-            "succeeded",
-            "failed"
-          ]
-        },
-        "type": {
-          "description": "The task type",
-          "type": "string",
-          "enum": [
-            "collector"
           ]
         }
       }
@@ -891,35 +819,6 @@ func init() {
           }
         }
       }
-    },
-    "/tasks": {
-      "get": {
-        "description": "Returns an array of tasks",
-        "summary": "Get a list of tasks",
-        "operationId": "taskList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Task"
-              }
-            }
-          },
-          "500": {
-            "description": "ServerError",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "message": "internal server error"
-              }
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -1143,57 +1042,6 @@ func init() {
             "warning",
             "error",
             "critical"
-          ]
-        },
-        "type": {
-          "$ref": "#/definitions/RuleType"
-        }
-      }
-    },
-    "RuleType": {
-      "description": "Types of rules",
-      "type": "string",
-      "enum": [
-        "promql",
-        "apql",
-        "aplearn"
-      ]
-    },
-    "Task": {
-      "description": "A task is a scheduled operation in the engine\n",
-      "properties": {
-        "id": {
-          "description": "The task id",
-          "type": "string",
-          "format": "uuid"
-        },
-        "params": {
-          "description": "The parameters to pass to the source",
-          "type": "object",
-          "additionalProperties": {
-            "type": "object"
-          }
-        },
-        "run_at": {
-          "description": "The timestamp the next execution of the task",
-          "type": "string",
-          "format": "date-time"
-        },
-        "status": {
-          "description": "The task status",
-          "type": "string",
-          "enum": [
-            "pending",
-            "running",
-            "succeeded",
-            "failed"
-          ]
-        },
-        "type": {
-          "description": "The task type",
-          "type": "string",
-          "enum": [
-            "collector"
           ]
         }
       }

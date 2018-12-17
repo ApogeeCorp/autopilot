@@ -162,20 +162,6 @@ paths:
               $ref: '#/definitions/Rule'
         500:
           $ref: '#/responses/ServerError'
-  /tasks:
-    get:
-      summary: Get a list of tasks
-      description: Returns an array of tasks
-      operationId: taskList
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Task'
-        500:
-          $ref: '#/responses/ServerError'
 definitions:
   Provider:
     description: |
@@ -261,32 +247,6 @@ definitions:
         additionalProperties:
           type: object
           properties: {}
-  Task:
-    description: |
-      A task is a scheduled operation in the engine
-    properties:
-      id:
-        description: The task id
-        type: string
-        format: uuid
-      type:
-        description: The task type
-        type: string
-        enum: [ collector ]
-      params:
-        description: The parameters to pass to the source
-        type: object
-        additionalProperties:
-          type: object
-          properties: {}
-      run_at:
-        description: The timestamp the next execution of the task
-        type: string
-        format: date-time
-      status:
-        description: The task status
-        type: string
-        enum: [ pending, running, succeeded, failed ]
   Rule:
     description: |
       An rule is a contraint expression that checked in the system against
@@ -294,8 +254,6 @@ definitions:
       name:
         description: the rule description
         type: string
-      type:
-        $ref: '#/definitions/RuleType'
       expr:
         description: The expression to match or query to make
         type: string
@@ -316,10 +274,6 @@ definitions:
         description: The proposal template
         type: string
         example: Add additional storage node to {{$labels.cluster}}
-  RuleType:
-    description: Types of rules
-    type: string
-    enum: [ promql, apql, aplearn]
   Proposal:
     description: |
       A proposal is a formatted propsal object

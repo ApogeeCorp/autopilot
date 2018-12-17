@@ -64,9 +64,6 @@ func NewAutopilotAPI(spec *loads.Document) *AutopilotAPI {
 		RuleListHandler: RuleListHandlerFunc(func(params RuleListParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation RuleList has not yet been implemented")
 		}),
-		TaskListHandler: TaskListHandlerFunc(func(params TaskListParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation TaskList has not yet been implemented")
-		}),
 
 		// Applies when the Authorization header is set with the Basic scheme
 		BasicAuthAuth: func(ctx context.Context, user string, pass string) (context.Context, interface{}, error) {
@@ -127,8 +124,6 @@ type AutopilotAPI struct {
 	RecommendationsGetHandler RecommendationsGetHandler
 	// RuleListHandler sets the operation handler for the rule list operation
 	RuleListHandler RuleListHandler
-	// TaskListHandler sets the operation handler for the task list operation
-	TaskListHandler TaskListHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -222,10 +217,6 @@ func (o *AutopilotAPI) Validate() error {
 
 	if o.RuleListHandler == nil {
 		unregistered = append(unregistered, "RuleListHandler")
-	}
-
-	if o.TaskListHandler == nil {
-		unregistered = append(unregistered, "TaskListHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -370,11 +361,6 @@ func (o *AutopilotAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/rules"] = NewRuleList(o.context, o.RuleListHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/tasks"] = NewTaskList(o.context, o.TaskListHandler)
 
 }
 
