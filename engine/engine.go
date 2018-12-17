@@ -19,6 +19,7 @@ import (
 	"github.com/libopenstorage/autopilot/engine/internal/store"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
+	"gitlab.com/ModelRocket/sparks/util"
 )
 
 // Engine is the autopilot recommendation engine
@@ -202,7 +203,7 @@ func (e *Engine) Recommend(name string, rules []*types.Rule) ([]*types.Recommend
 				Rule:    rule.Name,
 				Cluster: v.Metric.Cluster,
 				Node:    v.Metric.Node,
-				Volume:  *v.Metric.Volume,
+				Volume:  util.StringPtr(v.Metric.Volume),
 			}
 
 			t := template.Must(template.New("Issue").

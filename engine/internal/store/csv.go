@@ -13,21 +13,20 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kr/pretty"
 	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/spf13/cast"
 )
 
 // Store is the internal autopilot storage writer
 type Store struct {
-	path string
+	root string
 	lock sync.Mutex
 }
 
 // NewStore returns the storage interface
 func NewStore(path string) *Store {
 	return &Store{
-		path: path,
+		root: path,
 	}
 }
 
@@ -35,13 +34,12 @@ func NewStore(path string) *Store {
 func (s *Store) Write(vectors []telemetry.Vector) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-
-	pretty.Log(vectors)
-	timeseries, _ := transformToRows(vectors)
-
-	pretty.Log(timeseries)
-
 	/*
+		timeseries, alert := transformToRows(vectors)
+
+		for m, r := range timeseries {
+
+		}
 
 		base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))
 		if err := os.MkdirAll(base, 0770); err != nil {
@@ -199,7 +197,7 @@ func transformToRows(vectors []telemetry.Vector) (map[Row]*Metrics, []*AlertRow)
 					AlertState:    *vec.Metric.AlertState,
 					AlertSeverity: *vec.Metric.AlertSeverity,
 					AlertIssue:    *vec.Metric.AlertIssue,
-					AlertValue:    value[1].(string),
+					AlertValue:    cast.ToString(value[1]),
 				}
 				alerts = append(alerts, alert)
 			} else if vec.Metric.Volume != nil {
@@ -209,7 +207,7 @@ func transformToRows(vectors []telemetry.Vector) (map[Row]*Metrics, []*AlertRow)
 				if csvMetrics.Volume[*vec.Metric.Volume] == nil {
 					csvMetrics.Volume[*vec.Metric.Volume] = make(map[string]string)
 				}
-				csvMetrics.Volume[*vec.Metric.Volume][vec.Metric.Name] = value[1].(string)
+				csvMetrics.Volume[*vec.Metric.Volume][vec.Metric.Name] = cast.ToString(value[1])
 			} else if vec.Metric.Disk != nil {
 				if csvMetrics.Disk == nil {
 					csvMetrics.Disk = make(map[string]map[string]string)
@@ -217,7 +215,7 @@ func transformToRows(vectors []telemetry.Vector) (map[Row]*Metrics, []*AlertRow)
 				if csvMetrics.Disk[*vec.Metric.Disk] == nil {
 					csvMetrics.Disk[*vec.Metric.Disk] = make(map[string]string)
 				}
-				csvMetrics.Disk[*vec.Metric.Disk][vec.Metric.Name] = value[1].(string)
+				csvMetrics.Disk[*vec.Metric.Disk][vec.Metric.Name] = cast.ToString(value[1])
 			} else if vec.Metric.Pool != nil {
 				if csvMetrics.Pool == nil {
 					csvMetrics.Pool = make(map[string]map[string]string)
@@ -225,7 +223,7 @@ func transformToRows(vectors []telemetry.Vector) (map[Row]*Metrics, []*AlertRow)
 				if csvMetrics.Pool[*vec.Metric.Pool] == nil {
 					csvMetrics.Pool[*vec.Metric.Pool] = make(map[string]string)
 				}
-				csvMetrics.Pool[*vec.Metric.Pool][vec.Metric.Name] = value[1].(string)
+				csvMetrics.Pool[*vec.Metric.Pool][vec.Metric.Name] = cast.ToString(value[1])
 			} else if vec.Metric.Proc != nil {
 				if csvMetrics.Node == nil {
 					csvMetrics.Node = make(map[string]map[string]string)
@@ -233,7 +231,7 @@ func transformToRows(vectors []telemetry.Vector) (map[Row]*Metrics, []*AlertRow)
 				if csvMetrics.Node[vec.Metric.Node] == nil {
 					csvMetrics.Node[vec.Metric.Node] = make(map[string]string)
 				}
-				csvMetrics.Node[vec.Metric.Node][vec.Metric.Name+"_"+*vec.Metric.Proc] = value[1].(string)
+				csvMetrics.Node[vec.Metric.Node][vec.Metric.Name+"_"+*vec.Metric.Proc] = cast.ToString(value[1])
 			} else if strings.HasPrefix(vec.Metric.Name, "px_node_stats") == true || strings.HasPrefix(vec.Metric.Name, "px_network_") == true ||
 				strings.HasPrefix(vec.Metric.Name, "px_cluster_") == true {
 				if csvMetrics.Node == nil {
