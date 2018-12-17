@@ -124,10 +124,14 @@ func (e *Engine) startCollectors() error {
 			e.Stop()
 			return err
 		}
-		sample, err := time.ParseDuration(*c.SampleSize)
-		if err != nil {
-			e.Stop()
-			return err
+		sample := interval
+
+		if c.SampleSize != nil {
+			sample, err = time.ParseDuration(*c.SampleSize)
+			if err != nil {
+				e.Stop()
+				return err
+			}
 		}
 		e.wg.Add(1)
 

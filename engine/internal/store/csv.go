@@ -37,18 +37,22 @@ func (s *Store) Write(vectors []telemetry.Vector) error {
 	defer s.lock.Unlock()
 
 	pretty.Log(vectors)
-	/*timeseries, alerts := transformToRows(vectors)
+	timeseries, _ := transformToRows(vectors)
 
-	base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))
-	if err := os.MkdirAll(base, 0770); err != nil {
-		return err
-	}
+	pretty.Log(timeseries)
 
-	writeCSV(timeseries, base, Volume)
-	writeCSV(timeseries, base, Disk)
-	writeCSV(timeseries, base, Pool)
-	writeCSV(timeseries, base, Node)
-	writeAlertCSV(base, alerts)
+	/*
+
+		base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))
+		if err := os.MkdirAll(base, 0770); err != nil {
+			return err
+		}
+
+		writeCSV(timeseries, base, Volume)
+		writeCSV(timeseries, base, Disk)
+		writeCSV(timeseries, base, Pool)
+		writeCSV(timeseries, base, Node)
+		writeAlertCSV(base, alerts)
 	*/
 	return nil
 }
