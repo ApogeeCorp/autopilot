@@ -1,5 +1,8 @@
-// Package csv define the internal autopilot csv data storage for the ML
-package csv
+// Copyright 2018 Portworx Inc. All rights reserved.
+// Use of this source code is governed by the Apache 2.0
+// license that can be found in the LICENSE file.
+
+package store
 
 import (
 	"encoding/csv"
@@ -9,23 +12,22 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/libopenstorage/autopilot/engine/internal/store"
 	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/spf13/cast"
 )
 
-type csvStore struct {
+// Store is the internal autopilot storage writer
+type Store struct {
 	path string
 }
 
-// NewCSVStore returns the writer interface for the csv store
-// TODO: we need to make this more generic like telemetry.Provider
-func NewCSVStore(path string) (store.Writer, error) {
-	return &csvStore{path}, nil
+// NewStore returns the storage interface
+func NewStore(path string) (*Store, error) {
+	return &Store{path}, nil
 }
 
 // Write implements the store.Writer.Write
-func (s *csvStore) Write(vectors []telemetry.Vector) error {
+func (s *Store) Write(vectors []telemetry.Vector) error {
 	/*timeseries, alerts := transformToRows(vectors)
 
 	base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))

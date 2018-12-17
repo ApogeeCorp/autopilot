@@ -6,5 +6,7 @@ package providers
 
 import (
 	// register the providers
+	_ "github.com/libopenstorage/autopilot/telemetry/providers/autopilot"
+	_ "github.com/libopenstorage/autopilot/telemetry/providers/openstorage"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers/prometheus"
 )
