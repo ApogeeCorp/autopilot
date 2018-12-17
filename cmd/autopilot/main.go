@@ -57,7 +57,7 @@ func main() {
 			Value:  "./etc/config.json",
 		},
 		cli.StringFlag{
-			Name:   "data-dir",
+			Name:   "data-dir,d",
 			Usage:  "set the data directory for the process",
 			EnvVar: "DATA_DIR",
 			Value:  "./var/run/autopilot",
