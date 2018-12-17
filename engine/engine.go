@@ -18,6 +18,7 @@ import (
 	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/engine/internal/store"
 	"github.com/libopenstorage/autopilot/telemetry"
+	"github.com/segmentio/fasthash/fnv1a"
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/ModelRocket/sparks/util"
 )
@@ -43,11 +44,16 @@ func NewEngine(c *config.Config) (*Engine, error) {
 		provs[p.Name()] = prov
 	}
 
+	store, err := store.NewStore(c.DataDir)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Engine{
 		providers: provs,
 		config:    c,
 		stop:      make(chan bool),
-		store:     store.NewStore(c.DataDir),
+		store:     store,
 	}, nil
 }
 
@@ -156,7 +162,10 @@ func (e *Engine) startCollectors() error {
 					if err != nil {
 						log.Errorln(err)
 					} else {
-						e.store.Write(vecs)
+						key := strconv.FormatUint(fnv1a.HashString64(fmt.Sprintf("%s/%s", start, end)), 16)
+						e.store.Write(key, vecs)
+
+						// TODO: start the training
 					}
 				case <-e.stop:
 					break

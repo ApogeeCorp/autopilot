@@ -24,34 +24,35 @@ type Store struct {
 }
 
 // NewStore returns the storage interface
-func NewStore(path string) *Store {
+func NewStore(path string) (*Store, error) {
+	if err := os.MkdirAll(path, 0770); err != nil {
+		return nil, err
+	}
+
 	return &Store{
 		root: path,
-	}
+	}, nil
 }
 
 // Write implements the store.Writer.Write
-func (s *Store) Write(vectors []telemetry.Vector) error {
+func (s *Store) Write(key string, vectors []telemetry.Vector) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	/*
-		timeseries, alert := transformToRows(vectors)
 
-		for m, r := range timeseries {
+	timeseries, alerts := transformToRows(vectors)
 
-		}
+	base := path.Join(s.root, key)
 
-		base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))
-		if err := os.MkdirAll(base, 0770); err != nil {
-			return err
-		}
+	if err := os.MkdirAll(base, 0770); err != nil {
+		return err
+	}
 
-		writeCSV(timeseries, base, Volume)
-		writeCSV(timeseries, base, Disk)
-		writeCSV(timeseries, base, Pool)
-		writeCSV(timeseries, base, Node)
-		writeAlertCSV(base, alerts)
-	*/
+	writeCSV(timeseries, base, Volume)
+	writeCSV(timeseries, base, Disk)
+	writeCSV(timeseries, base, Pool)
+	writeCSV(timeseries, base, Node)
+	writeAlertCSV(base, alerts)
+
 	return nil
 }
 
