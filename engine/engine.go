@@ -80,7 +80,7 @@ func (e *Engine) Start() error {
 			for {
 				select {
 				case <-ticker.C:
-					rec, err := e.Recommend(prov, rules)
+					_, err := e.Recommend(prov, rules)
 					if err != nil {
 						log.Errorln(err)
 					} else {
