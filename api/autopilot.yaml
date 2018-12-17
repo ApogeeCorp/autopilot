@@ -235,7 +235,11 @@ definitions:
       interval:
         description: The interval for the collecto to run and collect
         type: string
-        default: '24h'
+        default: '15m'
+      sample_size:
+        description: The sample size of data to collect, will truncate the interval to this value
+        type: string
+        default: '1h'
   Monitor:
     description: |
       A monitor executes and analyzes rules at the specified interval, emmiting alerts

@@ -12,7 +12,7 @@
 			"query": "{cluster=\"greatdane-1914e166dc7\"}",
 			"step": "15m"
 		},
-		"interval": "1h"
+		"interval": "10s"
 	}],
 	"monitors": [{
 		"name": "portworx", 

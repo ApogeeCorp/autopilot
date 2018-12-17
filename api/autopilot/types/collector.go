@@ -4,6 +4,7 @@
 // Use of this source code is governed by the Apache 2.0
 // license that can be found in the LICENSE file at the
 // root of this project.
+//
 
 package types
 
@@ -32,6 +33,9 @@ type Collector struct {
 
 	// The provider name
 	Provider string `json:"provider,omitempty"`
+
+	// The sample size of data to collect, will truncate the interval to this value
+	SampleSize *string `json:"sample_size,omitempty"`
 }
 
 // Validate validates this collector

@@ -4,6 +4,7 @@
 // Use of this source code is governed by the Apache 2.0
 // license that can be found in the LICENSE file at the
 // root of this project.
+//
 
 package rest
 
@@ -274,7 +275,7 @@ func init() {
         "interval": {
           "description": "The interval for the collecto to run and collect",
           "type": "string",
-          "default": "24h"
+          "default": "15m"
         },
         "name": {
           "description": "The collector name",
@@ -290,6 +291,11 @@ func init() {
         "provider": {
           "description": "The provider name",
           "type": "string"
+        },
+        "sample_size": {
+          "description": "The sample size of data to collect, will truncate the interval to this value",
+          "type": "string",
+          "default": "1h"
         }
       }
     },
@@ -892,7 +898,7 @@ func init() {
         "interval": {
           "description": "The interval for the collecto to run and collect",
           "type": "string",
-          "default": "24h"
+          "default": "15m"
         },
         "name": {
           "description": "The collector name",
@@ -908,6 +914,11 @@ func init() {
         "provider": {
           "description": "The provider name",
           "type": "string"
+        },
+        "sample_size": {
+          "description": "The sample size of data to collect, will truncate the interval to this value",
+          "type": "string",
+          "default": "1h"
         }
       }
     },
