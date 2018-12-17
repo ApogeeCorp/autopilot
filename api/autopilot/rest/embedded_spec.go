@@ -273,9 +273,9 @@ func init() {
       "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
         "interval": {
-          "description": "The interval for the collecto to run and collect",
+          "description": "The interval for the collector to run and collect training data for autopilot",
           "type": "string",
-          "default": "15m"
+          "default": "24h"
         },
         "name": {
           "description": "The collector name",
@@ -293,9 +293,9 @@ func init() {
           "type": "string"
         },
         "sample_size": {
-          "description": "The sample size of data to collect, will truncate the interval to this value",
+          "description": "The sample size of data to collect, will truncate the interval to this value, the default is the interval",
           "type": "string",
-          "default": "1h"
+          "x-nullable": true
         }
       }
     },
@@ -896,9 +896,9 @@ func init() {
       "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
         "interval": {
-          "description": "The interval for the collecto to run and collect",
+          "description": "The interval for the collector to run and collect training data for autopilot",
           "type": "string",
-          "default": "15m"
+          "default": "24h"
         },
         "name": {
           "description": "The collector name",
@@ -916,9 +916,9 @@ func init() {
           "type": "string"
         },
         "sample_size": {
-          "description": "The sample size of data to collect, will truncate the interval to this value",
+          "description": "The sample size of data to collect, will truncate the interval to this value, the default is the interval",
           "type": "string",
-          "default": "1h"
+          "x-nullable": true
         }
       }
     },

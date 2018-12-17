@@ -22,7 +22,7 @@ import (
 // swagger:model Collector
 type Collector struct {
 
-	// The interval for the collecto to run and collect
+	// The interval for the collector to run and collect training data for autopilot
 	Interval *string `json:"interval,omitempty"`
 
 	// The collector name
@@ -34,7 +34,7 @@ type Collector struct {
 	// The provider name
 	Provider string `json:"provider,omitempty"`
 
-	// The sample size of data to collect, will truncate the interval to this value
+	// The sample size of data to collect, will truncate the interval to this value, the default is the interval
 	SampleSize *string `json:"sample_size,omitempty"`
 }
 
