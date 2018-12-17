@@ -20,7 +20,7 @@
 		"params": {
 			"path": "/query"
 		},
-		"interval": "15s",
+		"interval": "15m",
 		"rules": ["PromPortworxVolumeUsageCritical"]
 	}],
 	"rules": [

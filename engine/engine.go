@@ -53,6 +53,10 @@ func (e *Engine) Start() error {
 	if err := e.startMonitors(); err != nil {
 		return err
 	}
+
+	if err := e.startCollectors(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -78,6 +82,8 @@ func (e *Engine) startMonitors() error {
 		}
 		e.wg.Add(1)
 
+		log.Debugf("starting monitor %s:%s", m.Name, m.Provider)
+
 		go func(prov string, interval time.Duration, rules []*types.Rule) {
 			defer e.wg.Done()
 
@@ -97,6 +103,47 @@ func (e *Engine) startMonitors() error {
 				}
 			}
 		}(m.Provider, dur, rules)
+	}
+	return nil
+}
+
+func (e *Engine) startCollectors() error {
+	// start the collectors
+	for _, c := range e.config.Collectors {
+		prov, ok := e.providers[c.Provider]
+		if !ok {
+			e.Stop()
+			return fmt.Errorf("invalid provider %s", c.Provider)
+		}
+
+		dur, err := time.ParseDuration(*c.Interval)
+		if err != nil {
+			e.Stop()
+			return err
+		}
+		e.wg.Add(1)
+
+		log.Debugf("starting collector %s:%s", c.Name, c.Provider)
+
+		go func(prov telemetry.Provider, params telemetry.Params, interval time.Duration) {
+			defer e.wg.Done()
+
+			ticker := time.NewTicker(interval)
+
+			for {
+				select {
+				case <-ticker.C:
+					_, err := prov.Query(params)
+					if err != nil {
+						log.Errorln(err)
+					} else {
+						// TODO: write to store
+					}
+				case <-e.stop:
+					break
+				}
+			}
+		}(prov, c.Params, dur)
 	}
 	return nil
 }
