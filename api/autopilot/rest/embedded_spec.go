@@ -249,6 +249,25 @@ func init() {
     }
   },
   "definitions": {
+    "AutoPilot": {
+      "description": "The AutoPilot provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
     "Collector": {
       "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
@@ -353,6 +372,29 @@ func init() {
         }
       }
     },
+    "OpenStorage": {
+      "description": "OpenStorage SDK provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
+            "url": {
+              "description": "The host url",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "Prometheus": {
       "description": "Prometheus provider configuration",
       "allOf": [
@@ -361,6 +403,13 @@ func init() {
         },
         {
           "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
             "url": {
               "description": "The prometheus host url",
               "type": "string"
@@ -415,7 +464,9 @@ func init() {
       "description": "Provider types",
       "type": "string",
       "enum": [
-        "Prometheus"
+        "Prometheus",
+        "OpenStorage",
+        "AutoPilot"
       ]
     },
     "Recommendation": {
@@ -816,6 +867,25 @@ func init() {
     }
   },
   "definitions": {
+    "AutoPilot": {
+      "description": "The AutoPilot provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
     "Collector": {
       "description": "A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.\n",
       "properties": {
@@ -920,6 +990,29 @@ func init() {
         }
       }
     },
+    "OpenStorage": {
+      "description": "OpenStorage SDK provider configuration",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Provider"
+        },
+        {
+          "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
+            "url": {
+              "description": "The host url",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "Prometheus": {
       "description": "Prometheus provider configuration",
       "allOf": [
@@ -928,6 +1021,13 @@ func init() {
         },
         {
           "properties": {
+            "params": {
+              "description": "Addition provider params",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
             "url": {
               "description": "The prometheus host url",
               "type": "string"
@@ -982,7 +1082,9 @@ func init() {
       "description": "Provider types",
       "type": "string",
       "enum": [
-        "Prometheus"
+        "Prometheus",
+        "OpenStorage",
+        "AutoPilot"
       ]
     },
     "Recommendation": {

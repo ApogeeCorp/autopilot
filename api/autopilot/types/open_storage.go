@@ -20,35 +20,35 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Prometheus Prometheus provider configuration
-// swagger:model Prometheus
-type Prometheus struct {
+// OpenStorage OpenStorage SDK provider configuration
+// swagger:model OpenStorage
+type OpenStorage struct {
 	nameField string ``
 
 	// Addition provider params
 	Params map[string]interface{} `json:"params,omitempty"`
 
-	// The prometheus host url
+	// The host url
 	URL string `json:"url,omitempty"`
 }
 
 // Name gets the name of this subtype
-func (m *Prometheus) Name() string {
+func (m *OpenStorage) Name() string {
 	return m.nameField
 }
 
 // SetName sets the name of this subtype
-func (m *Prometheus) SetName(val string) {
+func (m *OpenStorage) SetName(val string) {
 	m.nameField = val
 }
 
 // Type gets the type of this subtype
-func (m *Prometheus) Type() ProviderType {
-	return "Prometheus"
+func (m *OpenStorage) Type() ProviderType {
+	return "OpenStorage"
 }
 
 // SetType sets the type of this subtype
-func (m *Prometheus) SetType(val ProviderType) {
+func (m *OpenStorage) SetType(val ProviderType) {
 
 }
 
@@ -57,13 +57,13 @@ func (m *Prometheus) SetType(val ProviderType) {
 // URL gets the url of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *Prometheus) UnmarshalJSON(raw []byte) error {
+func (m *OpenStorage) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// Addition provider params
 		Params map[string]interface{} `json:"params,omitempty"`
 
-		// The prometheus host url
+		// The host url
 		URL string `json:"url,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -89,7 +89,7 @@ func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result Prometheus
+	var result OpenStorage
 
 	result.nameField = base.Name
 
@@ -108,7 +108,7 @@ func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m Prometheus) MarshalJSON() ([]byte, error) {
+func (m OpenStorage) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
@@ -116,7 +116,7 @@ func (m Prometheus) MarshalJSON() ([]byte, error) {
 		// Addition provider params
 		Params map[string]interface{} `json:"params,omitempty"`
 
-		// The prometheus host url
+		// The host url
 		URL string `json:"url,omitempty"`
 	}{
 
@@ -146,8 +146,8 @@ func (m Prometheus) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this prometheus
-func (m *Prometheus) Validate(formats strfmt.Registry) error {
+// Validate validates this open storage
+func (m *OpenStorage) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if len(res) > 0 {
@@ -157,7 +157,7 @@ func (m *Prometheus) Validate(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Prometheus) MarshalBinary() ([]byte, error) {
+func (m *OpenStorage) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -165,8 +165,8 @@ func (m *Prometheus) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Prometheus) UnmarshalBinary(b []byte) error {
-	var res Prometheus
+func (m *OpenStorage) UnmarshalBinary(b []byte) error {
+	var res OpenStorage
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

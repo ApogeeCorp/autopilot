@@ -30,14 +30,28 @@ var (
 	// ProviderTypePrometheus captures enum value "Prometheus"
 	ProviderTypePrometheus ProviderType = "Prometheus"
 
+	// ProviderTypeOpenStorage captures enum value "OpenStorage"
+	ProviderTypeOpenStorage ProviderType = "OpenStorage"
+
+	// ProviderTypeAutoPilot captures enum value "AutoPilot"
+	ProviderTypeAutoPilot ProviderType = "AutoPilot"
+
 	ProviderTypeScalarLookup = map[ProviderType]ProviderTypeScalar{
 
 		ProviderTypePrometheus: ProviderTypePrometheusScalar,
+
+		ProviderTypeOpenStorage: ProviderTypeOpenStorageScalar,
+
+		ProviderTypeAutoPilot: ProviderTypeAutoPilotScalar,
 	}
 )
 
 const (
 	ProviderTypePrometheusScalar ProviderTypeScalar = 0
+
+	ProviderTypeOpenStorageScalar ProviderTypeScalar = 1
+
+	ProviderTypeAutoPilotScalar ProviderTypeScalar = 2
 )
 
 func (m ProviderType) ScalarValue() ProviderTypeScalar {
@@ -49,7 +63,7 @@ var providerTypeEnum []interface{}
 
 func init() {
 	var res []ProviderType
-	if err := json.Unmarshal([]byte(`["Prometheus"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Prometheus","OpenStorage","AutoPilot"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

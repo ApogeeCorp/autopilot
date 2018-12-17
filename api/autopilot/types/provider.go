@@ -110,6 +110,20 @@ func unmarshalProvider(data []byte, consumer runtime.Consumer) (Provider, error)
 
 	// The value of type is used to determine which type to create and unmarshal the data into
 	switch getType.Type {
+	case "AutoPilot":
+		var result AutoPilot
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "OpenStorage":
+		var result OpenStorage
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
 	case "Prometheus":
 		var result Prometheus
 		if err := consumer.Consume(buf2, &result); err != nil {

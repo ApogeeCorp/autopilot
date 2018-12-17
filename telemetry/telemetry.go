@@ -36,8 +36,8 @@ func Register(t types.ProviderType, provider NewFunc) {
 	providers[name] = provider
 }
 
-// Get creates a new telemetry provider instance with the specified parameters
-func Get(prov types.Provider) (Provider, error) {
+// NewInstance creates a new telemetry provider instance with the specified parameters
+func NewInstance(prov types.Provider) (Provider, error) {
 	if prov == nil {
 		return nil, errors.New("invalid provider")
 	}

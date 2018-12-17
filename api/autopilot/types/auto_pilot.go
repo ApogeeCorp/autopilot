@@ -20,51 +20,43 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Prometheus Prometheus provider configuration
-// swagger:model Prometheus
-type Prometheus struct {
+// AutoPilot The AutoPilot provider configuration
+// swagger:model AutoPilot
+type AutoPilot struct {
 	nameField string ``
 
 	// Addition provider params
 	Params map[string]interface{} `json:"params,omitempty"`
-
-	// The prometheus host url
-	URL string `json:"url,omitempty"`
 }
 
 // Name gets the name of this subtype
-func (m *Prometheus) Name() string {
+func (m *AutoPilot) Name() string {
 	return m.nameField
 }
 
 // SetName sets the name of this subtype
-func (m *Prometheus) SetName(val string) {
+func (m *AutoPilot) SetName(val string) {
 	m.nameField = val
 }
 
 // Type gets the type of this subtype
-func (m *Prometheus) Type() ProviderType {
-	return "Prometheus"
+func (m *AutoPilot) Type() ProviderType {
+	return "AutoPilot"
 }
 
 // SetType sets the type of this subtype
-func (m *Prometheus) SetType(val ProviderType) {
+func (m *AutoPilot) SetType(val ProviderType) {
 
 }
 
 // Params gets the params of this subtype
 
-// URL gets the url of this subtype
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *Prometheus) UnmarshalJSON(raw []byte) error {
+func (m *AutoPilot) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// Addition provider params
 		Params map[string]interface{} `json:"params,omitempty"`
-
-		// The prometheus host url
-		URL string `json:"url,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -89,7 +81,7 @@ func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result Prometheus
+	var result AutoPilot
 
 	result.nameField = base.Name
 
@@ -100,29 +92,22 @@ func (m *Prometheus) UnmarshalJSON(raw []byte) error {
 
 	result.Params = data.Params
 
-	result.URL = data.URL
-
 	*m = result
 
 	return nil
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m Prometheus) MarshalJSON() ([]byte, error) {
+func (m AutoPilot) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
 
 		// Addition provider params
 		Params map[string]interface{} `json:"params,omitempty"`
-
-		// The prometheus host url
-		URL string `json:"url,omitempty"`
 	}{
 
 		Params: m.Params,
-
-		URL: m.URL,
 	},
 	)
 	if err != nil {
@@ -146,8 +131,8 @@ func (m Prometheus) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this prometheus
-func (m *Prometheus) Validate(formats strfmt.Registry) error {
+// Validate validates this auto pilot
+func (m *AutoPilot) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if len(res) > 0 {
@@ -157,7 +142,7 @@ func (m *Prometheus) Validate(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Prometheus) MarshalBinary() ([]byte, error) {
+func (m *AutoPilot) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -165,8 +150,8 @@ func (m *Prometheus) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Prometheus) UnmarshalBinary(b []byte) error {
-	var res Prometheus
+func (m *AutoPilot) UnmarshalBinary(b []byte) error {
+	var res AutoPilot
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

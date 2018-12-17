@@ -176,7 +176,7 @@ definitions:
   ProviderType:
     description: Provider types
     type: string
-    enum: [ Prometheus ]
+    enum: [ Prometheus, OpenStorage, AutoPilot ]
   Prometheus:
     description:  Prometheus provider configuration
     allOf:
@@ -185,6 +185,37 @@ definitions:
           url:
             description: The prometheus host url
             type: string
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
+  OpenStorage:
+    description:  OpenStorage SDK provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          url:
+            description: The host url
+            type: string
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
+  AutoPilot:
+    description: The AutoPilot provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
   Collector:
     description: |
       A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.

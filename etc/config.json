@@ -5,7 +5,7 @@
 		"url": "http://70.0.69.141:9090/api/v1"
 	}],
 	"collectors": [{
-		"name": "default",
+		"name": "portworx",
 		"provider": "portworx",
 		"params": {
 			"path": "/query_range",
@@ -15,7 +15,7 @@
 		"interval": "1h"
 	}],
 	"monitors": [{
-		"name": "default", 
+		"name": "portworx", 
 		"provider": "portworx",
 		"params": {
 			"path": "/query"
