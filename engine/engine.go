@@ -50,7 +50,13 @@ func NewEngine(c *config.Config) (*Engine, error) {
 // Start starts the engine monitors and the collector scheduler
 func (e *Engine) Start() error {
 	log.Debug("staring engine...")
+	if err := e.startMonitors(); err != nil {
+		return err
+	}
+	return nil
+}
 
+func (e *Engine) startMonitors() error {
 	// start the monitors
 	for _, m := range e.config.Monitors {
 		_, ok := e.providers[m.Provider]
@@ -92,7 +98,6 @@ func (e *Engine) Start() error {
 			}
 		}(m.Provider, dur, rules)
 	}
-
 	return nil
 }
 
