@@ -443,12 +443,6 @@ func init() {
           "type": "string",
           "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
         },
-        "for": {
-          "description": "The duration/interval the expression must be valid for in seconds",
-          "type": "integer",
-          "format": "int64",
-          "example": 3600
-        },
         "issue": {
           "description": "The issue template",
           "type": "string",
@@ -1015,12 +1009,6 @@ func init() {
           "description": "The expression to match or query to make",
           "type": "string",
           "example": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes) \u003e 80"
-        },
-        "for": {
-          "description": "The duration/interval the expression must be valid for in seconds",
-          "type": "integer",
-          "format": "int64",
-          "example": 3600
         },
         "issue": {
           "description": "The issue template",

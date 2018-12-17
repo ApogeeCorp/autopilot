@@ -28,9 +28,6 @@ type Rule struct {
 	// The expression to match or query to make
 	Expr string `json:"expr,omitempty"`
 
-	// The duration/interval the expression must be valid for in seconds
-	For int64 `json:"for,omitempty"`
-
 	// The issue template
 	Issue string `json:"issue,omitempty"`
 

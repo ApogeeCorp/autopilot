@@ -27,7 +27,6 @@
 		{
 			"name": "PromPortworxVolumeUsageCritical",
 			"expr": "100 * (px_volume_usage_bytes{cluster=\"greatdane-1914e166dc7\"}/ px_volume_capacity_bytes) > 10",
-			"for": 3600,
 			"issue": "Critical: Portworx volume {{.Metric.Volume}} usage on {{.Metric.Instance}} is {{index .Value 1 | formatFloat}}% ",
 			"severity": "critical",
 			"proposal": "Add additional storage node to {{.Metric.Cluster}}"
