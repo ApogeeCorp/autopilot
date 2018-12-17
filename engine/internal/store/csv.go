@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/spf13/cast"
@@ -19,15 +20,21 @@ import (
 // Store is the internal autopilot storage writer
 type Store struct {
 	path string
+	lock sync.Mutex
 }
 
 // NewStore returns the storage interface
-func NewStore(path string) (*Store, error) {
-	return &Store{path}, nil
+func NewStore(path string) *Store {
+	return &Store{
+		path: path,
+	}
 }
 
 // Write implements the store.Writer.Write
 func (s *Store) Write(vectors []telemetry.Vector) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	/*timeseries, alerts := transformToRows(vectors)
 
 	base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))

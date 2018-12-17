@@ -16,6 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/config"
+	"github.com/libopenstorage/autopilot/engine/internal/store"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,6 +25,7 @@ import (
 type Engine struct {
 	config    *config.Config
 	providers map[string]telemetry.Provider
+	store     *store.Store
 	stop      chan bool
 	wg        sync.WaitGroup
 }
@@ -33,7 +35,7 @@ func NewEngine(c *config.Config) (*Engine, error) {
 	// initialize the provider instances
 	provs := make(map[string]telemetry.Provider)
 	for _, p := range c.Providers {
-		prov, err := telemetry.Get(p)
+		prov, err := telemetry.NewInstance(p)
 		if err != nil {
 			return nil, err
 		}
@@ -44,6 +46,7 @@ func NewEngine(c *config.Config) (*Engine, error) {
 		providers: provs,
 		config:    c,
 		stop:      make(chan bool),
+		store:     store.NewStore(c.DataDir),
 	}, nil
 }
 
@@ -133,11 +136,17 @@ func (e *Engine) startCollectors() error {
 			for {
 				select {
 				case <-ticker.C:
-					_, err := prov.Query(params)
+					start := time.Now().Add(-interval).Truncate(interval).UTC().Format(time.RFC3339)
+					end := time.Now().UTC().Format(time.RFC3339)
+
+					params["start"] = start
+					params["end"] = end
+
+					vecs, err := prov.Query(params)
 					if err != nil {
 						log.Errorln(err)
 					} else {
-						// TODO: write to store
+						e.store.Write(vecs)
 					}
 				case <-e.stop:
 					break

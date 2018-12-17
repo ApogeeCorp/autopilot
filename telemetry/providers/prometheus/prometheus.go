@@ -74,7 +74,7 @@ func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) 
 		if err != nil {
 			return nil, err
 		}
-		q.Add("start", fmt.Sprint(start.Truncate(time.Hour).UTC().Unix()))
+		q.Add("start", fmt.Sprint(start.UTC().Unix()))
 	}
 
 	if v, ok := params.IsSetV("end"); ok {
@@ -82,7 +82,7 @@ func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) 
 		if err != nil {
 			return nil, err
 		}
-		q.Add("end", fmt.Sprint(end.Truncate(time.Hour).UTC().Unix()))
+		q.Add("end", fmt.Sprint(end.UTC().Unix()))
 	}
 
 	if step, ok := params.IsSetV("step"); ok {
