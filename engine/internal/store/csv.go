@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/kr/pretty"
 	"github.com/libopenstorage/autopilot/telemetry"
 	"github.com/spf13/cast"
 )
@@ -35,6 +36,7 @@ func (s *Store) Write(vectors []telemetry.Vector) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+	pretty.Log(vectors)
 	/*timeseries, alerts := transformToRows(vectors)
 
 	base := filepath.Join(stagingPath, startDate.Format("2006-01-02"), startDate.Format("1504"))

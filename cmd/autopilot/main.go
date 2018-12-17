@@ -54,13 +54,19 @@ func main() {
 			Name:   "config,f",
 			Usage:  "set the configuration file path",
 			EnvVar: "CONFIG_FILE",
-			Value:  "./etc/config.json",
+			Value:  "/etc/config.json",
 		},
 		cli.StringFlag{
 			Name:   "data-dir,d",
 			Usage:  "set the data directory for the process",
 			EnvVar: "DATA_DIR",
-			Value:  "./var/run/autopilot",
+			Value:  "/var/run/autopilot",
+		},
+		cli.StringFlag{
+			Name:   "listen,l",
+			Usage:  "set the listener address",
+			EnvVar: "LISTEN_ADDR",
+			Value:  ":9000",
 		},
 	}
 
@@ -80,6 +86,10 @@ func main() {
 
 		if config.DataDir == "" {
 			config.DataDir = c.GlobalString("data-dir")
+		}
+
+		if config.Listen == "" {
+			config.Listen = c.GlobalString("listen")
 		}
 
 		if err := os.MkdirAll(config.DataDir, 0770); err != nil {
@@ -110,7 +120,7 @@ func main() {
 			log.Fatalln(err)
 		}
 		s := &http.Server{
-			Addr:           ":9000",
+			Addr:           config.Listen,
 			Handler:        handler,
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   10 * time.Second,

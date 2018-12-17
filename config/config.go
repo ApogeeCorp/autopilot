@@ -20,6 +20,7 @@ type Config struct {
 	Emitters   []*types.Emitter   `json:"emitters"`
 	Rules      []*types.Rule      `json:"rules"`
 	DataDir    string             `json:"data_dir"`
+	Listen     string             `json:"listen"`
 }
 
 // UnmarshalJSON handles the unmarshaling of the config
@@ -30,6 +31,7 @@ func (m *Config) UnmarshalJSON(raw []byte) error {
 		Monitors   []*types.Monitor   `json:"monitors"`
 		Emitters   []*types.Emitter   `json:"emitters"`
 		Rules      []*types.Rule      `json:"rules"`
+		Listen     string             `json:"listen"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
