@@ -1,22 +1,26 @@
-// Copyright 2018 Portworx Inc. All rights reserved.
-// Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file.
+/*
+Copyright 2019 Openstorage.org
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/libopenstorage/autopilot/api/autopilot"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest"
-	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/engine"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
 	log "github.com/sirupsen/logrus"
@@ -24,25 +28,6 @@ import (
 )
 
 func main() {
-	switch os.Getenv("LOG_FORMAT") {
-	case "text":
-		log.SetFormatter(&log.TextFormatter{
-			FullTimestamp: true,
-		})
-	case "json":
-		fallthrough
-	default:
-		log.SetFormatter(&log.JSONFormatter{
-			TimestampFormat: time.RFC3339,
-		})
-	}
-
-	if lvl, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		if level, err := log.ParseLevel(lvl); err == nil {
-			log.SetLevel(level)
-		}
-	}
-
 	app := cli.NewApp()
 
 	app.Name = "autopilot"
@@ -54,7 +39,7 @@ func main() {
 			Name:   "config,f",
 			Usage:  "set the configuration file path",
 			EnvVar: "CONFIG_FILE",
-			Value:  "/etc/config.json",
+			Value:  "/etc/autopilot/config.yaml",
 		},
 		cli.StringFlag{
 			Name:   "data-dir,d",
@@ -63,40 +48,40 @@ func main() {
 			Value:  "/var/run/autopilot",
 		},
 		cli.StringFlag{
-			Name:   "listen,l",
-			Usage:  "set the listener address",
-			EnvVar: "LISTEN_ADDR",
-			Value:  ":9000",
+			Name:   "log-level",
+			Usage:  "set the log level",
+			EnvVar: "LOG_LEVEL",
+			Value:  "info",
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		config := &config.Config{}
+	app.Before = func(c *cli.Context) error {
+		switch os.Getenv("LOG_FORMAT") {
+		case "text":
+			log.SetFormatter(&log.TextFormatter{
+				FullTimestamp: true,
+			})
+		case "json":
+			fallthrough
+		default:
+			log.SetFormatter(&log.JSONFormatter{
+				TimestampFormat: time.RFC3339,
+			})
+		}
 
+		if lvl, ok := os.LookupEnv("LOG_LEVEL"); ok {
+			if level, err := log.ParseLevel(lvl); err == nil {
+				log.SetLevel(level)
+			}
+		}
+
+		return nil
+	}
+
+	app.Action = func(c *cli.Context) error {
 		log.SetLevel(log.DebugLevel)
 
-		data, err := ioutil.ReadFile(c.GlobalString("config"))
-		if err != nil {
-			return err
-		}
-
-		if err := json.Unmarshal(data, config); err != nil {
-			return err
-		}
-
-		if config.DataDir == "" {
-			config.DataDir = c.GlobalString("data-dir")
-		}
-
-		if config.Listen == "" {
-			config.Listen = c.GlobalString("listen")
-		}
-
-		if err := os.MkdirAll(config.DataDir, 0770); err != nil {
-			return err
-		}
-
-		eng, err := engine.NewEngine(config)
+		eng, err := engine.NewEngine()
 		if err != nil {
 			return err
 		}
@@ -104,32 +89,6 @@ func main() {
 		if err := eng.Start(); err != nil {
 			return err
 		}
-
-		api := &autopilot.API{
-			Config: config,
-			Engine: eng,
-		}
-
-		handler, err := rest.Handler(rest.Config{
-			AutopilotAPI: api,
-			AuthBasicAuth: func(ctx context.Context, username string, pass string) (context.Context, interface{}, error) {
-				return ctx, username, nil
-			},
-		})
-		if err != nil {
-			log.Fatalln(err)
-		}
-		s := &http.Server{
-			Addr:           config.Listen,
-			Handler:        handler,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
-			MaxHeaderBytes: 1 << 20,
-		}
-
-		log.Infof("starting server %s", s.Addr)
-
-		log.Fatal(s.ListenAndServe())
 
 		return nil
 	}

@@ -1,16 +1,25 @@
-// Copyright 2018 Portworx Inc. All rights reserved.
-// Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file.
+/*
+Copyright 2019 Openstorage.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package telemetry
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
-
-	"github.com/libopenstorage/autopilot/api/autopilot/types"
 )
 
 var (
@@ -21,8 +30,8 @@ var (
 // Register makes a telemetry provider available by the provided name.
 // If Register is called twice with the same name or if provider is nil,
 // it panics.
-func Register(t types.ProviderType, provider NewFunc) {
-	name := strings.ToLower(string(t))
+func Register(name string, provider NewFunc) {
+	name = strings.ToLower(name)
 
 	provMu.Lock()
 	defer provMu.Unlock()
@@ -36,17 +45,13 @@ func Register(t types.ProviderType, provider NewFunc) {
 	providers[name] = provider
 }
 
-// NewInstance creates a new telemetry provider instance with the specified parameters
-func NewInstance(prov types.Provider) (Provider, error) {
-	if prov == nil {
-		return nil, errors.New("invalid provider")
-	}
-	name := strings.ToLower(string(prov.Type()))
+// NewInstance creates a new telemetry provider
+func NewInstance(name string, params Params) (Provider, error) {
 	provMu.RLock()
-	createFn, ok := providers[name]
+	newFn, ok := providers[name]
 	provMu.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("telemetry: unknown provider %q (forgotten import?)", name)
 	}
-	return createFn(prov)
+	return newFn(params)
 }

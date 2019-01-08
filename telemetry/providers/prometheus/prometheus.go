@@ -1,3 +1,19 @@
+/*
+Copyright 2019 Openstorage.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package prometheus
 
 import (
@@ -10,7 +26,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
 )
@@ -35,18 +50,16 @@ type (
 	}
 
 	prometheus struct {
-		types.Prometheus
+		params telemetry.Params
+		url    string
 	}
 )
 
 // New returns a new prometheus instance
-func New(prov types.Provider) (telemetry.Provider, error) {
-	prom, ok := prov.(*types.Prometheus)
-	if !ok {
-		return nil, errors.New("invalid provider type")
-	}
+func New(params telemetry.Params) (telemetry.Provider, error) {
 	return &prometheus{
-		Prometheus: *prom,
+		params: params,
+		url:    params.String("host"),
 	}, nil
 }
 
@@ -54,7 +67,7 @@ func New(prov types.Provider) (telemetry.Provider, error) {
 func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) {
 	client := &http.Client{}
 
-	base, err := url.Parse(p.URL)
+	base, err := url.Parse(p.url)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +104,7 @@ func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) 
 
 	req.URL.RawQuery = q.Encode()
 
-	log.Debugf("provider %s: executing query %s", types.ProviderTypePrometheus, req.URL.String())
+	log.Debugf("prometheus: executing query %s", req.URL.String())
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -128,5 +141,5 @@ func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
 }
 
 func init() {
-	telemetry.Register(types.ProviderTypePrometheus, New)
+	telemetry.Register("prometheus", New)
 }
