@@ -1,0 +1,18 @@
+name: autopilot
+apis:
+  autopilot:
+    spec: api/autopilot.yaml
+    source: https://api.swaggerhub.com/apis/ModelRocket/autopilot/1.0.0/swagger.yaml
+license:
+  owner: Portworx
+  type: Apache
+  header: |
+    Copyright 2018 Portworx Inc. All rights reserved.
+    Use of this source code is governed by the Apache 2.0
+    license that can be found in the LICENSE file at the 
+    root of this project.
+environment:
+  dev:
+    CONFIG_FILE: ./etc/config.json
+    DATA_DIR: ./var/run/autopilot
+    LISTEN_ADDR: 127.0.0.1:9000

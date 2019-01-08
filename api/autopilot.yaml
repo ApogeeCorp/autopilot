@@ -1,0 +1,396 @@
+swagger: '2.0'
+info:
+  description: libopenstorage autopilot API
+  version: "1.0.0"
+  title: autopilot
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: localhost:9000
+schemes:
+  - http
+  
+basePath: /api/v1
+  
+securityDefinitions:
+  basicAuth:
+    type: basic
+
+security:
+  - basicAuth: []
+  
+consumes:
+  - application/json
+  
+produces:
+  - application/json
+  
+paths:
+  /providers:
+    get:
+      summary: Get a list of telemetry providers
+      description: Returns an array of telemetry providers defined in the system
+      operationId: providerList
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Provider'
+        500:
+          $ref: '#/responses/ServerError'
+  /providers/{provider}/query:
+    parameters:
+      - name: provider
+        description: the provider name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Query a collector
+      description: Query a provider directly
+      operationId: providerQuery
+      parameters:
+        - name: start_date
+          in: query
+          type: string
+          format: date-time
+        - name: end_date
+          in: query
+          type: string
+          format: date-time
+        - name: query
+          in: query
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Collector'
+        500:
+          $ref: '#/responses/ServerError'
+  /providers/{provider}/recommend:
+    parameters:
+      - name: provider
+        description: the provider name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Post a telemetry sample and get recommendations
+      description: Create a new telemetry sample from the provided definition and get recommendations
+      operationId: recommendationsGet
+      parameters:
+        - name: rules
+          description: The pre-defined rules to apply
+          in: query
+          type: array
+          items:
+            type: string
+          collectionFormat: csv
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recommendation'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
+  /collectors:
+    get:
+      summary: Get a list of telemetry collectors
+      description: Returns an array of telemetry collectors defined in the system
+      operationId: collectorList
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Collector'
+        500:
+          $ref: '#/responses/ServerError'
+  /collectors/{collector}/poll:
+    parameters:
+      - name: collector
+        description: the collector name
+        type: string
+        in: path
+        required: true
+    get:
+      summary: Poll a collector
+      description: Poll a collector for the given period directly
+      operationId: collectorPoll
+      responses:
+        201:
+          description: No Content
+        500:
+          $ref: '#/responses/ServerError'
+  /emitters:
+    get:
+      summary: Get a list of telemetry emitters
+      description: Returns an array of telemetry emitters defined in the system
+      operationId: emitterList
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Emitter'
+        500:
+          $ref: '#/responses/ServerError'
+  /rules:
+    get:
+      summary: Get a list of telemetry rules
+      description: Returns an array of telemetry rules defined in the system
+      operationId: ruleList
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Rule'
+        500:
+          $ref: '#/responses/ServerError'
+definitions:
+  Provider:
+    description: |
+      A provider defines a provider configuration
+    discriminator: type
+    properties:
+      type:
+        $ref: '#/definitions/ProviderType'
+      name:
+        description: The provider instance name
+        type: string
+  ProviderType:
+    description: Provider types
+    type: string
+    enum: [ Prometheus, OpenStorage, AutoPilot ]
+  Prometheus:
+    description:  Prometheus provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          url:
+            description: The prometheus host url
+            type: string
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
+  OpenStorage:
+    description:  OpenStorage SDK provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          url:
+            description: The host url
+            type: string
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
+  AutoPilot:
+    description: The AutoPilot provider configuration
+    allOf:
+      - $ref: "#/definitions/Provider"
+      - properties:
+          params:
+            type: object
+            description: Addition provider params
+            additionalProperties:
+              type: object
+              properties: {}
+  Collector:
+    description: |
+      A collector pulls data from a provider at regular intervals and stores the data in an autopilot format for the ML engine.
+    properties:
+      name:
+        description: The collector name
+        type: string
+      provider:
+        description: The provider name
+        type: string
+      params:
+        type: object
+        description: The collector provider params
+        additionalProperties:
+          type: object
+          properties: {}
+      interval:
+        description: The interval for the collector to run and collect training data for autopilot
+        type: string
+        default: '24h'
+      sample_size:
+        description: The sample size of data to collect, will truncate the interval to this value, the default is the interval
+        type: string
+        x-nullable: true
+  Monitor:
+    description: |
+      A monitor executes and analyzes rules at the specified interval, emmiting alerts
+    properties:
+      name:
+        description: The monitor name
+        type: string
+      provider:
+        description: The provider to monitor
+        type: string
+      params:
+        type: object
+        description: the monitor provider additional params
+        additionalProperties:
+          type: object
+          properties: {}
+      interval:
+        description: The interval to monitor
+        type: string
+        default: '15m'
+      rules:
+        description: The rules to execute on the provider
+        type: array
+        items:
+          type: string
+  Emitter:
+    description: |
+      An emitter emits recommendations to a target
+    properties:
+      name:
+        description: The emitter name
+        type: string
+      type:
+        description: The emitter type
+        type: string
+        enum: [ mqtt ]
+      params:
+        type: object
+        description: json data object
+        additionalProperties:
+          type: object
+          properties: {}
+  Rule:
+    description: |
+      An rule is a contraint expression that checked in the system against
+    properties:
+      name:
+        description: the rule description
+        type: string
+      expr:
+        description: The expression to match or query to make
+        type: string
+        example: 100 * (px_volume_usage_bytes / px_volume_capacity_bytes) > 80
+      issue:
+        description: The issue template
+        type: string
+        example: Portworx volume {{$labels.volume}} usage on {{$labels.host}} is high.
+      severity: 
+        type: string
+        enum: [ warning, error, critical ]
+      proposal: 
+        description: The proposal template
+        type: string
+        example: Add additional storage node to {{$labels.cluster}}
+  Proposal:
+    description: |
+      A proposal is a formatted propsal object
+    properties:
+      rule:
+        description: The rule that triggered the proposal
+        type: string
+      cluster:
+        description: The cluster id
+        type: string
+      node:
+        description: The node id
+        type: string
+      volume:
+        description: The volume id
+        type: string
+      issue:
+        description: Issue from the rule that describes the reason for this proposal
+        type: string
+      action:
+        description: The proposed action to take to resolve the issue
+        type: string
+  Recommendation:
+    description: |
+      A recommendation is a list of recommended arbitrations to be emitted by the system
+    properties:
+      timestamp:
+        description: The recommendation timestamp
+        type: string
+        format: date-time
+      proposals:
+        description: The recommendation values mapping rule.name -> formatted proposal
+        type: array
+        items:
+          $ref: '#/definitions/Proposal'
+  Error:
+    description: Common Error Model
+    type: object
+    properties:
+      code:
+        type: string
+        description: The error code
+        x-nullable: true
+      message:
+        type: string
+        description: The error message
+      detail:
+        type: object
+        description: The error details
+        additionalProperties:
+          type: string
+        x-omitempty: true
+        x-nullable: true
+responses:
+  NotFound:
+    description: NotFound
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "object not found"
+        }
+  Unauthorized:
+    description: Unauthorized
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "access denied"
+        }
+  BadRequest:
+    description: BadRequest
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "invalid parameter"
+        }
+  ServerError:
+    description: ServerError
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        {
+          "message": "internal server error"
+        }
