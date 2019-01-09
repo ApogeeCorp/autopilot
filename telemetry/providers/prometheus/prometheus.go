@@ -141,7 +141,7 @@ func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
 }
 
 func (p *prometheus) Exec(policy *telemetry.StoragePolicy) (bool, error) {
-	log.Infof("checking policy %q", policy.Name)
+	log.Infof("checking policy %q, %#v", policy.Name, policy.Spec.Conditions[0].Values)
 	return false, nil
 }
 
