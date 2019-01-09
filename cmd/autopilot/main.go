@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package main
 
 import (
@@ -20,8 +21,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/libopenstorage/autopilot/telemetry"
+
 	_ "github.com/lib/pq"
-	"github.com/libopenstorage/autopilot/engine"
+	"github.com/libopenstorage/autopilot/config"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -53,47 +56,84 @@ func main() {
 			EnvVar: "LOG_LEVEL",
 			Value:  "info",
 		},
+		cli.StringFlag{
+			Name:   "log-format",
+			Usage:  "set the log format",
+			EnvVar: "LOG_FORMAT",
+			Value:  "text",
+		},
 	}
 
-	app.Before = func(c *cli.Context) error {
-		switch os.Getenv("LOG_FORMAT") {
-		case "text":
-			log.SetFormatter(&log.TextFormatter{
-				FullTimestamp: true,
-			})
-		case "json":
-			fallthrough
-		default:
-			log.SetFormatter(&log.JSONFormatter{
-				TimestampFormat: time.RFC3339,
-			})
-		}
-
-		if lvl, ok := os.LookupEnv("LOG_LEVEL"); ok {
-			if level, err := log.ParseLevel(lvl); err == nil {
-				log.SetLevel(level)
-			}
-		}
-
-		return nil
-	}
+	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
+		provs := make(map[string]telemetry.Provider)
 		log.SetLevel(log.DebugLevel)
 
-		eng, err := engine.NewEngine()
+		cfg, err := config.ReadFile(c.String("config"))
 		if err != nil {
 			return err
 		}
 
-		if err := eng.Start(); err != nil {
-			return err
+		// initialize the metrics providers
+		for _, p := range cfg.Providers {
+			inst, err := telemetry.NewInstance(p.Type, p.Params)
+			if err != nil {
+				return err
+			}
+
+			log.Debugf("metrics provider %q initialized", p.Name)
+
+			provs[p.Name] = inst
+		}
+
+		for _, p := range provs {
+			go func(p telemetry.Provider) {
+
+			}(p)
 		}
 
 		return nil
+	}
+
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name: "policy",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:      "test",
+					Action:    policyTestAction,
+					Usage:     "Test a policy document using the configuration",
+					UsageText: "test <file>",
+				},
+			},
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Println(err)
 	}
+}
+
+func setupLog(c *cli.Context) error {
+	// setup the log format
+	switch c.String("log-format") {
+	case "text":
+		log.SetFormatter(&log.TextFormatter{
+			FullTimestamp: true,
+		})
+	case "json":
+		fallthrough
+	default:
+		log.SetFormatter(&log.JSONFormatter{
+			TimestampFormat: time.RFC3339,
+		})
+	}
+
+	// setup the log level
+	if level, err := log.ParseLevel(c.String("log-level")); err == nil {
+		log.SetLevel(level)
+	}
+
+	return nil
 }

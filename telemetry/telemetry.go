@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 var (
@@ -46,12 +48,12 @@ func Register(name string, provider NewFunc) {
 }
 
 // NewInstance creates a new telemetry provider
-func NewInstance(name string, params Params) (Provider, error) {
+func NewInstance(name, params string) (Provider, error) {
 	provMu.RLock()
 	newFn, ok := providers[name]
 	provMu.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("telemetry: unknown provider %q (forgotten import?)", name)
 	}
-	return newFn(params)
+	return newFn(sparks.ParseStringParams(params))
 }

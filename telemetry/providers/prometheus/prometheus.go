@@ -59,7 +59,7 @@ type (
 func New(params telemetry.Params) (telemetry.Provider, error) {
 	return &prometheus{
 		params: params,
-		url:    params.String("host"),
+		url:    params.String("url"),
 	}, nil
 }
 
@@ -138,6 +138,11 @@ func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
 	default:
 		return nil, errors.New("invalid return data")
 	}
+}
+
+func (p *prometheus) Exec(policy *telemetry.StoragePolicy) (bool, error) {
+	log.Infof("checking policy %q", policy.Name)
+	return false, nil
 }
 
 func init() {

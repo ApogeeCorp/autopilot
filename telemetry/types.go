@@ -17,6 +17,7 @@ limitations under the License.
 package telemetry
 
 import (
+	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
@@ -30,7 +31,13 @@ type (
 
 		// Parse returns a result vector from the raw data
 		Parse(data []byte) ([]Vector, error)
+
+		// Exec executes query based on the provided policy and returns if it was matched or not
+		Exec(*StoragePolicy) (bool, error)
 	}
+
+	// StoragePolicy maps the the k8s StoragePolicySpec
+	StoragePolicy = autopilot.StoragePolicy
 
 	// Params is an alias for a map helper
 	Params = sparks.Params
