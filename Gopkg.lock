@@ -318,7 +318,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e22a69c214374ef0dae2c847bb392abb33ddcc7ca33a07f5ca5837a16de2173b"
+  digest = "1:9c0d5fac71fd2ba2c8b31e60cb2f2f04ca1b2589091c6fc53f176f4353f044cc"
   name = "github.com/libopenstorage/stork"
   packages = [
     "pkg/apis/stork",
@@ -326,6 +326,7 @@
     "pkg/client/clientset/versioned",
     "pkg/client/clientset/versioned/scheme",
     "pkg/client/clientset/versioned/typed/stork/v1alpha1",
+    "pkg/controller",
   ]
   pruneopts = "UT"
   revision = "7e2b610533b9d1a509b21206ff3b6072c897273f"
@@ -854,6 +855,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/lib/pq",
+    "github.com/libopenstorage/stork/pkg/controller",
     "github.com/operator-framework/operator-sdk/pkg/sdk",
     "github.com/operator-framework/operator-sdk/pkg/util/k8sutil",
     "github.com/portworx/sched-ops/k8s",

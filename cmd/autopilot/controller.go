@@ -23,7 +23,7 @@ import (
 
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
 	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	"github.com/libopenstorage/autopilot/pkg/controller"
+	"github.com/libopenstorage/stork/pkg/controller"
 
 	"github.com/operator-framework/operator-sdk/pkg/sdk"
 	log "github.com/sirupsen/logrus"

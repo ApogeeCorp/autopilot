@@ -21,3 +21,8 @@ Once you make changes to the CRD, use the following make rule to update the gene
 ```shell
 make codegen
 ```
+
+
+## Running
+
+autopilot expects to run in cluster, of running standalone be sure to set `KUBERNETES_CONFIG` to your cluster configuration file path.

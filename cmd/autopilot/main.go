@@ -22,8 +22,9 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/libopenstorage/autopilot/pkg/controller"
+
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
+	"github.com/libopenstorage/stork/pkg/controller"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"

@@ -4,22 +4,38 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// LabelSelectorOperator is the set of operators that can be used in a selector requirement.
+type LabelSelectorOperator string
+
 const (
 	StoragePolicyResourceName   = "storagepolicy"
 	StoragePolicyResourcePlural = "storagepolicies"
-	// LabelSelectorOpIn is operator where the key must have one of the values
-	LabelSelectorOpIn LabelSelectorOperator = "In"
-	// LabelSelectorOpNotIn is operator where the key must not have any of the values
-	LabelSelectorOpNotIn LabelSelectorOperator = "NotIn"
-	// LabelSelectorOpExists is operator where the key must exist
-	LabelSelectorOpExists LabelSelectorOperator = "Exists"
-	// LabelSelectorOpDoesNotExist is operator where the key must not exist
+
+	LabelSelectorOpIn           LabelSelectorOperator = "In"
+	LabelSelectorOpNotIn        LabelSelectorOperator = "NotIn"
+	LabelSelectorOpExists       LabelSelectorOperator = "Exists"
 	LabelSelectorOpDoesNotExist LabelSelectorOperator = "DoesNotExist"
-	// LabelSelectorOpGt is operator where the key must be greater than the values
-	LabelSelectorOpGt LabelSelectorOperator = "Gt"
-	// LabelSelectorOpLt is operator where the key must be less than the values
-	LabelSelectorOpLt LabelSelectorOperator = "Lt"
+	LabelSelectorOpGt           LabelSelectorOperator = "Gt"
+	LabelSelectorOpLt           LabelSelectorOperator = "Lt"
 )
+
+// LabelSelectorRequirement is a selector that contains values, a key, and an operator that
+// relates the key and values.
+type LabelSelectorRequirement struct {
+	// key is the label key that the selector applies to.
+	// +patchMergeKey=key
+	// +patchStrategy=merge
+	Key string `json:"key"`
+	// operator represents a key's relationship to a set of values.
+	// Valid operators are In, NotIn, Exists, DoesNotExist, Lt and Gt.
+	Operator LabelSelectorOperator `json:"operator"`
+	// values is an array of string values. If the operator is In or NotIn,
+	// the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	// the values array must be empty. This array is replaced during a strategic
+	// merge patch.
+	// +optional
+	Values []string `json:"values"`
+}
 
 // +genclient
 // +genclient:nonNamespaced
@@ -56,7 +72,7 @@ type StoragePolicySpec struct {
 	// Object is the entity on which to check the conditions
 	Object PolicyObject `json:"object"`
 	// Conditions are the conditions to check on the policy objects
-	Conditions []*meta.LabelSelectorRequirement `json:"conditions"`
+	Conditions []*LabelSelectorRequirement `json:"conditions"`
 	// Action is the action to run for the policy when the conditions are met
 	Action PolicyAction `json:"action"`
 }
