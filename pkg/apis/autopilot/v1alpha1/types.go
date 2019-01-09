@@ -4,6 +4,11 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	StoragePolicyResourceName   = "storagepolicy"
+	StoragePolicyResourcePlural = "storagepolicies"
+)
+
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -21,10 +21,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/libopenstorage/autopilot/telemetry"
-
 	_ "github.com/lib/pq"
-	"github.com/libopenstorage/autopilot/config"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -67,30 +64,9 @@ func main() {
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
-		provs := make(map[string]telemetry.Provider)
-		log.SetLevel(log.DebugLevel)
-
-		cfg, err := config.ReadFile(c.String("config"))
-		if err != nil {
+		// create our CRD definitions
+		if err := createCRD(c); err != nil {
 			return err
-		}
-
-		// initialize the metrics providers
-		for _, p := range cfg.Providers {
-			inst, err := telemetry.NewInstance(p.Type, p.Params)
-			if err != nil {
-				return err
-			}
-
-			log.Debugf("metrics provider %q initialized", p.Name)
-
-			provs[p.Name] = inst
-		}
-
-		for _, p := range provs {
-			go func(p telemetry.Provider) {
-
-			}(p)
 		}
 
 		return nil
