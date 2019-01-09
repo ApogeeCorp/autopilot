@@ -65,7 +65,7 @@ func main() {
 
 	app.Action = func(c *cli.Context) error {
 		// create our CRD definitions
-		if err := createCRD(c); err != nil {
+		if err := crdCreateAction(c); err != nil {
 			return err
 		}
 
@@ -73,6 +73,16 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
+		cli.Command{
+			Name: "crd",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "create",
+					Action: crdCreateAction,
+					Usage:  "publish the autopilot crds to the k8s cluster",
+				},
+			},
+		},
 		cli.Command{
 			Name: "policy",
 			Subcommands: []cli.Command{

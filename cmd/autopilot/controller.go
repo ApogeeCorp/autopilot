@@ -17,18 +17,8 @@ limitations under the License.
 package main
 
 import (
-	"reflect"
-	"time"
-
-	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
-	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	clientset "github.com/libopenstorage/autopilot/pkg/client/clientset/versioned"
 	listers "github.com/libopenstorage/autopilot/pkg/client/listers/autopilot/v1alpha1"
-	"github.com/portworx/sched-ops/k8s"
-	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
-	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
@@ -44,30 +34,4 @@ type Controller struct {
 	storagePolicySynced cache.InformerSynced
 	workqueue           workqueue.RateLimitingInterface
 	recorder            record.EventRecorder
-}
-
-const (
-	validateCRDInterval time.Duration = 5 * time.Second
-	validateCRDTimeout  time.Duration = 1 * time.Minute
-)
-
-func createCRD(c *cli.Context) error {
-
-	resource := k8s.CustomResource{
-		Name:    autopilotv1.StoragePolicyResourceName,
-		Plural:  autopilotv1.StoragePolicyResourcePlural,
-		Group:   autopilot.GroupName,
-		Version: autopilot.Version,
-		Scope:   apiextensionsv1beta1.NamespaceScoped,
-		Kind:    reflect.TypeOf(autopilotv1.StoragePolicy{}).Name(),
-	}
-
-	err := k8s.Instance().CreateCRD(resource)
-	if err != nil && !errors.IsAlreadyExists(err) {
-		return err
-	}
-
-	log.Debugf("CRD for %s created successfully", resource.Name)
-
-	return k8s.Instance().ValidateCRD(resource, validateCRDTimeout, validateCRDInterval)
 }
