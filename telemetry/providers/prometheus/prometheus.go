@@ -28,6 +28,7 @@ import (
 
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type (
@@ -54,6 +55,17 @@ type (
 		url    string
 	}
 )
+
+var promQLMetricLookup = map[string]string{
+	"openstorage.io/condition.volume.usage_percentage": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes)",
+	"openstorage.io/condition.volume.capacity_gb":      "ps_volume_fs_capacity_bytes / 1000000000",
+}
+
+var promQLOperatorLookup = map[meta.LabelSelectorOperator]string{
+	"gt": ">",
+	"lt": "<",
+	"eq": "=",
+}
 
 // New returns a new prometheus instance
 func New(params telemetry.Params) (telemetry.Provider, error) {
@@ -140,8 +152,35 @@ func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
 	}
 }
 
+func (p *prometheus) LookupMetric(metric string) string {
+	return promQLMetricLookup[metric]
+}
+
+func (p *prometheus) LookupOperator(operator meta.LabelSelectorOperator) string {
+	return promQLOperatorLookup[operator]
+}
+
+func (p *prometheus) ConditionToQuery(condition *meta.LabelSelectorRequirement) string {
+	return p.LookupMetric(condition.Key) + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
+}
+
 func (p *prometheus) Exec(policy *telemetry.StoragePolicy) (bool, error) {
-	log.Infof("checking policy %q, %#v", policy.Name, policy.Spec.Conditions[0].Values)
+	for _, c := range policy.Spec.Conditions {
+		log.Infof("Condition % #v", c)
+		m := make(telemetry.Params)
+		m["query"] = p.ConditionToQuery(c)
+		log.Infof("   Prometheus Query %#v", m["query"])
+		v, err := p.Query(m)
+		if err != nil {
+			log.Infof("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
+			return false, err
+		}
+		if len(v) > 0 {
+			log.Infof("Policy Condition Passed %q, %s, % #v", policy.Name, c.Key, v)
+			return true, nil
+		}
+	}
+
 	return false, nil
 }
 
