@@ -17,21 +17,45 @@ limitations under the License.
 package main
 
 import (
-	clientset "github.com/libopenstorage/autopilot/pkg/client/clientset/versioned"
-	listers "github.com/libopenstorage/autopilot/pkg/client/listers/autopilot/v1alpha1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/record"
-	"k8s.io/client-go/util/workqueue"
+	"context"
+	"reflect"
+	"time"
+
+	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
+	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
+	"github.com/libopenstorage/autopilot/pkg/controller"
+
+	"github.com/operator-framework/operator-sdk/pkg/sdk"
+	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+)
+
+const (
+	resyncPeriod = 30 * time.Second
 )
 
 // Controller is the k8s controller interface for autopilot resources
 type Controller struct {
-	kubeclientset kubernetes.Interface
-	apclientset   clientset.Interface
+}
 
-	storagePolicyLister listers.StoragePolicyLister
-	storagePolicySynced cache.InformerSynced
-	workqueue           workqueue.RateLimitingInterface
-	recorder            record.EventRecorder
+// Init Initialize the migration controller
+func (c *Controller) Init() error {
+	return controller.Register(
+		&schema.GroupVersionKind{
+			Group:   autopilot.GroupName,
+			Version: autopilot.Version,
+			Kind:    reflect.TypeOf(autopilotv1.StoragePolicy{}).Name(),
+		},
+		"",
+		resyncPeriod,
+		c)
+}
+
+// Handle updates for StoragePolicy objects
+func (c *Controller) Handle(ctx context.Context, event sdk.Event) error {
+	switch o := event.Object.(type) {
+	case *autopilotv1.StoragePolicy:
+		log.Debugf("%s => %s (%v)", o.Kind, o.Spec.Object.Type, event.Deleted)
+	}
+	return nil
 }

@@ -18,7 +18,7 @@ const (
 	validateCRDTimeout  time.Duration = 1 * time.Minute
 )
 
-func crdCreateAction(c *cli.Context) error {
+func crdInstallAction(c *cli.Context) error {
 
 	resource := k8s.CustomResource{
 		Name:    autopilotv1.StoragePolicyResourceName,
