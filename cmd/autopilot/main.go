@@ -22,7 +22,9 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/libopenstorage/autopilot/pkg/controller"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -59,14 +61,40 @@ func main() {
 			EnvVar: "LOG_FORMAT",
 			Value:  "text",
 		},
+		cli.StringFlag{
+			Name:   "kube-config",
+			Usage:  "set the kubernetes config path",
+			EnvVar: "KUBERNETES_CONFIG",
+		},
+		cli.StringFlag{
+			Name:   "kube-master-url",
+			Usage:  "set the kubernetes master url",
+			EnvVar: "KUBERNETES_MASTER_URL",
+		},
 	}
 
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
-		// create our CRD definitions
-		if err := createCRD(c); err != nil {
+		// install our CRD
+		if err := crdInstallAction(c); err != nil {
 			return err
+		}
+
+		if err := controller.Init(); err != nil {
+			return err
+		}
+
+		ctl := &Controller{}
+
+		ctl.Init()
+
+		if err := controller.Run(); err != nil {
+			return err
+		}
+
+		for {
+
 		}
 
 		return nil
@@ -74,7 +102,19 @@ func main() {
 
 	app.Commands = []cli.Command{
 		cli.Command{
-			Name: "policy",
+			Name:  "crd",
+			Usage: "Manage auto-pilot CRDs",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "install",
+					Action: crdInstallAction,
+					Usage:  "publish the autopilot crds to the k8s cluster",
+				},
+			},
+		},
+		cli.Command{
+			Name:  "policy",
+			Usage: "Manage auto-pilot policy objects",
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:      "test",

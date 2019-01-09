@@ -17,57 +17,45 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"reflect"
 	"time"
 
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
 	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	clientset "github.com/libopenstorage/autopilot/pkg/client/clientset/versioned"
-	listers "github.com/libopenstorage/autopilot/pkg/client/listers/autopilot/v1alpha1"
-	"github.com/portworx/sched-ops/k8s"
+	"github.com/libopenstorage/autopilot/pkg/controller"
+
+	"github.com/operator-framework/operator-sdk/pkg/sdk"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
-	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/record"
-	"k8s.io/client-go/util/workqueue"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+)
+
+const (
+	resyncPeriod = 30 * time.Second
 )
 
 // Controller is the k8s controller interface for autopilot resources
 type Controller struct {
-	kubeclientset kubernetes.Interface
-	apclientset   clientset.Interface
-
-	storagePolicyLister listers.StoragePolicyLister
-	storagePolicySynced cache.InformerSynced
-	workqueue           workqueue.RateLimitingInterface
-	recorder            record.EventRecorder
 }
 
-const (
-	validateCRDInterval time.Duration = 5 * time.Second
-	validateCRDTimeout  time.Duration = 1 * time.Minute
-)
+// Init Initialize the migration controller
+func (c *Controller) Init() error {
+	return controller.Register(
+		&schema.GroupVersionKind{
+			Group:   autopilot.GroupName,
+			Version: autopilot.Version,
+			Kind:    reflect.TypeOf(autopilotv1.StoragePolicy{}).Name(),
+		},
+		"",
+		resyncPeriod,
+		c)
+}
 
-func createCRD(c *cli.Context) error {
-
-	resource := k8s.CustomResource{
-		Name:    autopilotv1.StoragePolicyResourceName,
-		Plural:  autopilotv1.StoragePolicyResourcePlural,
-		Group:   autopilot.GroupName,
-		Version: autopilot.Version,
-		Scope:   apiextensionsv1beta1.NamespaceScoped,
-		Kind:    reflect.TypeOf(autopilotv1.StoragePolicy{}).Name(),
+// Handle updates for StoragePolicy objects
+func (c *Controller) Handle(ctx context.Context, event sdk.Event) error {
+	switch o := event.Object.(type) {
+	case *autopilotv1.StoragePolicy:
+		log.Debugf("%s => %s (%v)", o.Kind, o.Spec.Object.Type, event.Deleted)
 	}
-
-	err := k8s.Instance().CreateCRD(resource)
-	if err != nil && !errors.IsAlreadyExists(err) {
-		return err
-	}
-
-	log.Debugf("CRD for %s created successfully", resource.Name)
-
-	return k8s.Instance().ValidateCRD(resource, validateCRDTimeout, validateCRDInterval)
+	return nil
 }
