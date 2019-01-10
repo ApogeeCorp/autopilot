@@ -27,4 +27,4 @@ spec:
     name: openstorage.io/action.volume.resize
     params:
       - --scalefactor
-      - 1.2
+      - 1.3

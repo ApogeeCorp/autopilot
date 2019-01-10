@@ -49,11 +49,16 @@ func (c *crdController) Handle(ctx context.Context, event sdk.Event) error {
 		defer c.spLock.Unlock()
 
 		if event.Deleted {
-			log.Infof("storage policicy %q delete", o.Name)
 			delete(c.storagePolicies, o.Name)
+			log.Infof("policy %s/%s/%s deleted", o.APIVersion, o.Kind, o.Name)
 		} else {
-			log.Infof("storage policy %q update", o.Name)
-			c.storagePolicies[o.Name] = o
+			if tmp, ok := c.storagePolicies[o.Name]; !ok {
+				c.storagePolicies[o.Name] = o
+				log.Infof("policy %s/%s/%s added", o.APIVersion, o.Kind, o.Name)
+			} else if tmp.GetResourceVersion() != o.GetResourceVersion() {
+				c.storagePolicies[o.Name] = o
+				log.Infof("policy %s/%s/%s updated", o.APIVersion, o.Kind, o.Name)
+			}
 		}
 	}
 	return nil
