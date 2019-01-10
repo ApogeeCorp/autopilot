@@ -19,18 +19,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 	"time"
 
-	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-)
-
-var (
-	storagePolicies = make(map[string]*autopilot.StoragePolicy)
-	spLock          sync.RWMutex
 )
 
 func main() {
@@ -80,19 +75,28 @@ func main() {
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
+		var shutdown = make(chan os.Signal)
+
+		signal.Notify(shutdown, syscall.SIGTERM)
+		signal.Notify(shutdown, syscall.SIGINT)
+
 		// install our CRD
 		if err := crdInstallAction(c); err != nil {
 			return err
 		}
 
-		// initialze the crd and policies
-		if err := startController(); err != nil {
+		controller := newController()
+
+		// start the controller
+		if err := controller.start(); err != nil {
 			return err
 		}
 
-		for {
-			// TODO Main loop
-		}
+		// todo start the monitor
+
+		<-shutdown
+
+		log.Infof("shutting down")
 
 		return nil
 	}

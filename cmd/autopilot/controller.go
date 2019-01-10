@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"reflect"
+	"sync"
 	"time"
 
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
@@ -35,29 +36,36 @@ const (
 )
 
 // crdController is the k8s controller interface for autopilot resources
-type crdController struct{}
+type crdController struct {
+	storagePolicies map[string]*autopilotv1.StoragePolicy
+	spLock          sync.RWMutex
+}
 
 // Handle updates for StoragePolicy objects
 func (c *crdController) Handle(ctx context.Context, event sdk.Event) error {
 	switch o := event.Object.(type) {
 	case *autopilotv1.StoragePolicy:
-		spLock.Lock()
-		defer spLock.Unlock()
+		c.spLock.Lock()
+		defer c.spLock.Unlock()
 
 		if event.Deleted {
-			log.Debugf("storage policicy %q delete", o.Name)
-			delete(storagePolicies, o.Name)
+			log.Infof("storage policicy %q delete", o.Name)
+			delete(c.storagePolicies, o.Name)
 		} else {
-			log.Debugf("storage policy %q update", o.Name)
-			storagePolicies[o.Name] = o
+			log.Infof("storage policy %q update", o.Name)
+			c.storagePolicies[o.Name] = o
 		}
 	}
 	return nil
 }
 
-func startController() error {
-	ctl := &crdController{}
+func newController() *crdController {
+	return &crdController{
+		storagePolicies: make(map[string]*autopilotv1.StoragePolicy),
+	}
+}
 
+func (c *crdController) start() error {
 	if err := controller.Init(); err != nil {
 		return err
 	}
@@ -70,7 +78,7 @@ func startController() error {
 		},
 		"",
 		resyncPeriod,
-		ctl); err != nil {
+		c); err != nil {
 		return err
 	}
 
