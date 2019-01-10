@@ -20,6 +20,7 @@ Once you make changes to the CRD, use the following make rule to update the gene
 
 ```shell
 make codegen
+go run ./cmd/autopilot/*.go  -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
 ```
 
 
