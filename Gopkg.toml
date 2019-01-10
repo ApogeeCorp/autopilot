@@ -33,6 +33,10 @@ required = [
   "k8s.io/code-generator/cmd/deepcopy-gen/args"
 ]
 
+[[constraint]]
+  branch = "kubernetes-1.11"
+  name = "github.com/portworx/sched-ops"
+
 [prune]
   go-tests = true
   unused-packages = true

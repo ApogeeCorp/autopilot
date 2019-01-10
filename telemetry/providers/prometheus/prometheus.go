@@ -1,3 +1,19 @@
+/*
+Copyright 2019 Openstorage.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package prometheus
 
 import (
@@ -10,9 +26,9 @@ import (
 	"path"
 	"time"
 
-	"github.com/libopenstorage/autopilot/api/autopilot/types"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type (
@@ -35,18 +51,27 @@ type (
 	}
 
 	prometheus struct {
-		types.Prometheus
+		params telemetry.Params
+		url    string
 	}
 )
 
+var promQLMetricLookup = map[string]string{
+	"openstorage.io/condition.volume.usage_percentage": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes)",
+	"openstorage.io/condition.volume.capacity_gb":      "ps_volume_fs_capacity_bytes / 1000000000",
+}
+
+var promQLOperatorLookup = map[meta.LabelSelectorOperator]string{
+	"gt": ">",
+	"lt": "<",
+	"eq": "=",
+}
+
 // New returns a new prometheus instance
-func New(prov types.Provider) (telemetry.Provider, error) {
-	prom, ok := prov.(*types.Prometheus)
-	if !ok {
-		return nil, errors.New("invalid provider type")
-	}
+func New(params telemetry.Params) (telemetry.Provider, error) {
 	return &prometheus{
-		Prometheus: *prom,
+		params: params,
+		url:    params.String("url"),
 	}, nil
 }
 
@@ -54,7 +79,7 @@ func New(prov types.Provider) (telemetry.Provider, error) {
 func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) {
 	client := &http.Client{}
 
-	base, err := url.Parse(p.URL)
+	base, err := url.Parse(p.url)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +116,7 @@ func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) 
 
 	req.URL.RawQuery = q.Encode()
 
-	log.Debugf("provider %s: executing query %s", types.ProviderTypePrometheus, req.URL.String())
+	log.Debugf("prometheus: executing query %s", req.URL.String())
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -127,6 +152,38 @@ func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
 	}
 }
 
+func (p *prometheus) LookupMetric(metric string) string {
+	return promQLMetricLookup[metric]
+}
+
+func (p *prometheus) LookupOperator(operator meta.LabelSelectorOperator) string {
+	return promQLOperatorLookup[operator]
+}
+
+func (p *prometheus) ConditionToQuery(condition *meta.LabelSelectorRequirement) string {
+	return p.LookupMetric(condition.Key) + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
+}
+
+func (p *prometheus) Exec(policy *telemetry.StoragePolicy) (bool, error) {
+	for _, c := range policy.Spec.Conditions {
+		log.Infof("Condition % #v", c)
+		m := make(telemetry.Params)
+		m["query"] = p.ConditionToQuery(c)
+		log.Infof("   Prometheus Query %#v", m["query"])
+		v, err := p.Query(m)
+		if err != nil {
+			log.Infof("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
+			return false, err
+		}
+		if len(v) > 0 {
+			log.Infof("Policy Condition Passed %q, %s, % #v", policy.Name, c.Key, v)
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func init() {
-	telemetry.Register(types.ProviderTypePrometheus, New)
+	telemetry.Register("prometheus", New)
 }

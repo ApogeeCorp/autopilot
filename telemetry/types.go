@@ -1,11 +1,23 @@
-// Copyright 2018 Portworx Inc. All rights reserved.
-// Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file.
+/*
+Copyright 2019 Openstorage.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package telemetry
 
 import (
-	"github.com/libopenstorage/autopilot/api/autopilot/types"
+	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
@@ -19,17 +31,20 @@ type (
 
 		// Parse returns a result vector from the raw data
 		Parse(data []byte) ([]Vector, error)
+
+		// Exec executes query based on the provided policy and returns if it was matched or not
+		Exec(*StoragePolicy) (bool, error)
 	}
+
+	// StoragePolicy maps the the k8s StoragePolicySpec
+	StoragePolicy = autopilot.StoragePolicy
 
 	// Params is an alias for a map helper
 	Params = sparks.Params
 
-	// Attributes is an alias for a map helper
-	Attributes = sparks.Params
-
 	// NewFunc is a function registered with the telemetry layer for creating a new
 	// instance of the provider.
-	NewFunc func(types.Provider) (Provider, error)
+	NewFunc func(Params) (Provider, error)
 
 	// Metric is the metric that comes from Prometheus apiproxy
 	Metric struct {

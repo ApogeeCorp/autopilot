@@ -1,30 +1,140 @@
-// Copyright 2018 Portworx Inc. All rights reserved.
-// Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file.
+/*
+Copyright 2019 Openstorage.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/libopenstorage/autopilot/api/autopilot"
-	"github.com/libopenstorage/autopilot/api/autopilot/rest"
-	"github.com/libopenstorage/autopilot/config"
-	"github.com/libopenstorage/autopilot/engine"
+
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
+	"github.com/libopenstorage/stork/pkg/controller"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 func main() {
-	switch os.Getenv("LOG_FORMAT") {
+	app := cli.NewApp()
+
+	app.Name = "autopilot"
+	app.Version = "0.0.1"
+	app.Usage = "Autopilot Storage Optimization Engine"
+
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "config,f",
+			Usage:  "set the configuration file path",
+			EnvVar: "CONFIG_FILE",
+			Value:  "/etc/autopilot/config.yaml",
+		},
+		cli.StringFlag{
+			Name:   "data-dir,d",
+			Usage:  "set the data directory for the process",
+			EnvVar: "DATA_DIR",
+			Value:  "/var/run/autopilot",
+		},
+		cli.StringFlag{
+			Name:   "log-level",
+			Usage:  "set the log level",
+			EnvVar: "LOG_LEVEL",
+			Value:  "info",
+		},
+		cli.StringFlag{
+			Name:   "log-format",
+			Usage:  "set the log format",
+			EnvVar: "LOG_FORMAT",
+			Value:  "text",
+		},
+		cli.StringFlag{
+			Name:   "kube-config",
+			Usage:  "set the kubernetes config path",
+			EnvVar: "KUBERNETES_CONFIG",
+		},
+		cli.StringFlag{
+			Name:   "kube-master-url",
+			Usage:  "set the kubernetes master url",
+			EnvVar: "KUBERNETES_MASTER_URL",
+		},
+	}
+
+	app.Before = setupLog
+
+	app.Action = func(c *cli.Context) error {
+		// install our CRD
+		if err := crdInstallAction(c); err != nil {
+			return err
+		}
+
+		if err := controller.Init(); err != nil {
+			return err
+		}
+
+		ctl := &Controller{}
+
+		ctl.Init()
+
+		if err := controller.Run(); err != nil {
+			return err
+		}
+
+		for {
+
+		}
+
+		return nil
+	}
+
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:  "crd",
+			Usage: "Manage auto-pilot CRDs",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "install",
+					Action: crdInstallAction,
+					Usage:  "publish the autopilot crds to the k8s cluster",
+				},
+			},
+		},
+		cli.Command{
+			Name:  "policy",
+			Usage: "Manage auto-pilot policy objects",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:      "test",
+					Action:    policyTestAction,
+					Usage:     "Test a policy document using the configuration",
+					UsageText: "test <file>",
+				},
+			},
+		},
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func setupLog(c *cli.Context) error {
+	// setup the log format
+	switch c.String("log-format") {
 	case "text":
 		log.SetFormatter(&log.TextFormatter{
 			FullTimestamp: true,
@@ -37,104 +147,10 @@ func main() {
 		})
 	}
 
-	if lvl, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		if level, err := log.ParseLevel(lvl); err == nil {
-			log.SetLevel(level)
-		}
+	// setup the log level
+	if level, err := log.ParseLevel(c.String("log-level")); err == nil {
+		log.SetLevel(level)
 	}
 
-	app := cli.NewApp()
-
-	app.Name = "autopilot"
-	app.Version = "0.0.1"
-	app.Usage = "Autopilot Storage Optimization Engine"
-
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "config,f",
-			Usage:  "set the configuration file path",
-			EnvVar: "CONFIG_FILE",
-			Value:  "/etc/config.json",
-		},
-		cli.StringFlag{
-			Name:   "data-dir,d",
-			Usage:  "set the data directory for the process",
-			EnvVar: "DATA_DIR",
-			Value:  "/var/run/autopilot",
-		},
-		cli.StringFlag{
-			Name:   "listen,l",
-			Usage:  "set the listener address",
-			EnvVar: "LISTEN_ADDR",
-			Value:  ":9000",
-		},
-	}
-
-	app.Action = func(c *cli.Context) error {
-		config := &config.Config{}
-
-		log.SetLevel(log.DebugLevel)
-
-		data, err := ioutil.ReadFile(c.GlobalString("config"))
-		if err != nil {
-			return err
-		}
-
-		if err := json.Unmarshal(data, config); err != nil {
-			return err
-		}
-
-		if config.DataDir == "" {
-			config.DataDir = c.GlobalString("data-dir")
-		}
-
-		if config.Listen == "" {
-			config.Listen = c.GlobalString("listen")
-		}
-
-		if err := os.MkdirAll(config.DataDir, 0770); err != nil {
-			return err
-		}
-
-		eng, err := engine.NewEngine(config)
-		if err != nil {
-			return err
-		}
-
-		if err := eng.Start(); err != nil {
-			return err
-		}
-
-		api := &autopilot.API{
-			Config: config,
-			Engine: eng,
-		}
-
-		handler, err := rest.Handler(rest.Config{
-			AutopilotAPI: api,
-			AuthBasicAuth: func(ctx context.Context, username string, pass string) (context.Context, interface{}, error) {
-				return ctx, username, nil
-			},
-		})
-		if err != nil {
-			log.Fatalln(err)
-		}
-		s := &http.Server{
-			Addr:           config.Listen,
-			Handler:        handler,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
-			MaxHeaderBytes: 1 << 20,
-		}
-
-		log.Infof("starting server %s", s.Addr)
-
-		log.Fatal(s.ListenAndServe())
-
-		return nil
-	}
-
-	if err := app.Run(os.Args); err != nil {
-		fmt.Println(err)
-	}
+	return nil
 }
