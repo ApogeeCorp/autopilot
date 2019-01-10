@@ -26,9 +26,9 @@ import (
 	"path"
 	"time"
 
+	meta "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type (

@@ -19,15 +19,18 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
-	_ "github.com/lib/pq"
-
+	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	_ "github.com/libopenstorage/autopilot/telemetry/providers"
-	"github.com/libopenstorage/stork/pkg/controller"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+)
+
+var (
+	storagePolicies = make(map[string]*autopilot.StoragePolicy)
+	spLock          sync.RWMutex
 )
 
 func main() {
@@ -82,20 +85,13 @@ func main() {
 			return err
 		}
 
-		if err := controller.Init(); err != nil {
-			return err
-		}
-
-		ctl := &Controller{}
-
-		ctl.Init()
-
-		if err := controller.Run(); err != nil {
+		// initialze the crd and policies
+		if err := startController(); err != nil {
 			return err
 		}
 
 		for {
-
+			// TODO Main loop
 		}
 
 		return nil

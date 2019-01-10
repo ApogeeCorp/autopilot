@@ -24,9 +24,9 @@ import (
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
 	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	"github.com/libopenstorage/stork/pkg/controller"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/operator-framework/operator-sdk/pkg/sdk"
-	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -34,13 +34,35 @@ const (
 	resyncPeriod = 30 * time.Second
 )
 
-// Controller is the k8s controller interface for autopilot resources
-type Controller struct {
+// crdController is the k8s controller interface for autopilot resources
+type crdController struct{}
+
+// Handle updates for StoragePolicy objects
+func (c *crdController) Handle(ctx context.Context, event sdk.Event) error {
+	switch o := event.Object.(type) {
+	case *autopilotv1.StoragePolicy:
+		spLock.Lock()
+		defer spLock.Unlock()
+
+		if event.Deleted {
+			log.Debugf("storage policicy %q delete", o.Name)
+			delete(storagePolicies, o.Name)
+		} else {
+			log.Debugf("storage policy %q update", o.Name)
+			storagePolicies[o.Name] = o
+		}
+	}
+	return nil
 }
 
-// Init Initialize the migration controller
-func (c *Controller) Init() error {
-	return controller.Register(
+func startController() error {
+	ctl := &crdController{}
+
+	if err := controller.Init(); err != nil {
+		return err
+	}
+
+	if err := controller.Register(
 		&schema.GroupVersionKind{
 			Group:   autopilot.GroupName,
 			Version: autopilot.Version,
@@ -48,14 +70,9 @@ func (c *Controller) Init() error {
 		},
 		"",
 		resyncPeriod,
-		c)
-}
-
-// Handle updates for StoragePolicy objects
-func (c *Controller) Handle(ctx context.Context, event sdk.Event) error {
-	switch o := event.Object.(type) {
-	case *autopilotv1.StoragePolicy:
-		log.Debugf("%s => %s (%v)", o.Kind, o.Spec.Object.Type, event.Deleted)
+		ctl); err != nil {
+		return err
 	}
-	return nil
+
+	return controller.Run()
 }
