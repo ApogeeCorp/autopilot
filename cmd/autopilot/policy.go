@@ -73,6 +73,11 @@ func policyTestAction(c *cli.Context) error {
 			return err
 		}
 
+		if len(vecs) == 0 {
+			log.Infof("no policies matched")
+			break
+		}
+
 		for _, exp := range policy.Spec.Object.MatchExpressions {
 			values := sparks.Slice(&exp.Values)
 

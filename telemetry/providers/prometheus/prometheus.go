@@ -168,13 +168,16 @@ func (p *prometheus) Query(policy *telemetry.StoragePolicy) ([]telemetry.Vector,
 	rval := make([]telemetry.Vector, 0)
 
 	for _, c := range policy.Spec.Conditions {
-		log.Infof("Condition % #v", c)
+		log.Debugf("[prometheus] Condition % #v", c)
+
 		m := make(telemetry.Params)
 		m["query"] = p.ConditionToQuery(c)
-		log.Infof("   Prometheus Query %#v", m["query"])
+
+		log.Debugf("[prometheus]\tPrometheus Query %#v", m["query"])
+
 		vectors, err := p.query(m)
 		if err != nil {
-			log.Infof("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
+			log.Errorf("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
 			return nil, err
 		}
 		if len(vectors) > 0 {
