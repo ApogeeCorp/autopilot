@@ -4,7 +4,7 @@
 
 Cluster monitoring and automated recommendations
 
-<div style="text-align:center"><img src="images/autopilot-mascot.png" alt="Drawing" style="width: 50px;"/></div>
+<div style="text-align:center"><img src="images/autopilot-mascot.png" alt="Drawing" style="width="240" height="240""/></div>
 
 ## Building
 
