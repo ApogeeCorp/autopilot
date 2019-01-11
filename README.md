@@ -4,6 +4,8 @@
 
 Cluster monitoring and automated recommendations
 
+<div style="text-align:center"><img src="images/autopilot-mascot.png" alt="Drawing" style="width: 50px;"/></div>
+
 ## Building
 
 ## Vendoring
