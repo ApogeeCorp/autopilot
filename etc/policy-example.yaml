@@ -1,0 +1,30 @@
+apiVersion: autopilot.libopenstorage.org/v1alpha1
+kind: StoragePolicy
+metadata:
+ name: volume-resize
+spec:
+  enforcement: preferred
+  ##### object is the entity on which to check the conditions
+  object:
+    type: openstorage.io/object.volume
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - pvc-9b776615-3f5e-11e8-83b6-0cc47ab5f9a2
+  ##### condition is the symptom to evaluate
+  conditions:
+    - key: openstorage.io/condition.volume.usage_percentage
+      operator: gt
+      values:
+        - "10"
+    - key: openstorage.io/condition.volume.capacity_gb
+      operator: lt
+      values:
+       - "2048"
+  ##### action is the action to perform when condition is true
+  action:
+    name: openstorage.io/action.volume.resize
+    params:
+      - --scalefactor
+      - 1.3

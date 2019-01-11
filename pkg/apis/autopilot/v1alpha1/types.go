@@ -8,7 +8,13 @@ import (
 type LabelSelectorOperator string
 
 const (
-	// LabelSelectorOpIn is operator where the key must have one of the values
+	// StoragePolicyResourceName is the name of the singular StoragePolicy objects
+	StoragePolicyResourceName = "storagepolicy"
+
+	// StoragePolicyResourcePlural is the name of the plural StoragePolicy objects
+	StoragePolicyResourcePlural = "storagepolicies"
+
+  // LabelSelectorOpIn is operator where the key must have one of the values
 	LabelSelectorOpIn LabelSelectorOperator = "In"
 	// LabelSelectorOpNotIn is operator where the key must not have any of the values
 	LabelSelectorOpNotIn LabelSelectorOperator = "NotIn"

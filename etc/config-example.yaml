@@ -1,0 +1,5 @@
+providers:
+  - name: default
+    type: prometheus
+    params: url=http://70.0.69.141:9090/api/v1
+poll_rate: 5s

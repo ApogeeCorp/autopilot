@@ -33,6 +33,10 @@ required = [
   "k8s.io/code-generator/cmd/deepcopy-gen/args"
 ]
 
+[[constraint]]
+  branch = "kubernetes-1.11"
+  name = "github.com/portworx/sched-ops"
+
 [prune]
   go-tests = true
   unused-packages = true
@@ -41,3 +45,7 @@ required = [
   name = "k8s.io/code-generator"
   unused-packages = false
   go-tests = false
+
+[[constraint]]
+  name = "gitlab.com/ModelRocket/sparks"
+  version = "1.1.0"
