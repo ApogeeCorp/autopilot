@@ -7,7 +7,11 @@ before_install:
   - sudo apt-get update -yq
 script:
   - |
-    make && make pretest
+    make && make pretest && make container
+    if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+      docker login -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}";
+      make deploy
+    fi
 notifications:
   email:
     on_success: always

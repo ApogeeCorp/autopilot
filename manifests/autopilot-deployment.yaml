@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autopilot-config
+  namespace: kube-system
+data:
+  config.yaml: |-
+    providers:
+       - name: default
+         type: prometheus
+         params: url=http://70.0.69.141:9090/api/v1
+    poll_rate: 5s
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autopilot-account
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+   name: autopilot-role
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["create", "get"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["autopilot.libopenstorage.org"]
+    resources: ["storagepolicies"]
+    verbs: ["get", "list", "watch", "update", "create", "delete"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: autopilot-role-binding
+subjects:
+- kind: ServiceAccount
+  name: autopilot-account
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: autopilot-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+    tier: control-plane
+  name: autopilot
+  namespace: kube-system
+  initializers:
+    pending: []
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        name: autopilot
+        tier: control-plane
+    spec:
+      containers:
+      - command:
+        - /autopilot
+        - -f
+        - ./etc/config/config.yaml
+        imagePullPolicy: Always
+        image: harshpx/autopilot:latest
+        resources:
+          requests:
+            cpu: '0.1'
+        securityContext:
+          privileged: false
+        name: autopilot
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      hostPID: false
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "name"
+                    operator: In
+                    values:
+                    - autopilot
+              topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: autopilot-account
+      volumes:
+        - name: config-volume
+          configMap:
+            name: autopilot-config
+            items:
+            - key: config.yaml
+              path: config.yaml

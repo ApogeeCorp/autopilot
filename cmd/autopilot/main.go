@@ -66,7 +66,7 @@ func main() {
 		cli.StringFlag{
 			Name:   "kube-config",
 			Usage:  "set the kubernetes config path",
-			EnvVar: "KUBERNETES_CONFIG",
+			EnvVar: "KUBECONFIG",
 		},
 		cli.StringFlag{
 			Name:   "kube-master-url",
