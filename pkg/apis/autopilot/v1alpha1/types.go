@@ -14,14 +14,18 @@ const (
 	// StoragePolicyResourcePlural is the name of the plural StoragePolicy objects
 	StoragePolicyResourcePlural = "storagepolicies"
 
-	LabelSelectorOpIn           LabelSelectorOperator = "In"
-	LabelSelectorOpNotIn        LabelSelectorOperator = "NotIn"
-	LabelSelectorOpExists       LabelSelectorOperator = "Exists"
+  // LabelSelectorOpIn is operator where the key must have one of the values
+	LabelSelectorOpIn LabelSelectorOperator = "In"
+	// LabelSelectorOpNotIn is operator where the key must not have any of the values
+	LabelSelectorOpNotIn LabelSelectorOperator = "NotIn"
+	// LabelSelectorOpExists is operator where the key must exist
+	LabelSelectorOpExists LabelSelectorOperator = "Exists"
+	// LabelSelectorOpDoesNotExist is operator where the key must not exist
 	LabelSelectorOpDoesNotExist LabelSelectorOperator = "DoesNotExist"
-	LabelSelectorOpGt           LabelSelectorOperator = "Gt"
-	LabelSelectorOpGte          LabelSelectorOperator = "Gte"
-	LabelSelectorOpLt           LabelSelectorOperator = "Lt"
-	LabelSelectorOpLte          LabelSelectorOperator = "Lte"
+	// LabelSelectorOpGt is operator where the key must be greater than the values
+	LabelSelectorOpGt LabelSelectorOperator = "Gt"
+	// LabelSelectorOpLt is operator where the key must be less than the values
+	LabelSelectorOpLt LabelSelectorOperator = "Lt"
 )
 
 // LabelSelectorRequirement is a selector that contains values, a key, and an operator that
