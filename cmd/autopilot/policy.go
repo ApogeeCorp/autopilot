@@ -88,12 +88,13 @@ func policyTestAction(c *cli.Context) error {
 func executePolicy(policy *autopilot.StoragePolicy, vecs []metrics.Vector) error {
 	for _, exp := range policy.Spec.Object.MatchExpressions {
 		values := sparks.Slice(&exp.Values)
-
 		for _, vec := range vecs {
 			switch policy.Spec.Object.Type {
 			case "openstorage.io/object.volume":
 				if values.Contains(*vec.Metric.VolumeName) {
-					log.Infof("Should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
+					log.Infof("should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
+
+					// TODO: blacklist actionable policies
 				}
 			}
 		}
