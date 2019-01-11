@@ -29,8 +29,6 @@ import (
 	meta "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
-
-	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 type (
@@ -77,8 +75,8 @@ func New(params telemetry.Params) (telemetry.Provider, error) {
 	}, nil
 }
 
-// Query implements the telemetry.Provider.Query interface method
-func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) {
+// query implements the telemetry.Provider.Query interface method
+func (p *prometheus) query(params telemetry.Params) ([]telemetry.Vector, error) {
 	client := &http.Client{}
 
 	base, err := url.Parse(p.url)
@@ -133,11 +131,11 @@ func (p *prometheus) Query(params telemetry.Params) ([]telemetry.Vector, error) 
 		return nil, err
 	}
 
-	return p.Parse(data)
+	return p.parse(data)
 }
 
-// Parse implements the telemetry.Provider.Parse interface method
-func (p *prometheus) Parse(data []byte) ([]telemetry.Vector, error) {
+// parse implements the telemetry.Provider.Parse interface method
+func (p *prometheus) parse(data []byte) ([]telemetry.Vector, error) {
 	results := &results{}
 	err := json.Unmarshal(data, results)
 	if err != nil {
@@ -166,31 +164,21 @@ func (p *prometheus) ConditionToQuery(condition *meta.LabelSelectorRequirement) 
 	return p.LookupMetric(condition.Key) + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
 }
 
-func (p *prometheus) Resolve(policy *telemetry.StoragePolicy) ([]string, error) {
-	rval := make([]string, 0)
+func (p *prometheus) Query(policy *telemetry.StoragePolicy) ([]telemetry.Vector, error) {
+	rval := make([]telemetry.Vector, 0)
 
 	for _, c := range policy.Spec.Conditions {
 		log.Infof("Condition % #v", c)
 		m := make(telemetry.Params)
 		m["query"] = p.ConditionToQuery(c)
 		log.Infof("   Prometheus Query %#v", m["query"])
-		vectors, err := p.Query(m)
+		vectors, err := p.query(m)
 		if err != nil {
 			log.Infof("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
 			return nil, err
 		}
-
-		for _, exp := range policy.Spec.Object.MatchExpressions {
-			values := sparks.Slice(&exp.Values)
-
-			for _, vec := range vectors {
-				switch policy.Spec.Object.Type {
-				case "openstorage.io/object.volume":
-					if values.Contains(*vec.Metric.VolumeName) {
-						rval = append(rval, *vec.Metric.VolumeName)
-					}
-				}
-			}
+		if len(vectors) > 0 {
+			rval = append(rval, vectors...)
 		}
 	}
 

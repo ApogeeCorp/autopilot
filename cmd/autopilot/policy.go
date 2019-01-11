@@ -21,11 +21,12 @@ import (
 	"io/ioutil"
 
 	"github.com/libopenstorage/autopilot/telemetry"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/libopenstorage/autopilot/config"
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	sparks "gitlab.com/ModelRocket/sparks/types"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
@@ -67,13 +68,22 @@ func policyTestAction(c *cli.Context) error {
 			return err
 		}
 
-		pol, err := prov.Resolve(policy)
+		vecs, err := prov.Query(policy)
 		if err != nil {
 			return err
 		}
 
-		if pol != nil {
-			log.Infof("should exec action %q", policy.Spec.Action.Name)
+		for _, exp := range policy.Spec.Object.MatchExpressions {
+			values := sparks.Slice(&exp.Values)
+
+			for _, vec := range vecs {
+				switch policy.Spec.Object.Type {
+				case "openstorage.io/object.volume":
+					if values.Contains(*vec.Metric.VolumeName) {
+						log.Infof("Should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
+					}
+				}
+			}
 		}
 	}
 

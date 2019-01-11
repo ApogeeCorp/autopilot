@@ -26,14 +26,8 @@ import (
 type (
 	// Provider defines a simple interface for telemetry providers to collect and extract data
 	Provider interface {
-		// Query returns a results vector from a direct query to the provider
-		Query(params Params) ([]Vector, error)
-
-		// Parse returns a result vector from the raw data
-		Parse(data []byte) ([]Vector, error)
-
-		// Resolve executes query based on the provided policy and returns matched object expression values
-		Resolve(*StoragePolicy) ([]string, error)
+		// Resolve executes query based on the provided policy and returns a vector of metrics values
+		Query(*StoragePolicy) ([]Vector, error)
 	}
 
 	// Params is an alias for a map helper
