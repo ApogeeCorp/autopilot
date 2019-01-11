@@ -67,12 +67,12 @@ func policyTestAction(c *cli.Context) error {
 			return err
 		}
 
-		ok, err := prov.Exec(policy)
+		pol, err := prov.Resolve(policy)
 		if err != nil {
 			return err
 		}
 
-		if ok {
+		if pol != nil {
 			log.Infof("should exec action %q", policy.Spec.Action.Name)
 		}
 	}

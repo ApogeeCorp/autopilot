@@ -32,12 +32,9 @@ type (
 		// Parse returns a result vector from the raw data
 		Parse(data []byte) ([]Vector, error)
 
-		// Exec executes query based on the provided policy and returns if it was matched or not
-		Exec(*StoragePolicy) (bool, error)
+		// Resolve executes query based on the provided policy and returns matched object expression values
+		Resolve(*StoragePolicy) ([]string, error)
 	}
-
-	// StoragePolicy maps the the k8s StoragePolicySpec
-	StoragePolicy = autopilot.StoragePolicy
 
 	// Params is an alias for a map helper
 	Params = sparks.Params
@@ -75,4 +72,7 @@ type (
 		// Values is for range queries its an array of Value above
 		Values [][]interface{} `json:"values,omitempty"`
 	}
+
+	// StoragePolicy maps the the k8s StoragePolicySpec
+	StoragePolicy = autopilot.StoragePolicy
 )

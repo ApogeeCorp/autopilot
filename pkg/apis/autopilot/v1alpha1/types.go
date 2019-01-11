@@ -8,7 +8,10 @@ import (
 type LabelSelectorOperator string
 
 const (
-	StoragePolicyResourceName   = "storagepolicy"
+	// StoragePolicyResourceName is the name of the singular StoragePolicy objects
+	StoragePolicyResourceName = "storagepolicy"
+
+	// StoragePolicyResourcePlural is the name of the plural StoragePolicy objects
 	StoragePolicyResourcePlural = "storagepolicies"
 
 	LabelSelectorOpIn           LabelSelectorOperator = "In"
@@ -16,7 +19,9 @@ const (
 	LabelSelectorOpExists       LabelSelectorOperator = "Exists"
 	LabelSelectorOpDoesNotExist LabelSelectorOperator = "DoesNotExist"
 	LabelSelectorOpGt           LabelSelectorOperator = "Gt"
+	LabelSelectorOpGte          LabelSelectorOperator = "Gte"
 	LabelSelectorOpLt           LabelSelectorOperator = "Lt"
+	LabelSelectorOpLte          LabelSelectorOperator = "Lte"
 )
 
 // LabelSelectorRequirement is a selector that contains values, a key, and an operator that
