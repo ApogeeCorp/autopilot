@@ -49,7 +49,9 @@ func policyTestAction(c *cli.Context) error {
 	}
 
 	scheme := runtime.NewScheme()
-	autopilot.AddToScheme(scheme)
+	if err = autopilot.AddToScheme(scheme); err != nil {
+		return err
+	}
 
 	deserializer := serializer.NewCodecFactory(scheme).UniversalDeserializer()
 	obj, _, err := deserializer.Decode(data, nil, nil)
