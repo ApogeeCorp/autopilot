@@ -29,8 +29,8 @@ import (
 	"unicode"
 )
 
-// Params is a simple type alias for a JSONMap
-type Params = JSONMap
+// Params is a simple type alias for a Map
+type Params = StringMap
 
 // ParseStringParams parses a parameter string and returns a params object
 // Example string: foo=bar aparam="value"

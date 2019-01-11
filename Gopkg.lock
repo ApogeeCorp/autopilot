@@ -53,22 +53,6 @@
   revision = "6480d4af844c189cf5dd913db24ddd339d3a4f85"
 
 [[projects]]
-  branch = "master"
-  digest = "1:b0ddbad880d26589b9de3934e4d149ef8e0db27b4aab873304dd17350818f29d"
-  name = "github.com/doublerebel/bellows"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "f177d92a03d33226a1e1777e4b3a5d824bd2598f"
-
-[[projects]]
-  digest = "1:af43bdaaf86655a2343f113e9b293bbc16b12099eaeb223982bbe4d4c22ba14d"
-  name = "github.com/fatih/structs"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "4966fc68f5b7593aafa6cbbba2d65ec6e1416047"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
   name = "github.com/ghodss/yaml"
   packages = ["."]
@@ -506,15 +490,15 @@
   version = "v1.20.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:8b237c1c40754077e7db19f186d5bbf61156a7a5504854421d72ca3ed5fede13"
+  digest = "1:1f9d514d01b1c99c47df0196c149a1c700e8a0676bc9d740fadd8f2c462b70b2"
   name = "gitlab.com/ModelRocket/sparks"
   packages = [
     "types",
-    "util",
+    "types/ptr",
   ]
   pruneopts = "UT"
-  revision = "2b37a659504292c4b045796ced2592ab50e6c581"
+  revision = "c704d03b351ba206bb8c4e035115e7415474c6b6"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
@@ -854,7 +838,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/lib/pq",
     "github.com/libopenstorage/stork/pkg/controller",
     "github.com/operator-framework/operator-sdk/pkg/sdk",
     "github.com/operator-framework/operator-sdk/pkg/util/k8sutil",

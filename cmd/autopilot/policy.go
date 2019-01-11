@@ -20,12 +20,13 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/libopenstorage/autopilot/telemetry"
+	"github.com/libopenstorage/autopilot/metrics"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/libopenstorage/autopilot/config"
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	sparks "gitlab.com/ModelRocket/sparks/types"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
@@ -62,18 +63,40 @@ func policyTestAction(c *cli.Context) error {
 	}
 
 	for _, p := range cfg.Providers {
-		prov, err := telemetry.NewInstance(p.Type, p.Params)
+		prov, err := metrics.NewProvider(p.Type, p.Params)
 		if err != nil {
 			return err
 		}
 
-		ok, err := prov.Exec(policy)
+		vecs, err := prov.Query(policy)
 		if err != nil {
 			return err
 		}
 
-		if ok {
-			log.Infof("should exec action %q", policy.Spec.Action.Name)
+		if len(vecs) == 0 {
+			log.Infof("no policies matched")
+			break
+		}
+
+		return executePolicy(policy, vecs)
+
+	}
+
+	return nil
+}
+
+func executePolicy(policy *autopilot.StoragePolicy, vecs []metrics.Vector) error {
+	for _, exp := range policy.Spec.Object.MatchExpressions {
+		values := sparks.Slice(&exp.Values)
+		for _, vec := range vecs {
+			switch policy.Spec.Object.Type {
+			case "openstorage.io/object.volume":
+				if values.Contains(*vec.Metric.VolumeName) {
+					log.Infof("should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
+
+					// TODO: blacklist actionable policies
+				}
+			}
 		}
 	}
 

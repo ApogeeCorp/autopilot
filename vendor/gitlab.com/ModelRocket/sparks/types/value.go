@@ -65,3 +65,8 @@ func (v Value) Int64() int64 {
 func (v Value) Float64() float64 {
 	return cast.ToFloat64(v.v)
 }
+
+// Interface returns the underlying interface for the value
+func (v Value) Interface() interface{} {
+	return v.v
+}

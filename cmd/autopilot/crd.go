@@ -34,7 +34,7 @@ func crdInstallAction(c *cli.Context) error {
 		return err
 	}
 
-	log.Debugf("CRD for %s created successfully", resource.Name)
+	log.Debugf("%s crd installed successfully", resource.Name)
 
 	return k8s.Instance().ValidateCRD(resource, validateCRDTimeout, validateCRDInterval)
 }

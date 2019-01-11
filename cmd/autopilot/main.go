@@ -19,15 +19,16 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	_ "github.com/lib/pq"
-
-	_ "github.com/libopenstorage/autopilot/telemetry/providers"
-	"github.com/libopenstorage/stork/pkg/controller"
-
+	"github.com/libopenstorage/autopilot/config"
+	"github.com/libopenstorage/autopilot/metrics"
+	_ "github.com/libopenstorage/autopilot/metrics/providers"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 func main() {
@@ -77,28 +78,82 @@ func main() {
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
+		var shutdown = make(chan os.Signal)
+
+		cfg, err := config.ReadFile(c.GlobalString("config"))
+		if err != nil {
+			return err
+		}
+
+		signal.Notify(shutdown, syscall.SIGTERM)
+		signal.Notify(shutdown, syscall.SIGINT)
+
 		// install our CRD
 		if err := crdInstallAction(c); err != nil {
 			return err
 		}
 
-		if err := controller.Init(); err != nil {
+		controller := newController()
+
+		// start the controller
+		if err := controller.start(); err != nil {
 			return err
 		}
 
-		ctl := &Controller{}
-
-		ctl.Init()
-
-		if err := controller.Run(); err != nil {
+		pollRate, err := time.ParseDuration(cfg.PollRate)
+		if err != nil {
 			return err
+		}
+
+		log.Infof("starting the metrics poller (%s)", cfg.PollRate)
+
+		ticker := sparks.NewTicker(pollRate)
+
+		provs := make(map[string]metrics.Provider)
+
+		for _, prov := range cfg.Providers {
+			inst, err := metrics.NewProvider(prov.Type, prov.Params)
+			if err != nil {
+				return err
+			}
+
+			provs[prov.Name] = inst
 		}
 
 		for {
+			select {
+			case <-ticker.C():
+				log.Debug("beginning metrics polling")
 
+				controller.lock()
+
+				for name, prov := range provs {
+					for _, pol := range controller.storagePolicies {
+						log.Debugf("querying provider %s for policy %s", name, pol.Name)
+						vecs, err := prov.Query(pol)
+						if err != nil {
+							log.Errorln(err)
+							continue
+						}
+
+						log.Debugf("policy %s has %d match(es) on provider %s", pol.Name, len(vecs), name)
+
+						if err := executePolicy(pol, vecs); err != nil {
+							log.Errorln(err)
+						}
+					}
+				}
+				controller.unlock()
+
+				log.Debug("metrics polling done")
+
+				ticker.Reset()
+
+			case <-shutdown:
+				log.Infof("shutting down")
+				return nil
+			}
 		}
-
-		return nil
 	}
 
 	app.Commands = []cli.Command{

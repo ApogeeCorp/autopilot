@@ -24,15 +24,15 @@ import (
 
 // MetricsProvider provides metrics data to autopilot
 type MetricsProvider struct {
-	Name     string `yaml:"name"`
-	Type     string `yaml:"type"`
-	Params   string `yaml:"params"`
-	PollRate string `yaml:"poll_rate"`
+	Name   string `yaml:"name"`
+	Type   string `yaml:"type"`
+	Params string `yaml:"params"`
 }
 
 // Config defines the autopilot configuration structure
 type Config struct {
 	Providers []MetricsProvider `yaml:"providers"`
+	PollRate  string            `yaml:"poll_rate"`
 }
 
 // ReadFile reads a configuration file
