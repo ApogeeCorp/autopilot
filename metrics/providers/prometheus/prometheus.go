@@ -86,7 +86,10 @@ func (p *prometheus) query(params metrics.Params) ([]metrics.Vector, error) {
 
 	base.Path = path.Join(base.Path, params.String("path", "/query"))
 
-	req, _ := http.NewRequest("GET", base.String(), nil)
+	req, err := http.NewRequest("GET", base.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	q := req.URL.Query()
 
