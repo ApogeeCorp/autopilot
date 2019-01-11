@@ -21,7 +21,8 @@
  * SOFTWARE.
  */
 
-package util
+// Package ptr provides some helpers for converting types to pointers
+package ptr
 
 import (
 	"fmt"
@@ -154,25 +155,4 @@ func String(val interface{}) *string {
 	tmp := v.Interface()
 	rval := fmt.Sprint(tmp)
 	return &rval
-}
-
-// StringPtr converts a pointer to normal string or empty
-func StringPtr(val interface{}, term ...string) string {
-	if val == nil {
-		return ""
-	}
-
-	v := reflect.ValueOf(val)
-	if v.IsNil() {
-		return ""
-	}
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-	tmp := v.Interface()
-	rval := fmt.Sprint(tmp)
-	if len(rval) > 0 && len(term) > 0 {
-		rval += term[0]
-	}
-	return rval
 }

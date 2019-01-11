@@ -23,15 +23,25 @@
 
 package types
 
-import (
-	"github.com/go-openapi/strfmt"
-	"github.com/lib/pq/hstore"
-)
+import "time"
 
-// StringMap is a proper string array type
-type StringMap hstore.Hstore
+// Ticker is a ticker wrapper with some extra functionality
+type Ticker struct {
+	period time.Duration
+	ticker time.Ticker
+}
 
-// Validate handles the strfmt validation for the StringArray object
-func (*StringMap) Validate(formats strfmt.Registry) error {
-	return nil
+// NewTicker create a new resetable ticker
+func NewTicker(period time.Duration) *Ticker {
+	return &Ticker{period, *time.NewTicker(period)}
+}
+
+// Reset resets the tickers
+func (t *Ticker) Reset() {
+	t.ticker = *time.NewTicker(t.period)
+}
+
+// C returns the ticker channel
+func (t *Ticker) C() <-chan time.Time {
+	return t.ticker.C
 }

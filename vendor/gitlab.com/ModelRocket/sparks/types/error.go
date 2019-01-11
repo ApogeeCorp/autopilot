@@ -37,7 +37,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
-	"gitlab.com/ModelRocket/sparks/util"
+	"gitlab.com/ModelRocket/sparks/types/ptr"
 )
 
 var (
@@ -86,8 +86,8 @@ func NewError(err ...error) *Error {
 
 		switch typedErr := (e).(type) {
 		case *pq.Error:
-			msg = util.String(typedErr.Message)
-			code = util.String(typedErr.Code)
+			msg = ptr.String(typedErr.Message)
+			code = ptr.String(typedErr.Code)
 			detail = map[string]string{
 				"reason": typedErr.Detail,
 				"column": typedErr.Column,
@@ -105,7 +105,7 @@ func NewError(err ...error) *Error {
 			if e == sql.ErrNoRows || typedErr == gorm.ErrRecordNotFound {
 				status = http.StatusNotFound
 			}
-			msg = util.String(e.Error())
+			msg = ptr.String(e.Error())
 		}
 	}
 	return &Error{
@@ -119,7 +119,7 @@ func NewError(err ...error) *Error {
 
 // Format formats the error message
 func (e *Error) Format(msg string, args ...interface{}) *Error {
-	e.Message = util.String(fmt.Sprintf(msg, args...))
+	e.Message = ptr.String(fmt.Sprintf(msg, args...))
 	return e
 }
 
@@ -163,7 +163,7 @@ func (e *Error) Reason(args ...interface{}) *Error {
 		}
 		if val.IsValid() && val.Kind() == reflect.Struct {
 			if e.err == gorm.ErrRecordNotFound {
-				e.Message = util.String(fmt.Sprintf("%s not found", val.Type().String()))
+				e.Message = ptr.String(fmt.Sprintf("%s not found", val.Type().String()))
 			} else {
 				e.Detail["model"] = val.Type().String()
 			}
@@ -192,7 +192,7 @@ func (e *Error) Status(status int) *Error {
 
 // ErrorCode sets the error code
 func (e *Error) ErrorCode(code string) *Error {
-	e.Code = util.String(code)
+	e.Code = ptr.String(code)
 	return e
 }
 
@@ -244,6 +244,11 @@ func (e *Error) WriteResponse(rw http.ResponseWriter, pr runtime.Producer) {
 		rw.Write(b.Bytes())
 		e.length = b.Len()
 	}
+}
+
+// Err returns the underlining error
+func (e *Error) Err() error {
+	return e.err
 }
 
 // Validate handles the strfmt validation for the StringArray object

@@ -8,10 +8,10 @@ spec:
   object:
     type: openstorage.io/object.volume
     matchExpressions:
-      - key: app
+      - key: name
         operator: In
         values:
-          - postgres
+          - pvc-9b776615-3f5e-11e8-83b6-0cc47ab5f9a2
   ##### condition is the symptom to evaluate
   conditions:
     - key: openstorage.io/condition.volume.usage_percentage
@@ -27,4 +27,4 @@ spec:
     name: openstorage.io/action.volume.resize
     params:
       - --scalefactor
-      - 1.2
+      - 1.3

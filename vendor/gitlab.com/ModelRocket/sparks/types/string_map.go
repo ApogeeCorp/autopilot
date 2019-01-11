@@ -33,54 +33,76 @@ import (
 	"github.com/spf13/cast"
 )
 
-// JSONMap is a helper for the postgres jsonb datatype
-type JSONMap map[string]interface{}
+// StringMap is a wrapper on a map[string]interface{} that implements the Mapper interface
+type StringMap map[string]interface{}
 
 // IsSet returns true if the parameter is set
-func (p JSONMap) IsSet(key string) bool {
-	_, ok := p[key]
+func (p StringMap) IsSet(key interface{}) bool {
+	_, ok := p[cast.ToString(key)]
 	return ok
 }
 
-// IsSetV returns true if the parameter is set and the value
-func (p JSONMap) IsSetV(key string) (Value, bool) {
+// Set sets a value in the map
+func (p StringMap) Set(key, value interface{}) {
+	p[cast.ToString(key)] = value
+}
+
+// Get returns the value and if the key is set
+func (p StringMap) Get(key interface{}) interface{} {
+	val, ok := p[strings.ToLower(cast.ToString(key))]
+	if !ok {
+		return nil
+	}
+
+	return val
+}
+
+// Sub returns a sub StringMap for the key
+func (p StringMap) Sub(key interface{}) Mapper {
+	if tmp, ok := p[cast.ToString(key)]; ok {
+		switch p := tmp.(type) {
+		case map[string]interface{}:
+			return StringMap(p)
+		default:
+			return Map(p)
+		}
+	}
+	return StringMap{}
+}
+
+// Delete removes a key
+func (p StringMap) Delete(key interface{}) {
+	delete(p, cast.ToString(key))
+}
+
+// Copy does a shallow copy
+func (p StringMap) Copy() Mapper {
+	rval := make(StringMap)
+	for k, v := range p {
+		rval[k] = v
+	}
+	return rval
+}
+
+// Without removes the keys, returns a shallow copy
+func (p StringMap) Without(keys ...interface{}) Mapper {
+	rval := p.Copy().(StringMap)
+	for _, key := range keys {
+		rval.Delete(key)
+	}
+	return rval
+}
+
+// GetValue returns a Value and if the key is set
+func (p StringMap) GetValue(key string) (Value, bool) {
 	v, ok := p[key]
 	return NewValue(v), ok
 }
 
-// Set sets a value in the map
-func (p JSONMap) Set(key string, value interface{}) {
-	p[key] = value
-}
-
-// Get returns the value and if the key is set
-func (p JSONMap) Get(key string, def ...interface{}) (interface{}, bool) {
-	var dval interface{}
-	if len(def) > 0 {
-		dval = def[0]
-	}
-	val, ok := p[strings.ToLower(key)]
-	if !ok {
-		return dval, false
-	}
-
-	return val, true
-}
-
-// Sub returns a sub JSONMap for the key
-func (p JSONMap) Sub(key string) JSONMap {
-	if tmp, ok := p[key]; ok {
-		if p, ok := tmp.(map[string]interface{}); ok {
-			return JSONMap(p)
-		}
-	}
-	return JSONMap{}
-}
-
 // String returns a string value for the param, or the optional default
-func (p JSONMap) String(key string, def ...string) string {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) String(key string, def ...string) string {
+	rval := p.Get(key)
+	if rval == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
@@ -91,9 +113,9 @@ func (p JSONMap) String(key string, def ...string) string {
 }
 
 // StringPtr returns a string ptr or nil
-func (p JSONMap) StringPtr(key string, def ...string) *string {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) StringPtr(key string, def ...string) *string {
+	rval := p.Get(key)
+	if rval == nil {
 		if len(def) > 0 {
 			return &def[0]
 		}
@@ -104,9 +126,9 @@ func (p JSONMap) StringPtr(key string, def ...string) *string {
 }
 
 // StringSlice returns a string value for the param, or the optional default
-func (p JSONMap) StringSlice(key string) []string {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) StringSlice(key string) []string {
+	rval := p.Get(key)
+	if rval == nil {
 		return []string{}
 	}
 
@@ -114,9 +136,9 @@ func (p JSONMap) StringSlice(key string) []string {
 }
 
 // Bool parses and returns the boolean value of the parameter
-func (p JSONMap) Bool(key string, def ...bool) bool {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) Bool(key string, def ...bool) bool {
+	rval := p.Get(key)
+	if rval == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
@@ -127,9 +149,9 @@ func (p JSONMap) Bool(key string, def ...bool) bool {
 }
 
 // Int64 returns the int value or 0 if not set
-func (p JSONMap) Int64(key string, def ...int64) int64 {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) Int64(key string, def ...int64) int64 {
+	rval := p.Get(key)
+	if rval == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
@@ -144,9 +166,9 @@ func (p JSONMap) Int64(key string, def ...int64) int64 {
 }
 
 // Float64 returns the float value or 0 if not set
-func (p JSONMap) Float64(key string, def ...float64) float64 {
-	rval, ok := p.Get(key)
-	if !ok {
+func (p StringMap) Float64(key string, def ...float64) float64 {
+	rval := p.Get(key)
+	if rval == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
@@ -160,45 +182,22 @@ func (p JSONMap) Float64(key string, def ...float64) float64 {
 	return cast.ToFloat64(rval)
 }
 
-// Delete removes a key
-func (p JSONMap) Delete(key string) {
-	delete(p, key)
-}
-
-// Copy does a shallow copy
-func (p JSONMap) Copy() JSONMap {
-	rval := make(JSONMap)
-	for k, v := range p {
-		rval[k] = v
-	}
-	return rval
-}
-
-// Without removes the keys, returns a shallow copy
-func (p JSONMap) Without(keys ...string) JSONMap {
-	rval := p.Copy()
-	for _, key := range keys {
-		delete(rval, key)
-	}
-	return rval
-}
-
 // Validate handles the strfmt validation for the StringArray object
-func (*JSONMap) Validate(formats strfmt.Registry) error {
+func (*StringMap) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // Scan implements the sql.Scanner interface
-func (p *JSONMap) Scan(src interface{}) error {
+func (p *StringMap) Scan(src interface{}) error {
 	bytes, ok := src.([]byte)
 	if !ok {
-		return fmt.Errorf("Invalid data type for JSONMap")
+		return fmt.Errorf("Invalid data type for StringMap")
 	}
 	return json.Unmarshal(bytes, p)
 }
 
 // Value implements the driver.Valuer interface.
-func (p JSONMap) Value() (driver.Value, error) {
+func (p StringMap) Value() (driver.Value, error) {
 	data, err := json.Marshal(map[string]interface{}(p))
 	if err != nil {
 		return nil, err
