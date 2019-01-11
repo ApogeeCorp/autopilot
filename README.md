@@ -20,10 +20,23 @@ Once you make changes to the CRD, use the following make rule to update the gene
 
 ```shell
 make codegen
-go run ./cmd/autopilot/*.go  -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
 ```
 
+## Testing Policies
+
+To test a single policy you can use the `policy test` command.
+
+```shell
+go run ./cmd/autopilot/*.go  -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
+```
 
 ## Running
 
 autopilot expects to run in cluster, of running standalone be sure to set `KUBERNETES_CONFIG` to your cluster configuration file path.
+
+Example running locally
+
+```shell
+go install ./cmd/autopilot
+autopilot -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
+```
