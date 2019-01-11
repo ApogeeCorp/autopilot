@@ -490,15 +490,15 @@
   version = "v1.20.0"
 
 [[projects]]
-  digest = "1:173aa7fe918b1dba3927e91e690d795663b1fdb498c1ccc9f714162632ac27bd"
+  digest = "1:1f9d514d01b1c99c47df0196c149a1c700e8a0676bc9d740fadd8f2c462b70b2"
   name = "gitlab.com/ModelRocket/sparks"
   packages = [
     "types",
     "types/ptr",
   ]
   pruneopts = "UT"
-  revision = "1613e508a9b430666040d0c1937a45c7d66f3346"
-  version = "v1.1.0"
+  revision = "c704d03b351ba206bb8c4e035115e7415474c6b6"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"

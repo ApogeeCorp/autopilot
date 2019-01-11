@@ -38,7 +38,7 @@ const (
 // crdController is the k8s controller interface for autopilot resources
 type crdController struct {
 	storagePolicies map[string]*autopilotv1.StoragePolicy
-	spLock          sync.RWMutex
+	spLock          sync.Mutex
 }
 
 // Handle updates for StoragePolicy objects
@@ -88,4 +88,12 @@ func (c *crdController) start() error {
 	}
 
 	return controller.Run()
+}
+
+func (c *crdController) lock() {
+	c.spLock.Lock()
+}
+
+func (c *crdController) unlock() {
+	c.spLock.Unlock()
 }

@@ -20,7 +20,7 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/libopenstorage/autopilot/telemetry"
+	"github.com/libopenstorage/autopilot/metrics"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/libopenstorage/autopilot/config"
@@ -63,7 +63,7 @@ func policyTestAction(c *cli.Context) error {
 	}
 
 	for _, p := range cfg.Providers {
-		prov, err := telemetry.NewInstance(p.Type, p.Params)
+		prov, err := metrics.NewProvider(p.Type, p.Params)
 		if err != nil {
 			return err
 		}
@@ -78,15 +78,22 @@ func policyTestAction(c *cli.Context) error {
 			break
 		}
 
-		for _, exp := range policy.Spec.Object.MatchExpressions {
-			values := sparks.Slice(&exp.Values)
+		return executePolicy(policy, vecs)
 
-			for _, vec := range vecs {
-				switch policy.Spec.Object.Type {
-				case "openstorage.io/object.volume":
-					if values.Contains(*vec.Metric.VolumeName) {
-						log.Infof("Should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
-					}
+	}
+
+	return nil
+}
+
+func executePolicy(policy *autopilot.StoragePolicy, vecs []metrics.Vector) error {
+	for _, exp := range policy.Spec.Object.MatchExpressions {
+		values := sparks.Slice(&exp.Values)
+
+		for _, vec := range vecs {
+			switch policy.Spec.Object.Type {
+			case "openstorage.io/object.volume":
+				if values.Contains(*vec.Metric.VolumeName) {
+					log.Infof("Should execute action %s on volume %s", policy.Spec.Action.Name, *vec.Metric.VolumeName)
 				}
 			}
 		}

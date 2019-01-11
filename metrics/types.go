@@ -14,17 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package telemetry
+package metrics
 
 import (
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
 	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
-// The autopilot telemetry format is based on the prometheus metrics data format
+// The autopilot metrics format is based on the prometheus metrics data format
 
 type (
-	// Provider defines a simple interface for telemetry providers to collect and extract data
+	// Provider defines a simple interface for metrics providers to collect and extract data
 	Provider interface {
 		// Resolve executes query based on the provided policy and returns a vector of metrics values
 		Query(*StoragePolicy) ([]Vector, error)
@@ -33,7 +33,7 @@ type (
 	// Params is an alias for a map helper
 	Params = sparks.Params
 
-	// NewFunc is a function registered with the telemetry layer for creating a new
+	// NewFunc is a function registered with the metrics layer for creating a new
 	// instance of the provider.
 	NewFunc func(Params) (Provider, error)
 

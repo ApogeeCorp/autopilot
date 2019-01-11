@@ -26,8 +26,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/libopenstorage/autopilot/metrics"
 	meta "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	"github.com/libopenstorage/autopilot/telemetry"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -39,8 +39,8 @@ type (
 
 		// Data is the data for the results
 		Data struct {
-			ResultType string             `json:"resultType"`
-			Results    []telemetry.Vector `json:"result"`
+			ResultType string           `json:"resultType"`
+			Results    []metrics.Vector `json:"result"`
 		} `json:"data"`
 
 		// ErrorType is the prometheus error type
@@ -51,7 +51,7 @@ type (
 	}
 
 	prometheus struct {
-		params telemetry.Params
+		params metrics.Params
 		url    string
 	}
 )
@@ -68,15 +68,15 @@ var promQLOperatorLookup = map[meta.LabelSelectorOperator]string{
 }
 
 // New returns a new prometheus instance
-func New(params telemetry.Params) (telemetry.Provider, error) {
+func New(params metrics.Params) (metrics.Provider, error) {
 	return &prometheus{
 		params: params,
 		url:    params.String("url"),
 	}, nil
 }
 
-// query implements the telemetry.Provider.Query interface method
-func (p *prometheus) query(params telemetry.Params) ([]telemetry.Vector, error) {
+// query implements the metrics.Provider.Query interface method
+func (p *prometheus) query(params metrics.Params) ([]metrics.Vector, error) {
 	client := &http.Client{}
 
 	base, err := url.Parse(p.url)
@@ -134,8 +134,8 @@ func (p *prometheus) query(params telemetry.Params) ([]telemetry.Vector, error) 
 	return p.parse(data)
 }
 
-// parse implements the telemetry.Provider.Parse interface method
-func (p *prometheus) parse(data []byte) ([]telemetry.Vector, error) {
+// parse implements the metrics.Provider.Parse interface method
+func (p *prometheus) parse(data []byte) ([]metrics.Vector, error) {
 	results := &results{}
 	err := json.Unmarshal(data, results)
 	if err != nil {
@@ -164,20 +164,16 @@ func (p *prometheus) ConditionToQuery(condition *meta.LabelSelectorRequirement) 
 	return p.LookupMetric(condition.Key) + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
 }
 
-func (p *prometheus) Query(policy *telemetry.StoragePolicy) ([]telemetry.Vector, error) {
-	rval := make([]telemetry.Vector, 0)
+func (p *prometheus) Query(policy *metrics.StoragePolicy) ([]metrics.Vector, error) {
+	rval := make([]metrics.Vector, 0)
 
 	for _, c := range policy.Spec.Conditions {
-		log.Debugf("[prometheus] Condition % #v", c)
-
-		m := make(telemetry.Params)
+		m := make(metrics.Params)
 		m["query"] = p.ConditionToQuery(c)
-
-		log.Debugf("[prometheus]\tPrometheus Query %#v", m["query"])
 
 		vectors, err := p.query(m)
 		if err != nil {
-			log.Errorf("Error Executing Policy %q, %s, % #v", policy.Name, c.Key, err)
+			log.Errorf("prometheus: error executing policy %q, %s, % #v", policy.Name, c.Key, err)
 			return nil, err
 		}
 		if len(vectors) > 0 {
@@ -189,5 +185,5 @@ func (p *prometheus) Query(policy *telemetry.StoragePolicy) ([]telemetry.Vector,
 }
 
 func init() {
-	telemetry.Register("prometheus", New)
+	metrics.Register("prometheus", New)
 }

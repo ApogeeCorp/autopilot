@@ -23,9 +23,12 @@ import (
 	"syscall"
 	"time"
 
-	_ "github.com/libopenstorage/autopilot/telemetry/providers"
+	"github.com/libopenstorage/autopilot/config"
+	"github.com/libopenstorage/autopilot/metrics"
+	_ "github.com/libopenstorage/autopilot/metrics/providers"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	sparks "gitlab.com/ModelRocket/sparks/types"
 )
 
 func main() {
@@ -77,6 +80,11 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		var shutdown = make(chan os.Signal)
 
+		cfg, err := config.ReadFile(c.GlobalString("config"))
+		if err != nil {
+			return err
+		}
+
 		signal.Notify(shutdown, syscall.SIGTERM)
 		signal.Notify(shutdown, syscall.SIGINT)
 
@@ -92,13 +100,60 @@ func main() {
 			return err
 		}
 
-		// todo start the monitor
+		pollRate, err := time.ParseDuration(cfg.PollRate)
+		if err != nil {
+			return err
+		}
 
-		<-shutdown
+		log.Infof("starting the metrics poller (%s)", cfg.PollRate)
 
-		log.Infof("shutting down")
+		ticker := sparks.NewTicker(pollRate)
 
-		return nil
+		provs := make(map[string]metrics.Provider)
+
+		for _, prov := range cfg.Providers {
+			inst, err := metrics.NewProvider(prov.Type, prov.Params)
+			if err != nil {
+				return err
+			}
+
+			provs[prov.Name] = inst
+		}
+
+		for {
+			select {
+			case <-ticker.C():
+				log.Debug("beginning metrics polling")
+
+				controller.lock()
+
+				for name, prov := range provs {
+					for _, pol := range controller.storagePolicies {
+						log.Debugf("querying provider %s for policy %s", name, pol.Name)
+						vecs, err := prov.Query(pol)
+						if err != nil {
+							log.Errorln(err)
+							continue
+						}
+
+						log.Debugf("policy %s has %d match(es) on provider %s", pol.Name, len(vecs), name)
+
+						if err := executePolicy(pol, vecs); err != nil {
+							log.Errorln(err)
+						}
+					}
+				}
+				controller.unlock()
+
+				log.Debug("metrics polling done")
+
+				ticker.Reset()
+
+			case <-shutdown:
+				log.Infof("shutting down")
+				return nil
+			}
+		}
 	}
 
 	app.Commands = []cli.Command{
