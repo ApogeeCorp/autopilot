@@ -61,7 +61,7 @@ func policyTestAction(c *cli.Context) error {
 
 	policy, ok := obj.(*autopilot.StoragePolicy)
 	if !ok {
-		return errors.New("Invalid storage policy object")
+		return errors.New("invalid storage policy object")
 	}
 
 	for _, p := range cfg.Providers {
@@ -75,13 +75,10 @@ func policyTestAction(c *cli.Context) error {
 			return err
 		}
 
-		if len(vecs) == 0 {
-			log.Infof("no policies matched")
-			break
+		if len(vecs) != 0 {
+			return executePolicy(policy, vecs)
 		}
-
-		return executePolicy(policy, vecs)
-
+		log.Infof("no policies matched")
 	}
 
 	return nil

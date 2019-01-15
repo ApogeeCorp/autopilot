@@ -18,7 +18,7 @@ BUILD_OPTIONS := -ldflags=$(LDFLAGS)
 .DEFAULT_GOAL=all
 .PHONY: clean vendor vendor-update container deploy
 
-all: vet lint simple autopilot
+all: autopilot vet lint staticcheck
 
 vendor-update:
 	dep ensure -update
@@ -43,17 +43,17 @@ lint:
 vet:
 	go vet $(PKGS)
 
-$(GOPATH)/bin/gosimple:
-	go get -u honnef.co/go/tools/cmd/gosimple
+$(GOPATH)/bin/staticcheck:
+	go get -u honnef.co/go/tools/cmd/staticcheck
 
-simple: $(GOPATH)/bin/gosimple
-	$(GOPATH)/bin/gosimple $(PKGS)
+staticcheck: $(GOPATH)/bin/staticcheck
+	$(GOPATH)/bin/staticcheck $(PKGS)
 
 errcheck:
 	go get -v github.com/kisielk/errcheck
 	errcheck -verbose -blank $(PKGS)
 
-pretest: lint vet errcheck simple
+pretest: lint vet errcheck staticcheck
 
 codegen:
 	@echo "Generating CRD"

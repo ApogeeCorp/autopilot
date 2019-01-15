@@ -78,7 +78,7 @@ func main() {
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
-		var shutdown = make(chan os.Signal)
+		var shutdown = make(chan os.Signal, 1)
 
 		cfg, err := config.ReadFile(c.GlobalString("config"))
 		if err != nil {
