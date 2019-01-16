@@ -14,7 +14,7 @@ const (
 	// StoragePolicyResourcePlural is the name of the plural StoragePolicy objects
 	StoragePolicyResourcePlural = "storagepolicies"
 
-  // LabelSelectorOpIn is operator where the key must have one of the values
+	// LabelSelectorOpIn is operator where the key must have one of the values
 	LabelSelectorOpIn LabelSelectorOperator = "In"
 	// LabelSelectorOpNotIn is operator where the key must not have any of the values
 	LabelSelectorOpNotIn LabelSelectorOperator = "NotIn"
@@ -89,7 +89,7 @@ type StoragePolicySpec struct {
 // PolicyObject defines an object for the policy
 type PolicyObject struct {
 	// Type is the type of the policy object
-	Type PolicyObjectType `json:"type"`
+	Type string `json:"type"`
 	// LabelSelector selects the policy objects
 	meta.LabelSelector
 }
@@ -97,7 +97,21 @@ type PolicyObject struct {
 // PolicyAction defines an action for the policy
 type PolicyAction struct {
 	// Name is the name of the policy
-	Name PolicyActionName `json:"name"`
+	Name string `json:"name"`
 	// ActionObject is the target object for the policy (optional)
 	ActionObject PolicyObject `json:"actionObject,omitempty"`
 }
+
+// StoragePolicyStatusType is the type for policy statuses
+type StoragePolicyStatusType string
+
+const (
+	// StoragePolicyConditonMet is for when the conditions in policy are met
+	StoragePolicyConditonMet StoragePolicyStatusType = "ConditionMet"
+	// StoragePolicyActionFailed is when an action for a policy has failed
+	StoragePolicyActionFailed StoragePolicyStatusType = "ActionFailed"
+	// StoragePolicyActionTriggered is when an action for a policy has triggerred
+	StoragePolicyActionTriggered StoragePolicyStatusType = "ActionTriggered"
+	// StoragePolicyActionSuccessful is when an action for a policy is successful
+	StoragePolicyActionSuccessful StoragePolicyStatusType = "ActionSuccessful"
+)

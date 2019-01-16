@@ -1,12 +1,8 @@
 package v1alpha1
 
 type (
-	// PolicyObjectType is the type for policy objects
-	PolicyObjectType string
 	// PolicyConditionName is the type for policy condition names
 	PolicyConditionName string
-	// PolicyActionName is the type for policy actions
-	PolicyActionName string
 )
 
 const (
@@ -19,22 +15,13 @@ const (
 	PolicyActionPrefix = openstorageDomain + ".action"
 
 	// PolicyObjectTypeVolume is the key for volume objects
-	PolicyObjectTypeVolume PolicyObjectType = PolicyObjectPrefix + "/volume"
+	PolicyObjectTypeVolume = PolicyObjectPrefix + ".volume"
 	// PolicyObjectTypeStoragePool is the key for storagepool objects
-	PolicyObjectTypeStoragePool PolicyObjectType = PolicyObjectPrefix + "/storagepool"
+	PolicyObjectTypeStoragePool = PolicyObjectPrefix + ".storagepool"
 	// PolicyObjectTypeNode  is the key for node objects
-	PolicyObjectTypeNode PolicyObjectType = PolicyObjectPrefix + "/node"
+	PolicyObjectTypeNode = PolicyObjectPrefix + ".node"
 	// PolicyObjectTypeDisk is the key for disk objects
-	PolicyObjectTypeDisk PolicyObjectType = PolicyObjectPrefix + "/disk"
-
-	// PolicyConditionVolume is the key for volume conditions for policies
-	PolicyConditionVolume = PolicyConditionPrefix + ".volume"
-	// PolicyConditionStoragePool is the key for storagepool conditions for policies
-	PolicyConditionStoragePool = PolicyConditionPrefix + ".storagepool"
-	// PolicyConditionNode is the key for node conditions for policies
-	PolicyConditionNode = PolicyConditionPrefix + ".node"
-	// PolicyConditionDisk is the key for disk conditions for policies
-	PolicyConditionDisk = PolicyConditionPrefix + ".disk"
+	PolicyObjectTypeDisk = PolicyObjectPrefix + ".disk"
 
 	// PolicyActionVolume is the key for volume actions for policies
 	PolicyActionVolume = PolicyActionPrefix + ".volume"
@@ -48,7 +35,6 @@ const (
 
 const (
 	latencyMS       = "/latency_ms"
-	actionMove      = "/move"
 	actionRebalance = "/rebalance"
 )
 
@@ -66,26 +52,27 @@ const (
 	/***** Volume conditions *****/
 
 	// PolicyConditionVolumeLatencyMS is the latency (reads + writes) for a volume in milliseconds
-	PolicyConditionVolumeLatencyMS PolicyConditionName = PolicyConditionVolume + latencyMS
+	PolicyConditionVolumeLatencyMS PolicyConditionName = PolicyObjectTypeVolume + latencyMS
 
 	/***** Storage pool conditions *****/
 
 	// PolicyConditionStoragePoolLatencyMS is the latency (reads + writes) for a storage pool in milliseconds
-	PolicyConditionStoragePoolLatencyMS PolicyConditionName = PolicyConditionStoragePool + latencyMS
+	PolicyConditionStoragePoolLatencyMS PolicyConditionName = PolicyObjectTypeStoragePool + latencyMS
 
 	/***** Disk conditions *****/
 
 	// PolicyConditionDiskLatencyMS is the latency (reads + writes) for a disk in milliseconds
-	PolicyConditionDiskLatencyMS PolicyConditionName = PolicyConditionDisk + latencyMS
+	PolicyConditionDiskLatencyMS PolicyConditionName = PolicyObjectTypeDisk + latencyMS
 )
 
 const (
 	/***** Volume actions *****/
 
-	// PolicyActionVolumeMove is an action to move volumes
-	PolicyActionVolumeMove PolicyActionName = PolicyActionVolume + actionMove
+	// PolicyActionVolumeResize is an action to resize volumes
+	PolicyActionVolumeResize = "resize"
+
 	/***** Node actions *****/
 
 	// PolicyActionNodeRebalance is an action to rebalance a node
-	PolicyActionNodeRebalance PolicyActionName = PolicyActionNode + actionRebalance
+	PolicyActionNodeRebalance = PolicyActionNode + actionRebalance
 )

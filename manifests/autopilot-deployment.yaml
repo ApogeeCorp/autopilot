@@ -8,7 +8,7 @@ data:
     providers:
        - name: default
          type: prometheus
-         params: url=http://70.0.69.141:9090/api/v1
+         params: url=http://70.0.66.47:30900/api/v1
     poll_rate: 5s
 ---
 apiVersion: v1
@@ -88,6 +88,8 @@ spec:
         - /autopilot
         - -f
         - ./etc/config/config.yaml
+        - -log-level
+        - debug
         imagePullPolicy: Always
         image: harshpx/autopilot:latest
         resources:

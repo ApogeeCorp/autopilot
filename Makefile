@@ -9,10 +9,12 @@ ifeq ($(BUILD_TYPE),debug)
 BUILDFLAGS += -gcflags "-N -l"
 endif
 
+RELEASE_VER := 0.0.1
 BASE_DIR    := $(shell git rev-parse --show-toplevel)
+GIT_SHA     := $(shell git rev-parse --short HEAD)
 BIN         :=$(BASE_DIR)/bin
 
-LDFLAGS += "-s -w"
+LDFLAGS += "-s -w -X github.com/libopenstorage/stork/pkg/version.Version=$(VERSION)"
 BUILD_OPTIONS := -ldflags=$(LDFLAGS)
 
 .DEFAULT_GOAL=all

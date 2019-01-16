@@ -31,8 +31,9 @@ type MetricsProvider struct {
 
 // Config defines the autopilot configuration structure
 type Config struct {
-	Providers []MetricsProvider `yaml:"providers"`
-	PollRate  string            `yaml:"poll_rate"`
+	Providers      []MetricsProvider `yaml:"providers"`
+	PollRate       string            `yaml:"poll_rate"`
+	CooldownPeriod int               `yaml:"cool_down_rate"`
 }
 
 // ReadFile reads a configuration file

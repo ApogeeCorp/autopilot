@@ -28,7 +28,8 @@ import (
 
 	"github.com/libopenstorage/autopilot/metrics"
 	meta "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
-	log "github.com/sirupsen/logrus"
+	"github.com/libopenstorage/autopilot/pkg/log"
+	"github.com/sirupsen/logrus"
 )
 
 type (
@@ -55,11 +56,6 @@ type (
 		url    string
 	}
 )
-
-var promQLMetricLookup = map[string]string{
-	"openstorage.io/condition.volume.usage_percentage": "100 * (px_volume_usage_bytes / px_volume_capacity_bytes)",
-	"openstorage.io/condition.volume.capacity_gb":      "ps_volume_fs_capacity_bytes / 1000000000",
-}
 
 var promQLOperatorLookup = map[meta.LabelSelectorOperator]string{
 	"gt": ">",
@@ -119,7 +115,7 @@ func (p *prometheus) query(params metrics.Params) ([]metrics.Vector, error) {
 
 	req.URL.RawQuery = q.Encode()
 
-	log.Debugf("prometheus: executing query %s", req.URL.String())
+	logrus.Infof("prometheus: executing query %s", req.URL.String())
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -155,16 +151,12 @@ func (p *prometheus) parse(data []byte) ([]metrics.Vector, error) {
 	}
 }
 
-func (p *prometheus) LookupMetric(metric string) string {
-	return promQLMetricLookup[metric]
-}
-
 func (p *prometheus) LookupOperator(operator meta.LabelSelectorOperator) string {
 	return promQLOperatorLookup[operator]
 }
 
 func (p *prometheus) ConditionToQuery(condition *meta.LabelSelectorRequirement) string {
-	return p.LookupMetric(condition.Key) + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
+	return condition.Key + " " + p.LookupOperator(condition.Operator) + " " + condition.Values[0]
 }
 
 func (p *prometheus) Query(policy *metrics.StoragePolicy) ([]metrics.Vector, error) {
@@ -173,15 +165,20 @@ func (p *prometheus) Query(policy *metrics.StoragePolicy) ([]metrics.Vector, err
 	for _, c := range policy.Spec.Conditions {
 		m := make(metrics.Params)
 		m["query"] = p.ConditionToQuery(c)
-
 		vectors, err := p.query(m)
 		if err != nil {
-			log.Errorf("prometheus: error executing policy %q, %s, % #v", policy.Name, c.Key, err)
+			logrus.Errorf("prometheus: error executing policy %q, %s, % #v", policy.Name, c.Key, err)
 			return nil, err
 		}
-		if len(vectors) > 0 {
-			rval = append(rval, vectors...)
+
+		if len(vectors) == 0 {
+			// all conditions have to be met. So will not run the query for subsequent
+			// conditions
+			return nil, nil
 		}
+
+		log.StoragePolicyLog(policy).Infof("[debug] vectors in response: %v", vectors)
+		rval = append(rval, vectors...)
 	}
 
 	return rval, nil

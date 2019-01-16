@@ -22,23 +22,34 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kubernetes/client-go/tools/record"
+	"github.com/libopenstorage/autopilot/config"
 	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot"
 	autopilotv1 "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
+	"github.com/libopenstorage/autopilot/pkg/probation"
 	"github.com/libopenstorage/stork/pkg/controller"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/operator-framework/operator-sdk/pkg/sdk"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const (
-	resyncPeriod = 30 * time.Second
+	resyncPeriod          = 30 * time.Second
+	defaultCooldownPeriod = 240 // in seconds
 )
 
 // crdController is the k8s controller interface for autopilot resources
 type crdController struct {
 	storagePolicies map[string]*autopilotv1.StoragePolicy
 	spLock          sync.Mutex
+	recorder        record.EventRecorder
+	cfg             *config.Config
+
+	// probation
+	probation          probation.Probation
+	objectsInProbation map[string]interface{}
+	probationLock      sync.Mutex
 }
 
 // Handle updates for StoragePolicy objects
@@ -50,24 +61,41 @@ func (c *crdController) Handle(ctx context.Context, event sdk.Event) error {
 
 		if event.Deleted {
 			delete(c.storagePolicies, o.Name)
-			log.Infof("policy %s/%s/%s deleted", o.APIVersion, o.Kind, o.Name)
+			logrus.Infof("policy %s/%s/%s deleted", o.APIVersion, o.Kind, o.Name)
 		} else {
 			if tmp, ok := c.storagePolicies[o.Name]; !ok {
 				c.storagePolicies[o.Name] = o
-				log.Infof("policy %s/%s/%s added", o.APIVersion, o.Kind, o.Name)
+				logrus.Infof("policy %s/%s/%s added", o.APIVersion, o.Kind, o.Name)
 			} else if tmp.GetResourceVersion() != o.GetResourceVersion() {
 				c.storagePolicies[o.Name] = o
-				log.Infof("policy %s/%s/%s updated", o.APIVersion, o.Kind, o.Name)
+				logrus.Infof("policy %s/%s/%s updated", o.APIVersion, o.Kind, o.Name)
 			}
 		}
 	}
 	return nil
 }
 
-func newController() *crdController {
-	return &crdController{
-		storagePolicies: make(map[string]*autopilotv1.StoragePolicy),
+func newController(recorder record.EventRecorder, cfg *config.Config) *crdController {
+	c := &crdController{
+		storagePolicies:    make(map[string]*autopilotv1.StoragePolicy),
+		recorder:           recorder,
+		cfg:                cfg,
+		objectsInProbation: make(map[string]interface{}),
 	}
+
+	cooldownPeriod := cfg.CooldownPeriod
+	if cooldownPeriod == 0 {
+		cooldownPeriod = defaultCooldownPeriod
+	}
+
+	logrus.Infof("Autopilot using cool down period of: %d seconds", cooldownPeriod)
+
+	c.probation = probation.NewProbationManager(
+		"policy-action-cooldown",
+		time.Duration(cooldownPeriod)*time.Second,
+		c.objectCoolDownEvent)
+
+	return c
 }
 
 func (c *crdController) start() error {
@@ -87,6 +115,10 @@ func (c *crdController) start() error {
 		return err
 	}
 
+	if err := c.probation.Start(); err != nil {
+		return err
+	}
+
 	return controller.Run()
 }
 
@@ -96,4 +128,16 @@ func (c *crdController) lock() {
 
 func (c *crdController) unlock() {
 	c.spLock.Unlock()
+}
+
+func (c *crdController) objectCoolDownEvent(
+	objectID string,
+	objectData interface{},
+) error {
+	logrus.Infof("taking object: %s out of policy action cool down")
+	c.probationLock.Lock()
+	defer c.probationLock.Unlock()
+
+	delete(c.objectsInProbation, objectID)
+	return nil
 }

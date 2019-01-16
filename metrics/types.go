@@ -27,7 +27,7 @@ type (
 	// Provider defines a simple interface for metrics providers to collect and extract data
 	Provider interface {
 		// Resolve executes query based on the provided policy and returns a vector of metrics values
-		Query(*StoragePolicy) ([]Vector, error)
+		Query(*autopilot.StoragePolicy) ([]Vector, error)
 	}
 
 	// Params is an alias for a map helper

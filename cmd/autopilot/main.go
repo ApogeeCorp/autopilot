@@ -23,19 +23,32 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kubernetes/client-go/tools/record"
+	"github.com/kubernetes/kubernetes/pkg/api/legacyscheme"
 	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/metrics"
 	_ "github.com/libopenstorage/autopilot/metrics/providers"
-	log "github.com/sirupsen/logrus"
+	autopilot "github.com/libopenstorage/autopilot/pkg/apis/autopilot/v1alpha1"
+	"github.com/libopenstorage/autopilot/pkg/log"
+	"github.com/libopenstorage/autopilot/pkg/version"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	sparks "gitlab.com/ModelRocket/sparks/types"
+	api_v1 "k8s.io/api/core/v1"
+	clientset "k8s.io/client-go/kubernetes"
+	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/rest"
+)
+
+const (
+	eventComponentName = "autopilot"
 )
 
 func main() {
 	app := cli.NewApp()
 
 	app.Name = "autopilot"
-	app.Version = "0.0.1"
+	app.Version = version.Version
 	app.Usage = "Autopilot Storage Optimization Engine"
 
 	app.Flags = []cli.Flag{
@@ -78,6 +91,7 @@ func main() {
 	app.Before = setupLog
 
 	app.Action = func(c *cli.Context) error {
+		logrus.Infof("Starting autopilot version: %s", app.Version)
 		var shutdown = make(chan os.Signal, 1)
 
 		cfg, err := config.ReadFile(c.GlobalString("config"))
@@ -88,12 +102,26 @@ func main() {
 		signal.Notify(shutdown, syscall.SIGTERM)
 		signal.Notify(shutdown, syscall.SIGINT)
 
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			logrus.Fatalf("Error getting cluster config: %v", err)
+		}
+
+		k8sClient, err := clientset.NewForConfig(config)
+		if err != nil {
+			logrus.Fatalf("Error getting client, %v", err)
+		}
+
+		eventBroadcaster := record.NewBroadcaster()
+		eventBroadcaster.StartRecordingToSink(&v1.EventSinkImpl{Interface: v1.New(k8sClient.CoreV1().RESTClient()).Events("")})
+		recorder := eventBroadcaster.NewRecorder(legacyscheme.Scheme, api_v1.EventSource{Component: eventComponentName})
+
 		// install our CRD
 		if err := crdInstallAction(c); err != nil {
 			return err
 		}
 
-		controller := newController()
+		controller := newController(recorder, cfg)
 
 		// start the controller
 		if err := controller.start(); err != nil {
@@ -105,7 +133,7 @@ func main() {
 			return err
 		}
 
-		log.Infof("starting the metrics poller (%s)", cfg.PollRate)
+		logrus.Infof("starting the metrics poller (%s)", cfg.PollRate)
 
 		ticker := sparks.NewTicker(pollRate)
 
@@ -123,34 +151,73 @@ func main() {
 		for {
 			select {
 			case <-ticker.C():
-				log.Debug("beginning metrics polling")
-
 				controller.lock()
 
 				for name, prov := range provs {
 					for _, pol := range controller.storagePolicies {
-						log.Debugf("querying provider %s for policy %s", name, pol.Name)
 						vecs, err := prov.Query(pol)
 						if err != nil {
-							log.Errorln(err)
+							log.StoragePolicyLog(pol).Errorln(err)
 							continue
 						}
 
-						log.Debugf("policy %s has %d match(es) on provider %s", pol.Name, len(vecs), name)
+						if len(vecs) == 0 {
+							log.StoragePolicyLog(pol).Debugf("no vectors matched")
+							break
+						}
 
-						if err := executePolicy(pol, vecs); err != nil {
-							log.Errorln(err)
+						log.StoragePolicyLog(pol).Debugf("has %d match(es) on provider %s", len(vecs), name)
+						objects, err := getObjectsForPolicy(pol)
+						if err != nil {
+							log.StoragePolicyLog(pol).Errorf(err.Error())
+							return err
+						}
+
+						for _, object := range objects {
+							if isConditionMetOnObject(object, vecs) {
+								// TODO improve this
+								conditionStr := ""
+								for i, cond := range pol.Spec.Conditions {
+									conditionStr = conditionStr + fmt.Sprintf("%d => %s %s %s\t", i+1, cond.Key, cond.Operator, cond.Values)
+								}
+								controller.recorder.Event(pol,
+									api_v1.EventTypeNormal,
+									string(autopilot.StoragePolicyConditonMet),
+									fmt.Sprintf("conditions: %s met on object: %s",
+										conditionStr, object))
+
+								if controller.isObjectInCoolDown(object) {
+									continue
+								}
+
+								if err := controller.executePolicyAction(pol, object); err != nil {
+									log.StoragePolicyLog(pol).Errorln(err)
+									controller.recorder.Event(pol,
+										api_v1.EventTypeWarning,
+										string(autopilot.StoragePolicyActionFailed),
+										err.Error())
+									return err
+								}
+
+								if err := controller.markObjectForCoolDown(object); err != nil {
+									log.StoragePolicyLog(pol).Errorln(err)
+									controller.recorder.Event(pol,
+										api_v1.EventTypeWarning,
+										string(autopilot.StoragePolicyActionFailed),
+										err.Error())
+									return err
+								}
+							} else {
+								log.StoragePolicyLog(pol).Debugf("condition not met for object: %v", object)
+							}
 						}
 					}
 				}
 				controller.unlock()
-
-				log.Debug("metrics polling done")
-
 				ticker.Reset()
 
 			case <-shutdown:
-				log.Infof("shutting down")
+				logrus.Infof("shutting down")
 				return nil
 			}
 		}
@@ -191,20 +258,20 @@ func setupLog(c *cli.Context) error {
 	// setup the log format
 	switch c.String("log-format") {
 	case "text":
-		log.SetFormatter(&log.TextFormatter{
+		logrus.SetFormatter(&logrus.TextFormatter{
 			FullTimestamp: true,
 		})
 	case "json":
 		fallthrough
 	default:
-		log.SetFormatter(&log.JSONFormatter{
+		logrus.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: time.RFC3339,
 		})
 	}
 
 	// setup the log level
-	if level, err := log.ParseLevel(c.String("log-level")); err == nil {
-		log.SetLevel(level)
+	if level, err := logrus.ParseLevel(c.String("log-level")); err == nil {
+		logrus.SetLevel(level)
 	}
 
 	return nil

@@ -90,7 +90,7 @@ func (s *slice) Map(out interface{}, filters ...MapFilter) {
 
 func (s *slice) IndexOf(val interface{}) int {
 	for i := 0; i < s.v.Len(); i++ {
-		if reflect.DeepEqual(s.v.Index(i).Interface(), val) {
+		if reflect.DeepEqual(s.v.Index(i), reflect.ValueOf(val)) {
 			return i
 		}
 	}

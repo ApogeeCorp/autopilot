@@ -1,0 +1,14 @@
+##### Portworx persistent volume claim
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+   name: postgres-data
+   labels:
+     app: postgres
+spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 2Gi
+   storageClassName: px-postgres-sc
