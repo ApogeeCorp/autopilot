@@ -34,8 +34,24 @@ required = [
 ]
 
 [[constraint]]
-  branch = "kubernetes-1.11"
+  branch = "master"
   name = "github.com/portworx/sched-ops"
+
+[[constraint]]
+  version = "kubernetes-1.11.0"
+  name = "k8s.io/api"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.11.0"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "8.0.0"
+
+[[override]]
+  branch = "master"
+  name = "github.com/libopenstorage/stork"
 
 [prune]
   go-tests = true

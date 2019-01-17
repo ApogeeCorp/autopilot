@@ -23,7 +23,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kubernetes/client-go/tools/record"
 	"github.com/kubernetes/kubernetes/pkg/api/legacyscheme"
 	"github.com/libopenstorage/autopilot/config"
 	"github.com/libopenstorage/autopilot/metrics"
@@ -38,6 +37,7 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
 )
 
 const (
