@@ -224,22 +224,22 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
-		cli.Command{
+		{
 			Name:  "crd",
 			Usage: "Manage auto-pilot CRDs",
 			Subcommands: []cli.Command{
-				cli.Command{
+				{
 					Name:   "install",
 					Action: crdInstallAction,
 					Usage:  "publish the autopilot crds to the k8s cluster",
 				},
 			},
 		},
-		cli.Command{
+		{
 			Name:  "policy",
 			Usage: "Manage auto-pilot policy objects",
 			Subcommands: []cli.Command{
-				cli.Command{
+				{
 					Name:      "test",
 					Action:    policyTestAction,
 					Usage:     "Test a policy document using the configuration",

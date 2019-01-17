@@ -1,6 +1,8 @@
 # autopilot
 
 [![Build Status](https://travis-ci.org/libopenstorage/autopilot.svg?branch=master)](https://travis-ci.org/libopenstorage/autopilot)
+[![Go Report Card](https://goreportcard.com/badge/github.com/libopenstorage/autopilot)](https://goreportcard.com/report/github.com/libopenstorage/autopilot)
+
 
 Cluster monitoring and automated recommendations
 
