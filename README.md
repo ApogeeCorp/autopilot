@@ -10,9 +10,9 @@ Application Runtime Management for Kubernetes
 
 ## Analytics Driven Automation
 
-Autopilot is an automated application runtime monitoring engine built for stateful applications deployed in Kubernetes.  It implements a rule based analytical engine that is provided a set of application level conditions to monitor and the action to take if if the conditions trigger. These conditions are typically based on metrics/logs/traces from various popular stateful applications such as Postgres, Cassandra, ELK, Redis, Kafka and so on. Autopilot can correlate the metrics all the way down to the metrics exported at the system level (block devices, storage provides, node CPU and memory consumption).  Based on the the root cause analysis of the metrics, Autopilot can output actions, ensuring 5 nines availability and performance of stateful applications.  
+Autopilot is an automated application runtime monitoring engine built for stateful applications deployed in Kubernetes.  It implements a rule based analytical engine that is provided a set of application level conditions to monitor and the action to take if if the conditions trigger. These conditions are typically based on metrics/logs/traces from various popular stateful applications such as Postgres, Cassandra, ELK, Redis, Kafka and so on. Autopilot can correlate the metrics all the way down to the metrics exported at the system level (block devices, storage provides, node CPU and memory consumption).  Based on the the root cause analysis of the metrics, Autopilot can output actions, ensuring 5 nines availability and performance of stateful applications.
 
-Autopilot relies on Kubernets primitives and is self contained. Autopilot input rules and output actions are well defined [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) that guide its application runtime management engine. 
+Autopilot relies on Kubernets primitives and is self contained. Autopilot input rules and output actions are well defined [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) that guide its application runtime management engine.
 
 ## What Autopilot does
 
@@ -38,7 +38,7 @@ The diagram below shows the overall scheme.
     <img src="images/overview.gif" alt="Drawing" style="width="240" height="240"">
 </p>
 
-Once installed, Autopilot will start monitoring the metrics endpoints for various events as configured via the `Application Policy` CRDs.  When a trigger condition has been met, Autopilot will take a corrective action, as defined by the `Application Action` CRD. 
+Once installed, Autopilot will start monitoring the metrics endpoints for various events as configured via the `Application Policy` CRDs.  When a trigger condition has been met, Autopilot will take a corrective action, as defined by the `Application Action` CRD.
 
 With a complete set of policies installed, it is expected that Autopilot can ensure the overall health and performance of an application that it is monitoring.
 
@@ -104,12 +104,24 @@ Once you make changes to the CRD, use the following make rule to update the gene
 make codegen
 ```
 
-### Testing Policies
+### Deploying autopilot
 
-To test a single policy you can use the `policy test` command.
+Autopilot runs as a Kubernetes deployment. The manifests directory has the spec file.
 
-```shell
-go run ./cmd/autopilot/*.go  -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
-```
+1. Edit the ConfigMap in manifests/autopilot-deployment.yaml with your prometheus endpoint. This is the "providers" section of the yaml.
+    * The format is `params: url=http://<IP-OF-PROMETHEUS-SERVICE>:<PORT>/api/v1`
+2. Apply the autopilot specs
+    * `kubectl apply -f manifests/autopilot-deployment.yaml`
 
-## What's next
+Once the spec is applied, you can list the autopilot pods using
+
+`kubectl get pods -n kube-system -l name=autopilot`
+
+### Running the postgreSQL example
+
+1. `examples/postgres/demo.sh`
+2. Wait till PVCs are bound: `kubectl get pvc`
+3. `kubectl apply -f policy-example.yaml`
+4. Increase the usage of the postgres database to beyond 50%
+5. Autopilot will detect this and automatically invoke resize of the postgreSQL PVC
+
