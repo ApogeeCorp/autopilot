@@ -55,7 +55,7 @@ When monitoring stateful applications, the persistent volume's health and perfor
 In this example, a Postgres deployment's persistent volume is about to run out of space.  Normally, this would cause the POD to go into a `not ready` state, and Kubernetes would not know how to take action to this.  In order to prevent application downtime, Autopilot takes corrective action and automatically resizes the PVC.
 
 <p align="center">
-    <img style="width="800" height="400"" src="https://libopenstorage.github.io/autopilot/media/autopilot-resize.svg">
+    <img style="width="800" height="600"" src="https://libopenstorage.github.io/autopilot/media/autopilot-resize.svg">
 </p>
 
 ### Automatically reacting to higher latencies from a Postgres deployment
@@ -68,7 +68,7 @@ In this next example, a Postgres deployment's persistent volume gradually experi
 In this scenario, Autopilot determines that it should move the Postgres volume from Kubernetes node `worker2` to `worker3`.  This movement is applicable when the storage overlay (the software backing the persistent volumes) is able to host replicas of the volume's contents on multiple nodes.  In this example, the PVCs are backed by Portworx volumes, which are replicated and available on multiple nodes in the Kubernetes cluster, allowing for such a relocation operation.
 
 <p align="center">
-    <img style="width="800" height="400"" src="https://libopenstorage.github.io/autopilot/media/autopilot-rebalance.svg">
+    <img style="width="800" height="600"" src="https://libopenstorage.github.io/autopilot/media/autopilot-rebalance.svg">
 </p>
 
 ## Building and Running Autopilot
