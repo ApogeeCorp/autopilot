@@ -1,31 +1,29 @@
-curl -fsL 'http://70.0.0.78:30900/api/v1/query?query=px_volume_usage_bytes' | jq .
-{
-  "status": "success",
-  "data": {
-    "resultType": "vector",
-    "result": [
-      {
-        "metric": {
-          "__name__": "px_volume_usage_bytes",
-          "cluster": "px-cluster-25c8dccb-3a7b-4ef8-a661-c9af8657988a",
-          "endpoint": "px-api",
-          "exported_namespace": "default",
-          "instance": "192.168.56.82:9001",
-          "job": "portworx-service",
-          "namespace": "kube-system",
-          "node": "k2n2",
-          "node_id": "bdd6bbac-a888-48b2-9108-e1d51da28366",
-          "pod": "portworx-s9tk4",
-          "pvc": "mysql-data-1",
-          "service": "portworx-service",
-          "volumeid": "665490769634015561",
-          "volumename": "pvc-404e4109-1908-11e9-a9a4-080027ee1df7"
-        },
-        "value": [
-          1547666847.819,
-          "1118339072"
-        ]
-      }
-    ]
-  }
-}
+apiVersion: autopilot.libopenstorage.org/v1alpha1
+kind: StoragePolicy
+metadata:
+ name: volume-resize
+spec:
+  enforcement: required
+  ##### object is the entity on which to check the conditions
+  object:
+    type: openstorage.io.object.volume
+    matchLabels:
+      app: postgres
+  ##### condition is the symptom to evaluate
+  conditions:
+    # volume usage should be less than 80%
+    - key: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes)"
+      operator: gt
+      values:
+        - "50"
+    # volume capacity should not exceed 40GB
+    - key: "px_volume_capacity_bytes / 1000000000"
+      operator: lt
+      values:
+       - "40"
+  ##### action is the action to perform when condition is true
+  action:
+    name: openstorage.io.action.volume/resize
+    params:
+      - --scalefactor
+      - 1.3
