@@ -3,7 +3,7 @@
 GREEN='\033[0;33m'
 BOLD_GREEN='\033[3;33m'
 RED='\033[3;31m'
-YELLOW='\033[0;35m'
+YELLOW='\033[0;32m'
 NC='\033[0m'
 
 clear
@@ -88,7 +88,7 @@ echo "Normal   MonitoringStarted       Started monitoring volume pvc-82ced888-19
 printf "${YELLOW}Warning  ConditonApproaching     Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 60${NC}\n"
 printf "${YELLOW}Warning  ConditonApproaching     Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 70${NC}\n"
 printf "${RED}Warning  ConditonMet             Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 80${NC}\n"
-printf "${RED}Warning  ActionTriggered         Action: resize triggered for volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7${NC}\n"
+printf "${YELLOW}Warning  ActionTriggered         Action: resize triggered for volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7${NC}\n"
 sleep 2
 
 echo 
@@ -99,8 +99,8 @@ echo "Normal   MonitoringStarted       Started monitoring volume pvc-82ced888-19
 printf "${YELLOW}Warning  ConditonApproaching     Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 60${NC}\n"
 printf "${YELLOW}Warning  ConditonApproaching     Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 70${NC}\n"
 printf "${RED}Warning  ConditonMet             Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has met condition: 100 * (volume_usage_bytes / volume_capacity_bytes) > 80${NC}\n"
-printf "${RED}Warning  ActionTriggered         Action: resize triggered for volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7${NC}\n"
-printf "${YELLOW}Normal   ActionSuccessful        Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has been resized successfully by 10GB${NC}\n"
+printf "${YELLOW}Warning  ActionTriggered         Action: resize triggered for volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7${NC}\n"
+printf "${GREEN}Normal   ActionSuccessful        Volume pvc-82ced888-19f6-11e9-a9a4-080027ee1df7 has been resized successfully by 10GB${NC}\n"
 sleep 6
 
 
