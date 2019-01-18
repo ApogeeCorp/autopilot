@@ -1,0 +1,21 @@
+apiVersion: autopilot.libopenstorage.org/v1alpha1
+kind: StoragePolicy
+metadata:
+  name: volume-fix-latency-policy
+  namespace: postgres
+spec:
+  ##### object is the entity on which to check the conditions
+  object:
+    type: openstorage.io.object/volume
+    matchLabels:
+      app: postgres
+  ##### conditions are the symptoms to evaluate
+  conditions:
+    - key: openstorage.io.condition.volume/latency_ms
+      operator: gt
+      values:
+        - 15
+  ##### actions is the action to perform when all conditions are met
+  action:
+    name: openstorage.io.action.volume/move
+
