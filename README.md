@@ -10,9 +10,9 @@ Application Runtime Monitoring for Kuberetes
 
 ## Analytics Driven Automation
 
-Autopilot is an automated application runtime monitoring engine built for stateful applications deployed in Kubernetes.  It has a set of modules built for analyzing the metrics from various popular stateful applications such as Postgres, Cassandra, ELK, Redis, Kafka and so on.  Based on the analysis of the metrics, Autopilot can take automated actions on ensuring the 5 9's availability and performance of the application.  
+Autopilot is an automated application runtime monitoring engine built for stateful applications deployed in Kubernetes.  It implements a rule based analytical engine that is provided a set of application level conditions to monitor and the action to take if if the conditions trigger. These conditions are typically based on metrics/logs/traces from various popular stateful applications such as Postgres, Cassandra, ELK, Redis, Kafka and so on. Autopilot can correlate the metrics all the way down to the metrics exported at the system level (block devices, storage provides, node CPU and memory consumption).  Based on the the root cause analysis of the metrics, Autopilot can output actions, ensuring 5 nines availability and performance of stateful applications.  
 
-Autopilot leverages [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) to guide its application runtime management engine.
+Autopilot relies on Kubernets primitives and is self contained. Autopilot input rules and output actions are well defined [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) that guide its application runtime management engine. 
 
 ## What Autopilot does
 
