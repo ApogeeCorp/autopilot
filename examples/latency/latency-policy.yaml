@@ -14,7 +14,7 @@ spec:
     - key: volume_latency_ms
       operator: gt
       values:
-        - 15
+        - 25
   ##### actions is the action to perform when all conditions are met
   action:
     name: openstorage.io.action.volume/move
