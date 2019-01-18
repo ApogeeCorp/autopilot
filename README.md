@@ -79,13 +79,19 @@ Autopilot expects GOLANG to be installed.  To build Autopilot, simply run `make`
 make
 ```
 
-Autopilot expects to run in cluster.  If you are running Autopilot standalone, be sure to set the `KUBERNETES_CONFIG` to your cluster configuration file path.
+Autopilot runs as a Kubernetes deployment. The [manifests](manifests/) directory has the spec file.
 
-Example running locally
+1. Edit the ConfigMap in [manifests/autopilot-deployment.yaml](manifests/autopilot-deployment.yaml]) with your prometheus endpoint. This is the "providers" section of the yaml.
+    * The format is `params: url=http://<IP-OF-PROMETHEUS-SERVICE>:<PORT>/api/v1`
+2. Apply the autopilot specs
+    ```shell
+     kubectl apply -f manifests/autopilot-deployment.yaml
+    ```
+
+Once the spec is applied, you can list the autopilot pods using
 
 ```shell
-go install ./cmd/autopilot
-autopilot -f ./etc/config-example.yaml policy test ./etc/policy-example.yaml
+kubectl get pods -n kube-system -l name=autopilot
 ```
 
 ### Vendoring
@@ -104,19 +110,6 @@ Once you make changes to the CRD, use the following make rule to update the gene
 make codegen
 ```
 
-### Deploying autopilot
-
-Autopilot runs as a Kubernetes deployment. The manifests directory has the spec file.
-
-1. Edit the ConfigMap in manifests/autopilot-deployment.yaml with your prometheus endpoint. This is the "providers" section of the yaml.
-    * The format is `params: url=http://<IP-OF-PROMETHEUS-SERVICE>:<PORT>/api/v1`
-2. Apply the autopilot specs
-    * `kubectl apply -f manifests/autopilot-deployment.yaml`
-
-Once the spec is applied, you can list the autopilot pods using
-
-`kubectl get pods -n kube-system -l name=autopilot`
-
 ### Running the postgreSQL example
 
 1. `examples/postgres/demo.sh`
@@ -124,4 +117,3 @@ Once the spec is applied, you can list the autopilot pods using
 3. `kubectl apply -f policy-example.yaml`
 4. Increase the usage of the postgres database to beyond 50%
 5. Autopilot will detect this and automatically invoke resize of the postgreSQL PVC
-
