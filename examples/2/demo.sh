@@ -1,9 +1,9 @@
 #!/bin/sh
 
-GREEN='\033[0;33m'
+GREEN='\033[0;32m'
 BOLD_GREEN='\033[3;33m'
 RED='\033[3;31m'
-YELLOW='\033[0;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
 
 clear
