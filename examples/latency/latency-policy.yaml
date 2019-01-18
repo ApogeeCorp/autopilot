@@ -11,7 +11,7 @@ spec:
       app: postgres
   ##### conditions are the symptoms to evaluate
   conditions:
-    - key: openstorage.io.condition.volume/latency_ms
+    - key: volume_latency_ms
       operator: gt
       values:
         - 15
