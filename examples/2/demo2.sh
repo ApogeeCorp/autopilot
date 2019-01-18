@@ -106,7 +106,7 @@ sleep 6
 
 # DUMP PVC AFTER
 clear
-printf "root@kubemaster# kubectl describe pvc px-postgres-pvc | grep Capacity\n"
+printf "root@kubemaster# kubectl describe pvc px-postgres-pvc | grep Nodes\n"
 # cat pvc-after
 printf "${BOLD_GREEN}Nodes:      worker3${NC}"
 sleep 5
