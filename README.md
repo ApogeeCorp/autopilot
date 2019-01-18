@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/libopenstorage/autopilot)](https://goreportcard.com/report/github.com/libopenstorage/autopilot)
 
 
-Application Runtime Monitoring for Kuberetes
+Application Runtime Management for Kubernetes
 
 <div style="text-align:center"><img src="images/autopilot-mascot.png" alt="Drawing" style="width="240" height="240""/></div>
 
