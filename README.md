@@ -79,9 +79,9 @@ Autopilot expects GOLANG to be installed.  To build Autopilot, simply run `make`
 make
 ```
 
-Autopilot runs as a Kubernetes deployment. The [manifests](manifests/) directory has the spec file.
+Autopilot runs as a Kubernetes deployment. The [manifests](manifests) directory has the spec file.
 
-1. Edit the ConfigMap in [manifests/autopilot-deployment.yaml](manifests/autopilot-deployment.yaml]) with your prometheus endpoint. This is the "providers" section of the yaml.
+1. Edit the ConfigMap in [manifests/autopilot-deployment.yaml](manifests/autopilot-deployment.yaml) with your prometheus endpoint. This is the "providers" section of the yaml.
     * The format is `params: url=http://<IP-OF-PROMETHEUS-SERVICE>:<PORT>/api/v1`
 2. Apply the autopilot specs
     ```shell
