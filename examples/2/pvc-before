@@ -1,0 +1,18 @@
+Name:          px-postgres-pvc
+Namespace:     default
+StorageClass:  px-repl3-sc
+Status:        Bound
+Volume:        pvc-48ded7a7-1a8b-11e9-8933-0242ac110004
+Labels:        <none>
+Annotations:   pv.kubernetes.io/bind-completed=yes
+               pv.kubernetes.io/bound-by-controller=yes
+               volume.beta.kubernetes.io/storage-class=px-repl3-sc
+               volume.beta.kubernetes.io/storage-provisioner=kubernetes.io/portworx-volume
+Finalizers:    [kubernetes.io/pvc-protection]
+${GREEN}Capacity:      1Gi${NC}
+Access Modes:  RWO
+Events:
+  Type    Reason                 Age   From                         Message
+  ----    ------                 ----  ----                         -------
+  Normal  ProvisioningSucceeded  1m    persistentvolume-controller  Successfully provisioned volume pvc-48ded7a7-1a8b-11e9-8933-0242ac110004 using kubernetes.io/portworx-volume
+m

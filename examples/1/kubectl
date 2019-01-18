@@ -1,0 +1,5 @@
+echo "configmap "autopilot-config" created"
+echo "serviceaccount \"autopilot-account\" created"
+echo "clusterrole \"autopilot-role\" created"
+echo "clusterrolebinding \"autopilot-role-binding\" created"
+echo "deployment \"autopilot\" created"
