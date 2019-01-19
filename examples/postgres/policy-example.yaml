@@ -11,7 +11,7 @@ spec:
       app: postgres
   ##### condition is the symptom to evaluate
   conditions:
-    # volume usage should be less than 80%
+    # volume usage should be less than 50%
     - key: "100 * (px_volume_usage_bytes / px_volume_capacity_bytes)"
       operator: gt
       values:
